@@ -454,6 +454,7 @@ export type PastEvent = {
   newConnections: number;
   conversations: number;
   longestChat: { person: string; minutes: number };
+  photos: { url: string; caption: string; by: string }[];
 };
 
 export const pastEvents: PastEvent[] = [
