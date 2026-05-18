@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { rooms, people } from "@/data/event";
+import { Avatar } from "@/components/Avatar";
 import {
   tapInAttendee,
   tapOutAttendee,
