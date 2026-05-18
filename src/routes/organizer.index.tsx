@@ -90,9 +90,10 @@ function Dashboard() {
                 className="flex items-center gap-4 px-5 py-3 border-b border-border last:border-b-0 hover:bg-foreground/[0.02]"
               >
                 <div className="font-display italic text-[10px] text-foreground/30 w-12">{String(i + 1).padStart(2, "0")}</div>
-                <div className="size-7 rounded-full grid place-items-center text-[10px] font-bold text-white" style={{ background: a.color }}>{a.initials}</div>
+                <Avatar person={a} size={28} />
                 <div className="text-primary">↔</div>
-                <div className="size-7 rounded-full grid place-items-center text-[10px] font-bold text-white" style={{ background: b.color }}>{b.initials}</div>
+                <Avatar person={b} size={28} />
+
                 <div className="flex-1 text-sm">
                   <span className="font-bold">{a.name}</span> & <span className="font-bold">{b.name}</span>
                 </div>
