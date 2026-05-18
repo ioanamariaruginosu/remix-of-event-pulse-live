@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { pastEvents, people } from "@/data/event";
+import { Avatar } from "@/components/Avatar";
 
 export const Route = createFileRoute("/app/past")({
   head: () => ({ meta: [{ title: "Past events — synqmap" }] }),
