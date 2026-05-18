@@ -21,7 +21,7 @@ export const Route = createFileRoute("/organizer/events/$eventId")({
 });
 
 function ArchiveEvent() {
-  const { ev } = Route.useLoaderData();
+  const { ev } = Route.useLoaderData() as { ev: PastEvent };
 
   // Derived analytics
   const avgConversation = +(ev.hours * 60 / Math.max(1, ev.conversations)).toFixed(1);
