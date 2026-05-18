@@ -353,3 +353,31 @@ function Join() {
     </div>
   );
 }
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <label className="block space-y-1.5">
+      <div className="text-[10px] font-bold uppercase tracking-widest text-foreground/50">{label}</div>
+      {children}
+    </label>
+  );
+}
+
+function TagGrid({ options, value, onChange }: { options: string[]; value: string[]; onChange: (v: string) => void }) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      {options.map((t) => {
+        const on = value.includes(t);
+        return (
+          <button
+            key={t}
+            onClick={() => onChange(t)}
+            className={`px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest transition-colors ${on ? "bg-primary text-white" : "bg-foreground/5 text-foreground/60 hover:bg-foreground/10"}`}
+          >
+            {t}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
