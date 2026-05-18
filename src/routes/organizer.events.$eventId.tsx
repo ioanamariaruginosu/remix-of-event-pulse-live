@@ -179,8 +179,8 @@ function ArchiveEvent() {
           eventId={ev.id}
           role="organizer"
           title="Venue map · organizer controls"
-          defaultContent={<VenueFloorPlan />}
         />
+
 
         <div className="grid md:grid-cols-3 gap-3">
           {ev.rooms.map((r, i) => {
