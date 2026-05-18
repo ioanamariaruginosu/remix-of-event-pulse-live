@@ -484,6 +484,13 @@ export const pastEvents: PastEvent[] = [
     newConnections: 28,
     conversations: 52,
     longestChat: { person: "Lena Smith", minutes: 47 },
+    photos: [
+      { url: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=70&auto=format&fit=crop", caption: "Day 1 — AI Stage queue 🤖", by: "Maya S." },
+      { url: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=800&q=70&auto=format&fit=crop", caption: "Pavilion 4 was electric", by: "Lena S." },
+      { url: "https://images.unsplash.com/photo-1531058020387-3be344556be6?w=800&q=70&auto=format&fit=crop", caption: "Founders Bar at midnight", by: "Olu A." },
+      { url: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&q=70&auto=format&fit=crop", caption: "Closing party — Beach Pavilion", by: "Nico P." },
+      { url: "https://images.unsplash.com/photo-1559223607-a43c990c692c?w=800&q=70&auto=format&fit=crop", caption: "Sunset over the Tagus", by: "you" },
+    ],
   },
   {
     id: "pe2",
