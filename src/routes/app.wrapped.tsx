@@ -287,12 +287,19 @@ function buildSlides(ev: typeof pastEvents[number], topPeople: ReturnType<typeof
             <Stat label="Cards" value={ev.cards} />
           </div>
 
-          <Link
-            to="/app"
-            className="mt-8 px-6 py-3 rounded-full bg-white text-foreground font-bold text-sm"
-          >
-            Back to current event
-          </Link>
+          <div className="mt-8 flex flex-col items-center gap-2 w-full">
+            <ShareLinkedInButton
+              url={`/app/wrapped?e=${ev.id}`}
+              label="Share my wrap on LinkedIn"
+              variant="dark"
+            />
+            <Link
+              to="/app"
+              className="px-6 py-2.5 rounded-full bg-white/10 text-white/80 font-bold text-xs"
+            >
+              Back to current event
+            </Link>
+          </div>
         </div>
       ),
     },
