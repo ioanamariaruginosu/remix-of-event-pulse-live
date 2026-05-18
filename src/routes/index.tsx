@@ -9,16 +9,16 @@ import { people, event, rooms } from "@/data/event";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "synqmap — Physical space, live graphed." },
+      { title: "synqmap. Make IRL events unforgettable." },
       {
         name: "description",
         content:
-          "Turn every handshake into a data point. Rooms are physical, sessions are temporal. The live network for in-person events.",
+          "Organizers empowered, never overwhelmed. AI handles the grind so you can curate meaningful, personal experiences that keep teaching long after the room clears.",
       },
-      { property: "og:title", content: "synqmap — Physical space, live graphed." },
+      { property: "og:title", content: "synqmap. Make IRL events unforgettable." },
       {
         property: "og:description",
-        content: "The live network for in-person events. Tap to exchange identity cards.",
+        content: "Events that do not end. They evolve into living knowledge engines.",
       },
     ],
   }),
@@ -78,7 +78,7 @@ function Landing() {
               transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
               className="block"
             >
-              PHYSICAL SPACE
+              MAKE IRL EVENTS
             </motion.span>
             <motion.span
               initial={{ opacity: 0, y: 30 }}
@@ -86,7 +86,7 @@ function Landing() {
               transition={{ duration: 0.8, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
               className="block text-primary italic"
             >
-              LIVE GRAPHED.
+              UNFORGETTABLE.
             </motion.span>
           </h1>
 
@@ -96,7 +96,7 @@ function Landing() {
             transition={{ duration: 0.8, delay: 0.3 }}
             className="max-w-2xl mx-auto text-lg md:text-xl text-foreground/60 mb-12 text-pretty"
           >
-            Turn every handshake into a data point. synqmap converts rooms into physical nodes and sessions into temporal edges — projected onto the venue wall in real time.
+            Organizers empowered, never overwhelmed. We let AI handle the grind so you can curate meaningful, personal experiences. Events should not end. They should evolve into living knowledge engines that keep teaching long after the room clears.
           </motion.p>
 
           <motion.div
