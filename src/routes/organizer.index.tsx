@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { event, rooms, sessions, people, edges } from "@/data/event";
+import { Avatar } from "@/components/Avatar";
 
 export const Route = createFileRoute("/organizer/")({
   head: () => ({ meta: [{ title: "Organizer · Dashboard — synqmap" }] }),
