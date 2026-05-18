@@ -9,38 +9,250 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as VenueRouteImport } from './routes/venue'
+import { Route as OrganizerRouteImport } from './routes/organizer'
+import { Route as JoinRouteImport } from './routes/join'
+import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as OrganizerIndexRouteImport } from './routes/organizer.index'
+import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as OrganizerSessionsRouteImport } from './routes/organizer.sessions'
+import { Route as OrganizerRoomsRouteImport } from './routes/organizer.rooms'
+import { Route as OrganizerLiveRouteImport } from './routes/organizer.live'
+import { Route as AppRoomRouteImport } from './routes/app.room'
+import { Route as AppMapRouteImport } from './routes/app.map'
+import { Route as AppExchangeRouteImport } from './routes/app.exchange'
+import { Route as AppCollectionRouteImport } from './routes/app.collection'
+import { Route as AppCardRouteImport } from './routes/app.card'
+import { Route as AppBriefRouteImport } from './routes/app.brief'
 
+const VenueRoute = VenueRouteImport.update({
+  id: '/venue',
+  path: '/venue',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrganizerRoute = OrganizerRouteImport.update({
+  id: '/organizer',
+  path: '/organizer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JoinRoute = JoinRouteImport.update({
+  id: '/join',
+  path: '/join',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppRoute = AppRouteImport.update({
+  id: '/app',
+  path: '/app',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OrganizerIndexRoute = OrganizerIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => OrganizerRoute,
+} as any)
+const AppIndexRoute = AppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppRoute,
+} as any)
+const OrganizerSessionsRoute = OrganizerSessionsRouteImport.update({
+  id: '/sessions',
+  path: '/sessions',
+  getParentRoute: () => OrganizerRoute,
+} as any)
+const OrganizerRoomsRoute = OrganizerRoomsRouteImport.update({
+  id: '/rooms',
+  path: '/rooms',
+  getParentRoute: () => OrganizerRoute,
+} as any)
+const OrganizerLiveRoute = OrganizerLiveRouteImport.update({
+  id: '/live',
+  path: '/live',
+  getParentRoute: () => OrganizerRoute,
+} as any)
+const AppRoomRoute = AppRoomRouteImport.update({
+  id: '/room',
+  path: '/room',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMapRoute = AppMapRouteImport.update({
+  id: '/map',
+  path: '/map',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppExchangeRoute = AppExchangeRouteImport.update({
+  id: '/exchange',
+  path: '/exchange',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCollectionRoute = AppCollectionRouteImport.update({
+  id: '/collection',
+  path: '/collection',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCardRoute = AppCardRouteImport.update({
+  id: '/card',
+  path: '/card',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppBriefRoute = AppBriefRouteImport.update({
+  id: '/brief',
+  path: '/brief',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/app': typeof AppRouteWithChildren
+  '/join': typeof JoinRoute
+  '/organizer': typeof OrganizerRouteWithChildren
+  '/venue': typeof VenueRoute
+  '/app/brief': typeof AppBriefRoute
+  '/app/card': typeof AppCardRoute
+  '/app/collection': typeof AppCollectionRoute
+  '/app/exchange': typeof AppExchangeRoute
+  '/app/map': typeof AppMapRoute
+  '/app/room': typeof AppRoomRoute
+  '/organizer/live': typeof OrganizerLiveRoute
+  '/organizer/rooms': typeof OrganizerRoomsRoute
+  '/organizer/sessions': typeof OrganizerSessionsRoute
+  '/app/': typeof AppIndexRoute
+  '/organizer/': typeof OrganizerIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/join': typeof JoinRoute
+  '/venue': typeof VenueRoute
+  '/app/brief': typeof AppBriefRoute
+  '/app/card': typeof AppCardRoute
+  '/app/collection': typeof AppCollectionRoute
+  '/app/exchange': typeof AppExchangeRoute
+  '/app/map': typeof AppMapRoute
+  '/app/room': typeof AppRoomRoute
+  '/organizer/live': typeof OrganizerLiveRoute
+  '/organizer/rooms': typeof OrganizerRoomsRoute
+  '/organizer/sessions': typeof OrganizerSessionsRoute
+  '/app': typeof AppIndexRoute
+  '/organizer': typeof OrganizerIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/app': typeof AppRouteWithChildren
+  '/join': typeof JoinRoute
+  '/organizer': typeof OrganizerRouteWithChildren
+  '/venue': typeof VenueRoute
+  '/app/brief': typeof AppBriefRoute
+  '/app/card': typeof AppCardRoute
+  '/app/collection': typeof AppCollectionRoute
+  '/app/exchange': typeof AppExchangeRoute
+  '/app/map': typeof AppMapRoute
+  '/app/room': typeof AppRoomRoute
+  '/organizer/live': typeof OrganizerLiveRoute
+  '/organizer/rooms': typeof OrganizerRoomsRoute
+  '/organizer/sessions': typeof OrganizerSessionsRoute
+  '/app/': typeof AppIndexRoute
+  '/organizer/': typeof OrganizerIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/app'
+    | '/join'
+    | '/organizer'
+    | '/venue'
+    | '/app/brief'
+    | '/app/card'
+    | '/app/collection'
+    | '/app/exchange'
+    | '/app/map'
+    | '/app/room'
+    | '/organizer/live'
+    | '/organizer/rooms'
+    | '/organizer/sessions'
+    | '/app/'
+    | '/organizer/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/join'
+    | '/venue'
+    | '/app/brief'
+    | '/app/card'
+    | '/app/collection'
+    | '/app/exchange'
+    | '/app/map'
+    | '/app/room'
+    | '/organizer/live'
+    | '/organizer/rooms'
+    | '/organizer/sessions'
+    | '/app'
+    | '/organizer'
+  id:
+    | '__root__'
+    | '/'
+    | '/app'
+    | '/join'
+    | '/organizer'
+    | '/venue'
+    | '/app/brief'
+    | '/app/card'
+    | '/app/collection'
+    | '/app/exchange'
+    | '/app/map'
+    | '/app/room'
+    | '/organizer/live'
+    | '/organizer/rooms'
+    | '/organizer/sessions'
+    | '/app/'
+    | '/organizer/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AppRoute: typeof AppRouteWithChildren
+  JoinRoute: typeof JoinRoute
+  OrganizerRoute: typeof OrganizerRouteWithChildren
+  VenueRoute: typeof VenueRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/venue': {
+      id: '/venue'
+      path: '/venue'
+      fullPath: '/venue'
+      preLoaderRoute: typeof VenueRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/organizer': {
+      id: '/organizer'
+      path: '/organizer'
+      fullPath: '/organizer'
+      preLoaderRoute: typeof OrganizerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/join': {
+      id: '/join'
+      path: '/join'
+      fullPath: '/join'
+      preLoaderRoute: typeof JoinRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/app': {
+      id: '/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +260,132 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/organizer/': {
+      id: '/organizer/'
+      path: '/'
+      fullPath: '/organizer/'
+      preLoaderRoute: typeof OrganizerIndexRouteImport
+      parentRoute: typeof OrganizerRoute
+    }
+    '/app/': {
+      id: '/app/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/organizer/sessions': {
+      id: '/organizer/sessions'
+      path: '/sessions'
+      fullPath: '/organizer/sessions'
+      preLoaderRoute: typeof OrganizerSessionsRouteImport
+      parentRoute: typeof OrganizerRoute
+    }
+    '/organizer/rooms': {
+      id: '/organizer/rooms'
+      path: '/rooms'
+      fullPath: '/organizer/rooms'
+      preLoaderRoute: typeof OrganizerRoomsRouteImport
+      parentRoute: typeof OrganizerRoute
+    }
+    '/organizer/live': {
+      id: '/organizer/live'
+      path: '/live'
+      fullPath: '/organizer/live'
+      preLoaderRoute: typeof OrganizerLiveRouteImport
+      parentRoute: typeof OrganizerRoute
+    }
+    '/app/room': {
+      id: '/app/room'
+      path: '/room'
+      fullPath: '/app/room'
+      preLoaderRoute: typeof AppRoomRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/map': {
+      id: '/app/map'
+      path: '/map'
+      fullPath: '/app/map'
+      preLoaderRoute: typeof AppMapRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/exchange': {
+      id: '/app/exchange'
+      path: '/exchange'
+      fullPath: '/app/exchange'
+      preLoaderRoute: typeof AppExchangeRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/collection': {
+      id: '/app/collection'
+      path: '/collection'
+      fullPath: '/app/collection'
+      preLoaderRoute: typeof AppCollectionRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/card': {
+      id: '/app/card'
+      path: '/card'
+      fullPath: '/app/card'
+      preLoaderRoute: typeof AppCardRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/brief': {
+      id: '/app/brief'
+      path: '/brief'
+      fullPath: '/app/brief'
+      preLoaderRoute: typeof AppBriefRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
+interface AppRouteChildren {
+  AppBriefRoute: typeof AppBriefRoute
+  AppCardRoute: typeof AppCardRoute
+  AppCollectionRoute: typeof AppCollectionRoute
+  AppExchangeRoute: typeof AppExchangeRoute
+  AppMapRoute: typeof AppMapRoute
+  AppRoomRoute: typeof AppRoomRoute
+  AppIndexRoute: typeof AppIndexRoute
+}
+
+const AppRouteChildren: AppRouteChildren = {
+  AppBriefRoute: AppBriefRoute,
+  AppCardRoute: AppCardRoute,
+  AppCollectionRoute: AppCollectionRoute,
+  AppExchangeRoute: AppExchangeRoute,
+  AppMapRoute: AppMapRoute,
+  AppRoomRoute: AppRoomRoute,
+  AppIndexRoute: AppIndexRoute,
+}
+
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+
+interface OrganizerRouteChildren {
+  OrganizerLiveRoute: typeof OrganizerLiveRoute
+  OrganizerRoomsRoute: typeof OrganizerRoomsRoute
+  OrganizerSessionsRoute: typeof OrganizerSessionsRoute
+  OrganizerIndexRoute: typeof OrganizerIndexRoute
+}
+
+const OrganizerRouteChildren: OrganizerRouteChildren = {
+  OrganizerLiveRoute: OrganizerLiveRoute,
+  OrganizerRoomsRoute: OrganizerRoomsRoute,
+  OrganizerSessionsRoute: OrganizerSessionsRoute,
+  OrganizerIndexRoute: OrganizerIndexRoute,
+}
+
+const OrganizerRouteWithChildren = OrganizerRoute._addFileChildren(
+  OrganizerRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AppRoute: AppRouteWithChildren,
+  JoinRoute: JoinRoute,
+  OrganizerRoute: OrganizerRouteWithChildren,
+  VenueRoute: VenueRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
