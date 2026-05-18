@@ -513,6 +513,12 @@ export const pastEvents: PastEvent[] = [
     newConnections: 15,
     conversations: 22,
     longestChat: { person: "Nico Park", minutes: 38 },
+    photos: [
+      { url: "https://images.unsplash.com/photo-1591115765373-5207764f72e7?w=800&q=70&auto=format&fit=crop", caption: "Main Hall opening keynote", by: "Nico P." },
+      { url: "https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=800&q=70&auto=format&fit=crop", caption: "Workshop Room B — whisper graphs 🎙️", by: "you" },
+      { url: "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=800&q=70&auto=format&fit=crop", caption: "Rooftop afterparty", by: "Olu A." },
+      { url: "https://images.unsplash.com/photo-1511578314322-379afb476865?w=800&q=70&auto=format&fit=crop", caption: "Devtools founders dinner", by: "Maya S." },
+    ],
   },
   {
     id: "pe3",
