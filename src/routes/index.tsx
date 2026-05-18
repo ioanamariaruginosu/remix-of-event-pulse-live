@@ -48,7 +48,7 @@ function Landing() {
             to="/join"
             className="bg-foreground text-background px-5 py-2 rounded-full text-sm font-bold hover:bg-primary transition-colors"
           >
-            Get the App
+            Join Us
           </Link>
         </div>
       </nav>
