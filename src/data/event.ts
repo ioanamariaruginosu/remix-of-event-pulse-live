@@ -397,6 +397,33 @@ export const sessionBrief = {
   speaker: "Lena Smith",
   room: "Main Stage",
   duration: "45 min",
+  livestream: {
+    provider: "YouTube Live",
+    url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    viewers: 1842,
+  },
+  // Each line is a chunk of speech, dripped word-by-word in the UI.
+  transcript: [
+    "So when we talk about local-first, we're not just talking about offline mode.",
+    "We're talking about a posture — a question of who actually owns the data.",
+    "CRDTs are the boring magic that makes this work without a central referee.",
+    "The cost moves from latency to storage, and frankly that's a trade we should take.",
+    "The next decade of social products will look like small networks that compose,",
+    "not platforms that try to scale to everyone on earth at once.",
+    "I want to leave you with one provocation: the relay is the new server.",
+  ],
+  // Tiny lookup of the same lines in another language for the translate toggle.
+  transcriptTranslations: {
+    es: [
+      "Cuando hablamos de local-first, no hablamos solo de modo offline.",
+      "Hablamos de una postura — la pregunta es quién es dueño de los datos.",
+      "Los CRDTs son la magia aburrida que hace que esto funcione sin un árbitro central.",
+      "El costo pasa de latencia a almacenamiento, y francamente, es un trato que deberíamos aceptar.",
+      "La próxima década de productos sociales serán pequeñas redes que se componen,",
+      "no plataformas que intentan escalar a todo el planeta a la vez.",
+      "Les dejo con una provocación: el relay es el nuevo servidor.",
+    ],
+  },
   takeaways: [
     "Local-first ≠ offline-first — it's a posture about data ownership and conflict resolution.",
     "CRDTs unlock collaboration without coordination; the costs show up in storage, not latency.",
