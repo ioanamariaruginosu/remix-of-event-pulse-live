@@ -438,8 +438,16 @@ function VenueMapCanvas({
       const y = clamp(Math.round((d.start.y + dyPct) * 10) / 10, minY, maxY);
       onUpdate(d.id, { x, y });
     } else {
-      const w = clamp(Math.round(d.start.w + dxPct), 8, 100 - d.start.x);
-      const h = clamp(Math.round(d.start.h + dyPct), 6, 100 - d.start.y);
+      // Rotate the pointer delta into the room's local (unrotated) frame so
+      // dragging the bottom-right handle always grows w/h along the room's
+      // own axes, regardless of rotation.
+      const rot = ((d.start.rotation ?? 0) * Math.PI) / 180;
+      const cos = Math.cos(rot);
+      const sin = Math.sin(rot);
+      const localDxPct = dxPct * cos + dyPct * sin;
+      const localDyPct = -dxPct * sin + dyPct * cos;
+      const w = clamp(Math.round(d.start.w + localDxPct), 8, 100 - d.start.x);
+      const h = clamp(Math.round(d.start.h + localDyPct), 6, 100 - d.start.y);
       onUpdate(d.id, { w, h });
     }
   };
