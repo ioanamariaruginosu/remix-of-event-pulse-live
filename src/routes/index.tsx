@@ -251,6 +251,9 @@ function Landing() {
               Organizers empowered.<br />
               <span className="text-primary italic">Never overwhelmed.</span>
             </h2>
+            <p className="text-2xl md:text-3xl font-extrabold tracking-tight text-foreground/80">
+              Make IRL events unforgettable.
+            </p>
             <p className="text-lg md:text-xl text-foreground/60 leading-relaxed text-pretty">
               AI should handle the grind so organizers can do the human work: curating meaningful, personal experiences. And events should not end. They should evolve. Every talk, every panel, every insight becomes a living knowledge engine that keeps teaching long after the room clears.
             </p>
