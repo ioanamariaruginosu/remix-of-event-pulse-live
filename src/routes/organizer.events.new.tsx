@@ -97,7 +97,7 @@ function NewEvent() {
                 <input
                   value={form.city}
                   onChange={(e) => update("city", e.target.value)}
-                  placeholder="Berlin"
+                  placeholder="Rotterdam"
                   className="input"
                 />
               </Field>

@@ -37,7 +37,7 @@ const AMBIENT_LINES = [
   "wait, the eval numbers??",
   "+1 to local-first",
   "can someone share the deck?",
-  "anyone here from berlin?",
+  "anyone here from rotterdam?",
   "queue for coffee is wild",
   "great question 👏",
   "lol same",

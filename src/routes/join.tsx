@@ -19,7 +19,7 @@ function Join() {
   const [step, setStep] = useState(0);
   const [intent, setIntent] = useState("Looking for: a co-founder for a research-heavy startup");
   const [tags, setTags] = useState<string[]>(["design", "ml"]);
-  const allTags = ["design", "ml", "founders", "vc", "infra", "hardware", "spatial", "graphs", "berlin", "evals"];
+  const allTags = ["design", "ml", "founders", "vc", "infra", "hardware", "spatial", "graphs", "rotterdam", "evals"];
 
   return (
     <div className="min-h-screen bg-background text-foreground">
