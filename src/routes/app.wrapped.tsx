@@ -54,7 +54,14 @@ function Wrapped() {
       {/* Top bar */}
       <div className="absolute top-7 inset-x-4 z-30 flex items-center justify-between text-[10px] font-display italic tracking-tight normal-case text-white/70">
         <span>{ev.name} · {ev.date}</span>
-        <Link to="/app" className="text-white/70">Close ✕</Link>
+        <div className="flex items-center gap-1">
+          <ShareLinkedInIcon
+            url={`/app/wrapped?e=${ev.id}`}
+            ariaLabel="Share wrap on LinkedIn"
+            className="text-white/70 hover:text-white hover:bg-white/10"
+          />
+          <Link to="/app" className="text-white/70 ml-1">Close ✕</Link>
+        </div>
       </div>
 
       {/* Tap zones */}
