@@ -105,7 +105,13 @@ function Dashboard() {
           </div>
           <div>
             <div className="font-display italic text-[10px] uppercase tracking-widest text-foreground/40 mb-2">Type system</div>
-            <div className="font-bold text-lg">Inter / JetBrains Mono</div>
+            <div className="font-bold text-lg">General Sans</div>
+            <div className="mt-1 text-xs text-foreground/50">Display + body + mono — one family, three weights.</div>
+            <div className="mt-3 flex items-baseline gap-3">
+              <span className="text-2xl font-extrabold tracking-tight">Aa</span>
+              <span className="font-display italic text-base text-foreground/60">Aa</span>
+              <span className="font-mono text-sm text-foreground/60">Aa</span>
+            </div>
           </div>
         </div>
       </section>
