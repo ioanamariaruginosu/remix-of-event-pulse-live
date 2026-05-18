@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { PhoneFrame } from "@/components/PhoneFrame";
+
 import { Logo } from "@/components/Logo";
 
 export const Route = createFileRoute("/join")({
