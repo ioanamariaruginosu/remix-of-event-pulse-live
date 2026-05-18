@@ -40,8 +40,8 @@ function Dashboard() {
           eventId="current"
           role="organizer"
           title="You are here · live for attendees"
-          defaultContent={<VenueFloorPlan />}
         />
+
       </section>
 
       <section className="space-y-4">
