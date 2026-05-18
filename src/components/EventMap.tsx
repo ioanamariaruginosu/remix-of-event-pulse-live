@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   Maximize2,
   X,
@@ -8,34 +8,22 @@ import {
   ArrowRight,
   Plus,
   Trash2,
+  RotateCcw,
 } from "lucide-react";
 
 export type EventMapRole = "organizer" | "attendee";
 
-type MapItem = { id: string; src: string; rotation: number; label: string };
+type MapItem = {
+  id: string;
+  kind: "default" | "image";
+  label: string;
+  src?: string;
+  rotation: number;
+};
 
-const DEFAULT_MAP_SVG = `data:image/svg+xml;utf8,${encodeURIComponent(
-  `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 220'>
-    <rect width='320' height='220' fill='#f5f3ee'/>
-    <g fill='none' stroke='#43214b' stroke-width='1.2' opacity='0.7'>
-      <rect x='16' y='14' width='288' height='48' rx='4'/>
-      <rect x='16' y='72' width='138' height='60' rx='4'/>
-      <rect x='166' y='72' width='138' height='60' rx='4'/>
-      <rect x='48' y='142' width='224' height='32' rx='4'/>
-      <rect x='16' y='184' width='130' height='22' rx='4'/>
-      <rect x='174' y='184' width='130' height='22' rx='4'/>
-    </g>
-    <g font-family='monospace' font-size='9' fill='#43214b'>
-      <text x='160' y='42' text-anchor='middle'>MAIN STAGE</text>
-      <text x='85' y='106' text-anchor='middle'>TRACK A</text>
-      <text x='235' y='106' text-anchor='middle'>TRACK B</text>
-      <text x='160' y='162' text-anchor='middle'>ATRIUM</text>
-      <text x='81' y='198' text-anchor='middle'>COFFEE</text>
-      <text x='239' y='198' text-anchor='middle'>LOUNGE</text>
-    </g>
-    <text x='160' y='216' text-anchor='middle' font-family='monospace' font-size='7' fill='#43214b' opacity='0.5'>↓ ENTRANCE</text>
-  </svg>`
-)}`;
+function defaultMaps(): MapItem[] {
+  return [{ id: "default", kind: "default", label: "Floor 1", rotation: 0 }];
+}
 
 function loadMaps(eventId: string): MapItem[] {
   try {
@@ -45,7 +33,7 @@ function loadMaps(eventId: string): MapItem[] {
       if (Array.isArray(parsed) && parsed.length) return parsed;
     }
   } catch {}
-  return [{ id: "default", src: DEFAULT_MAP_SVG, rotation: 0, label: "Floor 1" }];
+  return defaultMaps();
 }
 
 function saveMaps(eventId: string, maps: MapItem[]) {
@@ -57,11 +45,13 @@ function saveMaps(eventId: string, maps: MapItem[]) {
 export function EventMap({
   eventId,
   role,
-  title = "Venue map",
+  title = "You are here",
+  defaultContent,
 }: {
   eventId: string;
   role: EventMapRole;
   title?: string;
+  defaultContent?: ReactNode;
 }) {
   const [maps, setMaps] = useState<MapItem[]>(() => loadMaps(eventId));
   const [activeIdx, setActiveIdx] = useState(0);
@@ -73,8 +63,23 @@ export function EventMap({
     if (activeIdx >= maps.length) setActiveIdx(Math.max(0, maps.length - 1));
   }, [maps.length, activeIdx]);
 
+  // Cross-tab sync: when organizer updates, attendees pick it up.
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === `event-maps:${eventId}` && e.newValue) {
+        try {
+          const next = JSON.parse(e.newValue) as MapItem[];
+          if (Array.isArray(next) && next.length) setMaps(next);
+        } catch {}
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, [eventId]);
+
   const active = maps[activeIdx];
   const isOrganizer = role === "organizer";
+  const isImage = active?.kind === "image";
 
   const update = (patch: Partial<MapItem>) =>
     setMaps((m) => m.map((x, i) => (i === activeIdx ? { ...x, ...patch } : x)));
@@ -100,12 +105,16 @@ export function EventMap({
     reader.onload = () => {
       const src = String(reader.result);
       if (replace) {
-        update({ src, rotation: 0 });
+        update({ kind: "image", src, rotation: 0 });
       } else {
-        setMaps((m) => [
-          ...m,
-          { id: crypto.randomUUID(), src, rotation: 0, label: `Floor ${m.length + 1}` },
-        ]);
+        const next: MapItem = {
+          id: crypto.randomUUID(),
+          kind: "image",
+          src,
+          rotation: 0,
+          label: `Floor ${maps.length + 1}`,
+        };
+        setMaps((m) => [...m, next]);
         setActiveIdx(maps.length);
       }
     };
@@ -117,21 +126,40 @@ export function EventMap({
     setMaps((m) => m.filter((_, i) => i !== activeIdx));
   };
 
-  const MapImage = useMemo(
+  const resetToDefault = () =>
+    update({ kind: "default", src: undefined, rotation: 0, label: active?.label ?? "Floor 1" });
+
+  const MapBody = useMemo(
     () =>
-      function MapImage({ className = "" }: { className?: string }) {
+      function MapBody({ inFullscreen = false }: { inFullscreen?: boolean }) {
         if (!active) return null;
+        if (active.kind === "default") {
+          return (
+            <div
+              className="w-full h-full"
+              style={{ transform: `rotate(${active.rotation}deg)`, transition: "transform 300ms" }}
+            >
+              {defaultContent ?? (
+                <div className="w-full h-full grid place-items-center text-xs text-foreground/40">
+                  No map configured
+                </div>
+              )}
+            </div>
+          );
+        }
         return (
           <img
             src={active.src}
             alt={active.label}
             draggable={false}
-            className={`max-w-full max-h-full object-contain transition-transform duration-300 ${className}`}
+            className={`max-w-full max-h-full object-contain transition-transform duration-300 ${
+              inFullscreen ? "" : ""
+            }`}
             style={{ transform: `rotate(${active.rotation}deg)` }}
           />
         );
       },
-    [active]
+    [active, defaultContent]
   );
 
   return (
@@ -146,7 +174,8 @@ export function EventMap({
               <button
                 onClick={() => fileRef.current?.click()}
                 className="px-2 py-1 rounded-md ring-1 ring-border text-[9px] font-bold uppercase tracking-widest hover:bg-foreground/5"
-                aria-label="Replace map"
+                aria-label={isImage ? "Replace map image" : "Upload custom map image"}
+                title={isImage ? "Replace map image" : "Upload custom map image"}
               >
                 <Upload className="size-3" />
               </button>
@@ -154,15 +183,27 @@ export function EventMap({
                 onClick={rotate}
                 className="px-2 py-1 rounded-md ring-1 ring-border text-[9px] font-bold uppercase tracking-widest hover:bg-foreground/5"
                 aria-label="Rotate map 90 degrees"
+                title="Rotate 90°"
               >
                 <RotateCw className="size-3" />
               </button>
+              {isImage && defaultContent && (
+                <button
+                  onClick={resetToDefault}
+                  className="px-2 py-1 rounded-md ring-1 ring-border text-[9px] font-bold uppercase tracking-widest hover:bg-foreground/5"
+                  aria-label="Restore default map"
+                  title="Restore default"
+                >
+                  <RotateCcw className="size-3" />
+                </button>
+              )}
             </>
           )}
           <button
             onClick={() => setFullscreen(true)}
             className="px-2 py-1 rounded-md ring-1 ring-border text-[9px] font-bold uppercase tracking-widest hover:bg-foreground/5"
             aria-label="Open map fullscreen"
+            title="Fullscreen"
           >
             <Maximize2 className="size-3" />
           </button>
@@ -170,10 +211,12 @@ export function EventMap({
       </div>
 
       <div
-        className="relative w-full rounded-2xl bg-foreground/[0.04] ring-1 ring-border overflow-hidden grid place-items-center p-3"
+        className="relative w-full rounded-2xl bg-foreground/[0.04] ring-1 ring-border overflow-hidden grid place-items-center"
         style={{ aspectRatio: "16 / 11" }}
       >
-        <MapImage />
+        <div className="w-full h-full p-3">
+          <MapBody />
+        </div>
       </div>
 
       {maps.length > 1 || isOrganizer ? (
@@ -197,6 +240,7 @@ export function EventMap({
                 disabled={activeIdx === 0}
                 className="p-1 rounded-md ring-1 ring-border disabled:opacity-30 hover:bg-foreground/5"
                 aria-label="Move map left"
+                title="Reorder ←"
               >
                 <ArrowLeft className="size-3" />
               </button>
@@ -205,6 +249,7 @@ export function EventMap({
                 disabled={activeIdx >= maps.length - 1}
                 className="p-1 rounded-md ring-1 ring-border disabled:opacity-30 hover:bg-foreground/5"
                 aria-label="Move map right"
+                title="Reorder →"
               >
                 <ArrowRight className="size-3" />
               </button>
@@ -219,6 +264,7 @@ export function EventMap({
                 }}
                 className="p-1 rounded-md ring-1 ring-border hover:bg-foreground/5"
                 aria-label="Add new map"
+                title="Add map"
               >
                 <Plus className="size-3" />
               </button>
@@ -227,6 +273,7 @@ export function EventMap({
                   onClick={removeActive}
                   className="p-1 rounded-md ring-1 ring-border hover:bg-foreground/5 text-destructive"
                   aria-label="Remove current map"
+                  title="Remove"
                 >
                   <Trash2 className="size-3" />
                 </button>
@@ -259,7 +306,9 @@ export function EventMap({
             </button>
           </div>
           <div className="flex-1 grid place-items-center p-6 overflow-auto">
-            <MapImage />
+            <div className="w-full max-w-3xl aspect-[16/11]">
+              <MapBody inFullscreen />
+            </div>
           </div>
         </div>
       )}
