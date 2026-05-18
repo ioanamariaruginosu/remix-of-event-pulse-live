@@ -175,7 +175,13 @@ function ArchiveEvent() {
       {/* Rooms breakdown */}
       <section className="space-y-4">
         <SectionHeader title="Rooms" sub="How the floor plan was used." />
-        <EventMap eventId={ev.id} role="organizer" title="Venue map · organizer controls" />
+        <EventMap
+          eventId={ev.id}
+          role="organizer"
+          title="Venue map · organizer controls"
+          defaultContent={<VenueFloorPlan />}
+        />
+
         <div className="grid md:grid-cols-3 gap-3">
           {ev.rooms.map((r, i) => {
             const share = Math.round(((seed + i * 7) % 60) + 20);
