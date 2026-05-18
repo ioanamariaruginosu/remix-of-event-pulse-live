@@ -1,4 +1,10 @@
-import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
 import { motion } from "motion/react";
 import { Maximize2, X, RotateCw, Move, RotateCcw, MousePointer2 } from "lucide-react";
 import { rooms as defaultRooms, type Room } from "@/data/event";
@@ -36,12 +42,29 @@ function loadLayouts(eventId: string): Record<string, Layout> {
   try {
     const raw = localStorage.getItem(`venue-map:${eventId}`);
     if (raw) return JSON.parse(raw) as Record<string, Layout>;
-  } catch {}
+  } catch {
+    return {};
+  }
   return {};
 }
 
 function clamp(v: number, lo: number, hi: number) {
   return Math.min(hi, Math.max(lo, v));
+}
+
+function rotatedCanvasInsets(layout: Layout, rect: DOMRect) {
+  const rad = ((layout.rotation ?? 0) * Math.PI) / 180;
+  const cos = Math.abs(Math.cos(rad));
+  const sin = Math.abs(Math.sin(rad));
+  const wPx = (layout.w / 100) * rect.width;
+  const hPx = (layout.h / 100) * rect.height;
+  const rotatedWPx = wPx * cos + hPx * sin;
+  const rotatedHPx = wPx * sin + hPx * cos;
+
+  return {
+    x: ((rotatedWPx - wPx) / 2 / rect.width) * 100,
+    y: ((rotatedHPx - hPx) / 2 / rect.height) * 100,
+  };
 }
 
 export function EventMap({
@@ -80,7 +103,9 @@ export function EventMap({
     if (!hydrated) return;
     try {
       localStorage.setItem(`venue-map:${eventId}`, JSON.stringify(layouts));
-    } catch {}
+    } catch {
+      void 0;
+    }
   }, [layouts, eventId, hydrated]);
 
   // Cross-tab sync so attendees pick up organizer edits.
@@ -89,7 +114,9 @@ export function EventMap({
       if (e.key === `venue-map:${eventId}` && e.newValue) {
         try {
           setLayouts(reconcile(rooms, JSON.parse(e.newValue)));
-        } catch {}
+        } catch {
+          setLayouts(reconcile(rooms, {}));
+        }
       }
     };
     window.addEventListener("storage", onStorage);
@@ -229,8 +256,6 @@ export function EventMap({
           any angle · changes are live for attendees.
         </div>
       )}
-
-
       {fullscreen && (
         <div className="fixed inset-0 z-[200] bg-background/95 backdrop-blur-sm flex flex-col">
           <div className="flex items-center justify-between p-4 border-b border-border">
@@ -329,19 +354,11 @@ function VenueMapCanvas({
     const dxPct = ((e.clientX - d.startX) / rect.width) * 100;
     const dyPct = ((e.clientY - d.startY) / rect.height) * 100;
     if (d.mode === "move") {
-      // Use the rotated axis-aligned bounding box so movement follows the
-      // pointer regardless of rotation — never clipped by the unrotated frame.
-      const rad = ((d.start.rotation ?? 0) * Math.PI) / 180;
-      const cos = Math.abs(Math.cos(rad));
-      const sin = Math.abs(Math.sin(rad));
-      const aabbW = d.start.w * cos + d.start.h * sin;
-      const aabbH = d.start.w * sin + d.start.h * cos;
-      // Allow the center to reach the canvas edges (rotated corners may
-      // overflow slightly — that's fine and expected for free placement).
-      const minX = -(aabbW - d.start.w) / 2;
-      const maxX = 100 - d.start.w - (aabbW - d.start.w) / 2;
-      const minY = -(aabbH - d.start.h) / 2;
-      const maxY = 100 - d.start.h - (aabbH - d.start.h) / 2;
+      const inset = rotatedCanvasInsets(d.start, rect);
+      const minX = Math.max(0, inset.x);
+      const maxX = 100 - d.start.w - Math.max(0, inset.x);
+      const minY = Math.max(0, inset.y);
+      const maxY = 100 - d.start.h - Math.max(0, inset.y);
       const x = clamp(Math.round((d.start.x + dxPct) * 10) / 10, minX, maxX);
       const y = clamp(Math.round((d.start.y + dyPct) * 10) / 10, minY, maxY);
       onUpdate(d.id, { x, y });
@@ -357,7 +374,9 @@ function VenueMapCanvas({
     dragRef.current = null;
     try {
       (e.currentTarget as Element).releasePointerCapture(e.pointerId);
-    } catch {}
+    } catch {
+      void 0;
+    }
   };
 
   const active = activeRoomId ? layouts[activeRoomId] : undefined;
