@@ -11,7 +11,7 @@ const tabs = [
   { to: "/app/room", label: "Room", icon: RoomIcon },
   { to: "/app/exchange", label: "Tap", icon: TapIcon, primary: true },
   { to: "/app/collection", label: "Deck", icon: DeckIcon },
-  { to: "/app/map", label: "Map", icon: MapIcon },
+  { to: "/app/past", label: "Past", icon: ArchiveIcon },
 ];
 
 function AppLayout() {
