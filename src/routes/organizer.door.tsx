@@ -354,7 +354,7 @@ function Door() {
           <section className="p-5 rounded-3xl ring-1 ring-border bg-background">
             <div className="flex items-center justify-between mb-3">
               <div className="font-display italic text-[10px] uppercase tracking-widest text-foreground/40">
-                Pick from roster
+                Simulate which phone is at the reader
               </div>
               <div className="text-[10px] text-foreground/40">{queue.length} eligible</div>
             </div>
@@ -362,12 +362,13 @@ function Door() {
               {queue.slice(0, 24).map((p) => (
                 <button
                   key={p.id}
-                  onClick={() => setSelectedId(p.id)}
-                  className={`group flex flex-col items-center gap-1 p-2 rounded-xl ring-1 transition ${
-                    selectedId === p.id
-                      ? "ring-primary bg-primary-soft"
+                  onClick={() => runScan(p.id)}
+                  disabled={phase !== "idle"}
+                  className={`group flex flex-col items-center gap-1 p-2 rounded-xl ring-1 transition disabled:opacity-40 disabled:cursor-not-allowed ${
+                    activeId === p.id
+                      ? "ring-accent bg-accent/10"
                       : lastTapped === p.id
-                      ? "ring-primary/40"
+                      ? "ring-emerald-400/40"
                       : "ring-border hover:ring-primary/40 hover:bg-foreground/[0.02]"
                   }`}
                 >
