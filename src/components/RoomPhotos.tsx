@@ -209,8 +209,10 @@ export function RoomPhotos({ roomId }: { roomId: string }) {
               initial={false}
               animate={{
                 scale: 1 - depth * 0.05,
-                y: depth * 10,
-                opacity: 1 - depth * 0.25,
+                y: depth * 12,
+                x: depth % 2 === 0 ? depth * 6 : depth * -6,
+                rotate: depth % 2 === 0 ? depth * 3.5 : depth * -3.5,
+                opacity: 1 - depth * 0.2,
               }}
               transition={{ type: "spring", stiffness: 260, damping: 28 }}
               style={{ zIndex: 10 - depth }}
