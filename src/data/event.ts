@@ -350,7 +350,7 @@ export const people: Person[] = peopleSeed.map((p, i) => ({ ...p, color: palette
 
 // Graph: edges = exchanged identity cards (people-people)
 export const edges: { source: string; target: string; reason: string }[] = [
-  { source: "you", target: "p2", reason: "Both care about evals + live in Berlin" },
+  { source: "you", target: "p2", reason: "Both care about evals + live in Rotterdam" },
   { source: "you", target: "p5", reason: "Overlap on spatial / design topics" },
   { source: "you", target: "p11", reason: "Both follow graph systems" },
   { source: "p2", target: "p3", reason: "Graphs + evals" },

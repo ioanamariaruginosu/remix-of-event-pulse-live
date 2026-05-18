@@ -72,7 +72,7 @@ function Exchange() {
           <motion.div key="done" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
             <div className="p-4 rounded-2xl bg-primary-soft ring-1 ring-primary/20">
               <div className="text-[9px] font-display italic text-primary font-bold uppercase tracking-widest mb-1">Match earned · +50 XP</div>
-              <div className="font-bold text-sm">You both care about evals and live in Berlin.</div>
+              <div className="font-bold text-sm">You both care about evals and live in Rotterdam.</div>
             </div>
             <div className="flex justify-center scale-90 origin-top">
               <IdentityCard person={other} serial="042" />
