@@ -1,4 +1,10 @@
-import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
 import { motion } from "motion/react";
 import { Maximize2, X, RotateCw, Move, RotateCcw, MousePointer2 } from "lucide-react";
 import { rooms as defaultRooms, type Room } from "@/data/event";
@@ -36,7 +42,9 @@ function loadLayouts(eventId: string): Record<string, Layout> {
   try {
     const raw = localStorage.getItem(`venue-map:${eventId}`);
     if (raw) return JSON.parse(raw) as Record<string, Layout>;
-  } catch {}
+  } catch {
+    return {};
+  }
   return {};
 }
 
@@ -95,7 +103,9 @@ export function EventMap({
     if (!hydrated) return;
     try {
       localStorage.setItem(`venue-map:${eventId}`, JSON.stringify(layouts));
-    } catch {}
+    } catch {
+      void 0;
+    }
   }, [layouts, eventId, hydrated]);
 
   // Cross-tab sync so attendees pick up organizer edits.
@@ -104,7 +114,9 @@ export function EventMap({
       if (e.key === `venue-map:${eventId}` && e.newValue) {
         try {
           setLayouts(reconcile(rooms, JSON.parse(e.newValue)));
-        } catch {}
+        } catch {
+          setLayouts(reconcile(rooms, {}));
+        }
       }
     };
     window.addEventListener("storage", onStorage);
@@ -244,8 +256,6 @@ export function EventMap({
           any angle · changes are live for attendees.
         </div>
       )}
-
-
       {fullscreen && (
         <div className="fixed inset-0 z-[200] bg-background/95 backdrop-blur-sm flex flex-col">
           <div className="flex items-center justify-between p-4 border-b border-border">
@@ -364,7 +374,9 @@ function VenueMapCanvas({
     dragRef.current = null;
     try {
       (e.currentTarget as Element).releasePointerCapture(e.pointerId);
-    } catch {}
+    } catch {
+      void 0;
+    }
   };
 
   const active = activeRoomId ? layouts[activeRoomId] : undefined;
