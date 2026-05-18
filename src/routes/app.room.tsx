@@ -22,10 +22,12 @@ function RoomView() {
       <div className="bg-primary text-white -mx-5 -mt-6 px-5 pt-4 pb-5">
         <div className="flex items-center gap-2 text-[10px] font-display italic tracking-tight normal-case text-white/60">
           <span className="size-1.5 bg-white rounded-full animate-pulse" />
-          BLE detected
+          BLE detected · located via beacons
         </div>
         <div className="font-extrabold text-2xl tracking-tight mt-1">{room.name}</div>
-        <div className="text-xs text-white/70">{room.current} people here</div>
+        <div className="text-xs text-white/70">
+          {room.current} people here · {Math.round((room.current / room.capacity) * 100)}% full
+        </div>
       </div>
 
       <div>
@@ -44,6 +46,8 @@ function RoomView() {
           ))}
         </div>
       </div>
+
+      <VenueMiniMap activeRoomId={roomId} onSelect={setRoomId} />
 
       <div className="aspect-square bg-foreground rounded-2xl overflow-hidden">
         <NetworkGraph scale="room" roomId={roomId} height={320} showLabels />
