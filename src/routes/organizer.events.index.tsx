@@ -168,9 +168,12 @@ function EventCard({ row, accent, compact }: { row: EventRow; accent?: boolean; 
                 Analytics ↗
               </Link>
             ) : (
-              <button className="px-3 py-1.5 text-xs font-bold ring-1 ring-border rounded-lg hover:bg-foreground/5">
+              <Link
+                to="/organizer"
+                className="px-3 py-1.5 text-xs font-bold ring-1 ring-border rounded-lg hover:bg-foreground/5"
+              >
                 Open
-              </button>
+              </Link>
             )}
           </div>
         </div>
