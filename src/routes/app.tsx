@@ -28,21 +28,19 @@ function AppLayout() {
       {/* App bar — mimics PWA safe area + status row */}
       <header className="sticky top-0 z-40 backdrop-blur-xl bg-background/70 border-b border-border/60">
         <div className="px-5 pt-4 pb-3 max-w-md mx-auto w-full flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
+          <Link to="/app/avatar" className="flex items-center gap-2.5 group" aria-label="Customize avatar">
             <div className="relative">
-              <div
-                className="size-9 rounded-full grid place-items-center font-bold text-[13px] text-white ring-2 ring-background"
-                style={{ background: you.color }}
-              >
-                {you.initials}
-              </div>
+              <Avatar person={you} size={36} ring />
               <span className="absolute -bottom-0.5 -right-0.5 size-2.5 rounded-full bg-emerald-500 ring-2 ring-background" />
             </div>
             <div className="leading-tight">
-              <div className="text-[9px] font-display italic tracking-tight normal-case text-foreground/40">Live · Day 1</div>
+              <div className="text-[9px] font-display italic tracking-tight normal-case text-foreground/40 group-hover:text-primary transition">
+                Live · Day 1 · tap to edit
+              </div>
               <div className="font-extrabold text-sm tracking-tight">{you.name}</div>
             </div>
-          </div>
+          </Link>
+
           <Link
             to="/"
             className="size-9 rounded-full grid place-items-center bg-foreground/5 text-foreground/60 hover:bg-foreground/10 transition"
