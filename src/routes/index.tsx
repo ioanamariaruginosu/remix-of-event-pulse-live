@@ -71,7 +71,7 @@ function Landing() {
             {event.name} · {event.dates}
           </motion.div>
 
-          <h1 className="text-5xl sm:text-7xl md:text-[110px] font-extrabold tracking-tight leading-[0.9] text-balance mb-8">
+          <h1 className="text-[2.5rem] sm:text-6xl md:text-8xl lg:text-[110px] font-extrabold tracking-tight leading-[0.95] text-balance mb-8 break-words">
             <motion.span
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -247,7 +247,7 @@ function Landing() {
             <div className="inline-block px-4 py-1.5 bg-primary-soft text-primary font-display italic text-[10px] font-bold tracking-widest uppercase rounded-full ring-1 ring-primary/20">
               The Vision
             </div>
-            <h2 className="text-4xl md:text-6xl font-extrabold tracking-tight text-balance leading-[0.95]">
+            <h2 className="text-3xl sm:text-4xl md:text-6xl font-extrabold tracking-tight text-balance leading-[0.95]">
               Organizers empowered.<br />
               <span className="text-primary italic">Never overwhelmed.</span>
             </h2>
@@ -395,7 +395,7 @@ function PillarCard({
       </div>
       <h3 className="text-3xl font-extrabold tracking-tight">{title}</h3>
       <div>
-        <div className={`text-5xl md:text-6xl font-extrabold tracking-tight ${highlight ? "text-accent" : "text-primary"}`}>
+        <div className={`text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight ${highlight ? "text-accent" : "text-primary"}`}>
           {metric}
         </div>
         <div className={`text-xs mt-2 ${highlight ? "text-background/60" : "text-foreground/50"}`}>
