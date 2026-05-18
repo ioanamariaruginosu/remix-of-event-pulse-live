@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { NetworkGraph } from "@/components/NetworkGraph";
-import { EventMap } from "@/components/EventMap";
 import { event, rooms, tickerEvents } from "@/data/event";
 
 export const Route = createFileRoute("/venue")({
@@ -32,24 +31,21 @@ function Venue() {
       </div>
 
       <div className="grid lg:grid-cols-[1fr_280px] gap-6">
-        <div className="space-y-4">
-          <EventMap
-            eventId="current"
-            role="attendee"
-            title="Venue Floor · Live"
-            showLivePosition
-          />
-          <div className="flex items-center justify-between px-2">
-            <div className="px-4 py-2 bg-foreground text-background rounded-full text-[10px] font-display italic font-bold uppercase tracking-widest flex items-center gap-2">
-              <span className="size-2 bg-primary rounded-full animate-pulse" />
-              Network Pulse · tick #{tick.toString().padStart(4, "0")}
+        <div className="bg-foreground rounded-3xl overflow-hidden aspect-[16/10] relative ring-1 ring-border">
+          <NetworkGraph scale="event" height={700} showLabels={false} />
+          <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
+            <div className="px-3 py-1.5 bg-background/90 backdrop-blur rounded-full text-[10px] font-display italic font-bold uppercase tracking-widest flex items-center gap-2">
+              <span className="size-1.5 bg-primary rounded-full animate-pulse" />
+              Live Network Topology
             </div>
-            <div className="font-display italic text-[10px] text-foreground/40 uppercase tracking-widest">
-              {rooms.length} rooms · {event.attendees.toLocaleString()} attendees
+            <div className="font-display italic text-[10px] text-white/40 uppercase tracking-widest">
+              tick #{tick.toString().padStart(4, "0")}
             </div>
           </div>
-          <div className="bg-foreground rounded-3xl overflow-hidden aspect-[16/6] relative">
-            <NetworkGraph scale="event" height={360} />
+          <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
+            <div className="px-3 py-1.5 bg-background/90 backdrop-blur rounded-full text-[10px] font-display italic font-bold uppercase tracking-widest">
+              {rooms.length} rooms · {event.attendees.toLocaleString()} attendees
+            </div>
           </div>
         </div>
 
