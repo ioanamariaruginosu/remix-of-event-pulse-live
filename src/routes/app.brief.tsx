@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { sessionBrief, people } from "@/data/event";
 import { Avatar } from "@/components/Avatar";
+import { LiveTranscript } from "@/components/LiveTranscript";
 
 export const Route = createFileRoute("/app/brief")({
   head: () => ({ meta: [{ title: "Session brief — synqmap" }] }),
@@ -15,6 +16,14 @@ function Brief() {
         <div className="font-extrabold tracking-tight">{sessionBrief.title}</div>
         <div className="text-xs mt-1">{sessionBrief.speaker} · {sessionBrief.room} · {sessionBrief.duration}</div>
       </div>
+
+      <LiveTranscript
+        lines={sessionBrief.transcript}
+        translations={sessionBrief.transcriptTranslations}
+        speaker={sessionBrief.speaker}
+        livestream={sessionBrief.livestream}
+      />
+
 
       <div>
         <div className="text-[10px] font-display italic text-foreground/40 uppercase tracking-widest mb-2">Takeaways</div>
