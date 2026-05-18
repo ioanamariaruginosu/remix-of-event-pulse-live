@@ -77,6 +77,8 @@ function RoomView() {
         </div>
       </div>
 
+      <LiveChat roomId={roomId} />
+
       <RoomPhotos roomId={roomId} />
     </div>
   );
