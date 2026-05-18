@@ -74,11 +74,18 @@ function PastEvents() {
                 +{featured.cards - 4}
               </div>
             </div>
-            <div className="mt-5 inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-white text-foreground font-bold text-sm">
-              Open wrap
-              <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M5 12h14M13 6l6 6-6 6" />
-              </svg>
+            <div className="mt-5 flex items-center gap-2">
+              <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-white text-foreground font-bold text-sm">
+                Open wrap
+                <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
+              </div>
+              <ShareLinkedInButton
+                url={`/app/wrapped?e=${featured.id}`}
+                label="Share"
+                variant="dark"
+              />
             </div>
           </div>
         </div>
