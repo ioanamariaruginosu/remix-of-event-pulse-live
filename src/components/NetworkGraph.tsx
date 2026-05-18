@@ -293,7 +293,8 @@ export function NetworkGraph({
                     fontSize={isCenter || isFocus ? 12 : 10}
                     fontWeight={isCenter || isFocus ? 700 : 500}
                     fill={labelFill}
-                    fontFamily="var(--font-mono)"
+                    fontFamily="var(--font-display)"
+                    fontStyle="italic"
                     style={{ pointerEvents: "none" }}
                   >
                     {n.name}
