@@ -30,7 +30,7 @@ function NewEvent() {
   const prev = () => setStep((s) => Math.max(s - 1, 0));
 
   return (
-    <div className="p-8 lg:p-12 max-w-4xl space-y-10">
+    <div className="p-5 lg:p-12 max-w-4xl space-y-8 lg:space-y-10">
       <div className="flex items-center gap-3 text-sm">
         <Link to="/organizer/events" className="text-foreground/50 hover:text-foreground">
           ← Events
