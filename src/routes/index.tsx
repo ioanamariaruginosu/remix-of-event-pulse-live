@@ -361,3 +361,50 @@ function ScaleCard({
     </div>
   );
 }
+
+function PillarCard({
+  tag,
+  title,
+  metric,
+  metricLabel,
+  copy,
+  source,
+  highlight,
+}: {
+  tag: string;
+  title: string;
+  metric: string;
+  metricLabel: string;
+  copy: string;
+  source: string;
+  highlight?: boolean;
+}) {
+  return (
+    <div
+      className={`group p-8 rounded-[32px] ring-1 transition-all flex flex-col gap-6 ${
+        highlight
+          ? "bg-foreground text-background ring-foreground"
+          : "bg-background ring-border hover:ring-primary/30"
+      }`}
+    >
+      <div className={`font-display italic text-[10px] font-bold tracking-widest uppercase ${highlight ? "text-accent" : "text-primary"}`}>
+        {tag}
+      </div>
+      <h3 className="text-3xl font-extrabold tracking-tight">{title}</h3>
+      <div>
+        <div className={`text-5xl md:text-6xl font-extrabold tracking-tight ${highlight ? "text-accent" : "text-primary"}`}>
+          {metric}
+        </div>
+        <div className={`text-xs mt-2 ${highlight ? "text-background/60" : "text-foreground/50"}`}>
+          {metricLabel}
+        </div>
+      </div>
+      <p className={`text-sm leading-relaxed ${highlight ? "text-background/80" : "text-foreground/70"}`}>
+        {copy}
+      </p>
+      <div className={`mt-auto text-[10px] font-display italic ${highlight ? "text-background/40" : "text-foreground/40"}`}>
+        {source}
+      </div>
+    </div>
+  );
+}
