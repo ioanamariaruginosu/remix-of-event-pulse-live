@@ -75,6 +75,13 @@ export function NetworkGraph({
   const [hovered, setHovered] = useState<string | null>(null);
 
   const membership = useMembership();
+  const userOverride = useUserAvatar();
+
+  function avatarFor(p: Person) {
+    if (p.id === "you" && userOverride) return userOverride;
+    return defaultAvatarFor(p);
+  }
+
 
   const { nodes, links, center } = useMemo(() => {
     let people: Person[] = allPeople;
