@@ -351,36 +351,6 @@ function Door() {
             </AnimatePresence>
           </section>
 
-          <section className="p-5 rounded-3xl ring-1 ring-border bg-background">
-            <div className="flex items-center justify-between mb-3">
-              <div className="font-display italic text-[10px] uppercase tracking-widest text-foreground/40">
-                Simulate which phone is at the reader
-              </div>
-              <div className="text-[10px] text-foreground/40">{queue.length} eligible</div>
-            </div>
-            <div className="grid grid-cols-4 gap-2 max-h-48 overflow-y-auto">
-              {queue.slice(0, 24).map((p) => (
-                <button
-                  key={p.id}
-                  onClick={() => runScan(p.id)}
-                  disabled={phase !== "idle"}
-                  className={`group flex flex-col items-center gap-1 p-2 rounded-xl ring-1 transition disabled:opacity-40 disabled:cursor-not-allowed ${
-                    activeId === p.id
-                      ? "ring-accent bg-accent/10"
-                      : lastTapped === p.id
-                      ? "ring-emerald-400/40"
-                      : "ring-border hover:ring-primary/40 hover:bg-foreground/[0.02]"
-                  }`}
-                >
-                  <Avatar person={p} size={36} className="ring-2 ring-border" />
-
-                  <div className="text-[10px] font-bold truncate w-full text-center">
-                    {p.name.split(" ")[0]}
-                  </div>
-                </button>
-              ))}
-            </div>
-          </section>
         </div>
       </div>
 
