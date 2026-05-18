@@ -71,7 +71,7 @@ function Landing() {
             {event.name} · {event.dates}
           </motion.div>
 
-          <h1 className="text-5xl sm:text-7xl md:text-[110px] font-extrabold tracking-tight leading-[0.9] text-balance mb-8">
+          <h1 className="text-[2.5rem] sm:text-6xl md:text-8xl lg:text-[110px] font-extrabold tracking-tight leading-[0.95] text-balance mb-8 break-words">
             <motion.span
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -107,14 +107,14 @@ function Landing() {
           >
             <Link
               to="/organizer"
-              className="group relative px-8 py-5 bg-primary text-white rounded-2xl font-bold text-lg overflow-hidden transition-transform hover:-translate-y-1 active:scale-95"
+              className="group relative px-6 sm:px-8 py-4 sm:py-5 bg-primary text-white rounded-2xl font-bold text-lg overflow-hidden transition-transform hover:-translate-y-1 active:scale-95"
             >
               <span className="relative z-10">I'm organizing an event</span>
               <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
             </Link>
             <Link
               to="/join"
-              className="px-8 py-5 bg-white border-2 border-foreground/10 text-foreground rounded-2xl font-bold text-lg hover:border-primary transition-all"
+              className="px-6 sm:px-8 py-4 sm:py-5 bg-white border-2 border-foreground/10 text-foreground rounded-2xl font-bold text-lg hover:border-primary transition-all"
             >
               Join an event
             </Link>
@@ -131,7 +131,7 @@ function Landing() {
             <div className="inline-block px-4 py-1.5 bg-primary-soft text-primary font-display italic text-[10px] font-bold tracking-widest uppercase rounded-full ring-1 ring-primary/20">
               The Mental Model
             </div>
-            <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-balance">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-balance">
               Rooms are physical.<br />Sessions are temporal.
             </h2>
             <p className="text-lg text-foreground/60 leading-relaxed text-pretty">
@@ -175,7 +175,7 @@ function Landing() {
             <div className="inline-block px-4 py-1.5 bg-primary-soft text-primary font-display italic text-[10px] font-bold tracking-widest uppercase rounded-full ring-1 ring-primary/20">
               The Artifact
             </div>
-            <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-balance">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-balance">
               Collect identities,<br />not business cards.
             </h2>
             <p className="text-lg text-foreground/60 leading-relaxed text-pretty">
@@ -209,7 +209,7 @@ function Landing() {
             <div className="inline-block px-4 py-1.5 bg-primary-soft text-primary font-display italic text-[10px] font-bold tracking-widest uppercase rounded-full ring-1 ring-primary/20">
               Three Scales
             </div>
-            <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-balance">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-balance">
               One network, viewed at three zoom levels.
             </h2>
             <p className="text-lg text-foreground/50 text-pretty">
@@ -247,7 +247,7 @@ function Landing() {
             <div className="inline-block px-4 py-1.5 bg-primary-soft text-primary font-display italic text-[10px] font-bold tracking-widest uppercase rounded-full ring-1 ring-primary/20">
               The Vision
             </div>
-            <h2 className="text-4xl md:text-6xl font-extrabold tracking-tight text-balance leading-[0.95]">
+            <h2 className="text-3xl sm:text-4xl md:text-6xl font-extrabold tracking-tight text-balance leading-[0.95]">
               Organizers empowered.<br />
               <span className="text-primary italic">Never overwhelmed.</span>
             </h2>
@@ -292,7 +292,7 @@ function Landing() {
           <div className="absolute top-0 right-0 w-96 h-96 bg-accent/30 blur-[120px] rounded-full" />
           <div className="absolute bottom-0 left-0 w-96 h-96 bg-white/10 blur-[120px] rounded-full" />
           <div className="relative z-10 space-y-8">
-            <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-balance">Ready to connect at speed?</h2>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-balance">Ready to connect at speed?</h2>
             <div className="flex flex-wrap justify-center gap-4">
               <Link to="/organizer" className="px-8 py-4 bg-white text-primary rounded-2xl font-bold hover:bg-accent transition-colors">
                 Organize Your Hub
@@ -395,7 +395,7 @@ function PillarCard({
       </div>
       <h3 className="text-3xl font-extrabold tracking-tight">{title}</h3>
       <div>
-        <div className={`text-5xl md:text-6xl font-extrabold tracking-tight ${highlight ? "text-accent" : "text-primary"}`}>
+        <div className={`text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight ${highlight ? "text-accent" : "text-primary"}`}>
           {metric}
         </div>
         <div className={`text-xs mt-2 ${highlight ? "text-background/60" : "text-foreground/50"}`}>
