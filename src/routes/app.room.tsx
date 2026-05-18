@@ -3,6 +3,7 @@ import { useState } from "react";
 import { NetworkGraph } from "@/components/NetworkGraph";
 import { Avatar } from "@/components/Avatar";
 import { RoomPhotos } from "@/components/RoomPhotos";
+import { LiveChat } from "@/components/LiveChat";
 import { people, rooms, sessions } from "@/data/event";
 
 export const Route = createFileRoute("/app/room")({
