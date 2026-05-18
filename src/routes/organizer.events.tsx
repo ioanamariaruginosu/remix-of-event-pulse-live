@@ -172,6 +172,8 @@ function EventCard({ row, accent, compact }: { row: EventRow; accent?: boolean; 
                 Open
               </button>
             )}
+          </div>
+        </div>
       </div>
     </div>
   );
