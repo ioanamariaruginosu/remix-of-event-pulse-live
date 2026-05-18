@@ -11,7 +11,7 @@ const tabs = [
   { to: "/app/room", label: "Room", icon: RoomIcon },
   { to: "/app/exchange", label: "Tap", icon: TapIcon, primary: true },
   { to: "/app/collection", label: "Deck", icon: DeckIcon },
-  { to: "/app/map", label: "Map", icon: MapIcon },
+  { to: "/app/past", label: "Past", icon: ArchiveIcon },
 ];
 
 function AppLayout() {
@@ -38,7 +38,7 @@ function AppLayout() {
               <span className="absolute -bottom-0.5 -right-0.5 size-2.5 rounded-full bg-emerald-500 ring-2 ring-background" />
             </div>
             <div className="leading-tight">
-              <div className="text-[9px] font-mono uppercase tracking-widest text-foreground/40">Live · Day 1</div>
+              <div className="text-[9px] font-display italic tracking-tight normal-case text-foreground/40">Live · Day 1</div>
               <div className="font-extrabold text-sm tracking-tight">{you.name}</div>
             </div>
           </div>
@@ -146,6 +146,15 @@ function MapIcon({ className = "" }: IconProps) {
     <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M9 4l-6 2v14l6-2 6 2 6-2V4l-6 2-6-2z" />
       <path d="M9 4v14M15 6v14" />
+    </svg>
+  );
+}
+function ArchiveIcon({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 7h18M5 7v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7" />
+      <path d="M9 11h6" />
+      <path d="M4 4h16v3H4z" />
     </svg>
   );
 }

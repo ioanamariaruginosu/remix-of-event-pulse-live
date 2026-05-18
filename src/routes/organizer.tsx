@@ -19,7 +19,7 @@ function OrganizerLayout() {
       <aside className="w-64 border-r border-border p-6 flex flex-col gap-8 shrink-0 bg-background sticky top-0 h-screen">
         <Logo />
         <div className="space-y-1">
-          <div className="font-mono text-[10px] uppercase tracking-widest text-foreground/40 px-3 mb-2">
+          <div className="font-display italic text-[10px] uppercase tracking-widest text-foreground/40 px-3 mb-2">
             Organizer
           </div>
           {nav.map((n) => {
@@ -40,9 +40,9 @@ function OrganizerLayout() {
           })}
         </div>
         <div className="mt-auto p-4 rounded-2xl bg-foreground text-white">
-          <div className="font-mono text-[9px] uppercase tracking-widest text-white/40 mb-1">Event Status</div>
+          <div className="font-display italic text-[9px] uppercase tracking-widest text-white/40 mb-1">Event Status</div>
           <div className="font-bold text-sm mb-2">Day 1 · Live</div>
-          <div className="flex items-center gap-2 text-[10px] text-accent font-mono">
+          <div className="flex items-center gap-2 text-[10px] text-accent font-display italic">
             <span className="size-1.5 bg-accent rounded-full animate-pulse" />
             All systems nominal
           </div>

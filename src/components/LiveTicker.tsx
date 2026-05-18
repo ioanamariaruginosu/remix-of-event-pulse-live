@@ -9,7 +9,7 @@ export function LiveTicker() {
           {items.map((ev, i) => (
             <span key={i} className="flex items-center gap-10 shrink-0">
               <span
-                className={`font-mono text-xs font-bold tracking-widest uppercase ${
+                className={`font-display italic text-xs font-bold tracking-widest uppercase ${
                   i % 3 === 0 ? "text-accent" : i % 3 === 1 ? "text-white" : "text-primary"
                 }`}
               >

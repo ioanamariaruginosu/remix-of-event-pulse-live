@@ -21,6 +21,7 @@ import { Route as OrganizerRoomsRouteImport } from './routes/organizer.rooms'
 import { Route as OrganizerLiveRouteImport } from './routes/organizer.live'
 import { Route as AppWrappedRouteImport } from './routes/app.wrapped'
 import { Route as AppRoomRouteImport } from './routes/app.room'
+import { Route as AppPastRouteImport } from './routes/app.past'
 import { Route as AppMapRouteImport } from './routes/app.map'
 import { Route as AppExchangeRouteImport } from './routes/app.exchange'
 import { Route as AppCollectionRouteImport } from './routes/app.collection'
@@ -87,6 +88,11 @@ const AppRoomRoute = AppRoomRouteImport.update({
   path: '/room',
   getParentRoute: () => AppRoute,
 } as any)
+const AppPastRoute = AppPastRouteImport.update({
+  id: '/past',
+  path: '/past',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppMapRoute = AppMapRouteImport.update({
   id: '/map',
   path: '/map',
@@ -124,6 +130,7 @@ export interface FileRoutesByFullPath {
   '/app/collection': typeof AppCollectionRoute
   '/app/exchange': typeof AppExchangeRoute
   '/app/map': typeof AppMapRoute
+  '/app/past': typeof AppPastRoute
   '/app/room': typeof AppRoomRoute
   '/app/wrapped': typeof AppWrappedRoute
   '/organizer/live': typeof OrganizerLiveRoute
@@ -141,6 +148,7 @@ export interface FileRoutesByTo {
   '/app/collection': typeof AppCollectionRoute
   '/app/exchange': typeof AppExchangeRoute
   '/app/map': typeof AppMapRoute
+  '/app/past': typeof AppPastRoute
   '/app/room': typeof AppRoomRoute
   '/app/wrapped': typeof AppWrappedRoute
   '/organizer/live': typeof OrganizerLiveRoute
@@ -161,6 +169,7 @@ export interface FileRoutesById {
   '/app/collection': typeof AppCollectionRoute
   '/app/exchange': typeof AppExchangeRoute
   '/app/map': typeof AppMapRoute
+  '/app/past': typeof AppPastRoute
   '/app/room': typeof AppRoomRoute
   '/app/wrapped': typeof AppWrappedRoute
   '/organizer/live': typeof OrganizerLiveRoute
@@ -182,6 +191,7 @@ export interface FileRouteTypes {
     | '/app/collection'
     | '/app/exchange'
     | '/app/map'
+    | '/app/past'
     | '/app/room'
     | '/app/wrapped'
     | '/organizer/live'
@@ -199,6 +209,7 @@ export interface FileRouteTypes {
     | '/app/collection'
     | '/app/exchange'
     | '/app/map'
+    | '/app/past'
     | '/app/room'
     | '/app/wrapped'
     | '/organizer/live'
@@ -218,6 +229,7 @@ export interface FileRouteTypes {
     | '/app/collection'
     | '/app/exchange'
     | '/app/map'
+    | '/app/past'
     | '/app/room'
     | '/app/wrapped'
     | '/organizer/live'
@@ -321,6 +333,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRoomRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/past': {
+      id: '/app/past'
+      path: '/past'
+      fullPath: '/app/past'
+      preLoaderRoute: typeof AppPastRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/map': {
       id: '/app/map'
       path: '/map'
@@ -365,6 +384,7 @@ interface AppRouteChildren {
   AppCollectionRoute: typeof AppCollectionRoute
   AppExchangeRoute: typeof AppExchangeRoute
   AppMapRoute: typeof AppMapRoute
+  AppPastRoute: typeof AppPastRoute
   AppRoomRoute: typeof AppRoomRoute
   AppWrappedRoute: typeof AppWrappedRoute
   AppIndexRoute: typeof AppIndexRoute
@@ -376,6 +396,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppCollectionRoute: AppCollectionRoute,
   AppExchangeRoute: AppExchangeRoute,
   AppMapRoute: AppMapRoute,
+  AppPastRoute: AppPastRoute,
   AppRoomRoute: AppRoomRoute,
   AppWrappedRoute: AppWrappedRoute,
   AppIndexRoute: AppIndexRoute,

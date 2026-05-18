@@ -10,7 +10,7 @@ function Dashboard() {
   return (
     <div className="p-8 lg:p-12 space-y-12 max-w-6xl">
       <div>
-        <div className="font-mono text-[10px] uppercase tracking-widest text-foreground/40 mb-2">Event</div>
+        <div className="font-display italic text-[10px] uppercase tracking-widest text-foreground/40 mb-2">Event</div>
         <h1 className="text-5xl font-extrabold tracking-tight mb-2">{event.name}</h1>
         <p className="text-foreground/60">{event.dates}</p>
       </div>
@@ -30,7 +30,7 @@ function Dashboard() {
         <h2 className="text-2xl font-extrabold tracking-tight">Branding</h2>
         <div className="p-6 rounded-3xl ring-1 ring-border bg-background grid md:grid-cols-3 gap-6 items-center">
           <div>
-            <div className="font-mono text-[10px] uppercase tracking-widest text-foreground/40 mb-2">Logo</div>
+            <div className="font-display italic text-[10px] uppercase tracking-widest text-foreground/40 mb-2">Logo</div>
             <div className="flex items-center gap-2">
               <div className="size-10 bg-primary rounded-lg grid place-items-center">
                 <div className="size-3 bg-white rounded-full" />
@@ -41,7 +41,7 @@ function Dashboard() {
             </div>
           </div>
           <div>
-            <div className="font-mono text-[10px] uppercase tracking-widest text-foreground/40 mb-2">Palette</div>
+            <div className="font-display italic text-[10px] uppercase tracking-widest text-foreground/40 mb-2">Palette</div>
             <div className="flex gap-2">
               {["#0f172a", "#ffffff", "#7c3aed", "#d9f99d"].map((c) => (
                 <div key={c} className="size-10 rounded-lg ring-1 ring-border" style={{ background: c }} />
@@ -49,7 +49,7 @@ function Dashboard() {
             </div>
           </div>
           <div>
-            <div className="font-mono text-[10px] uppercase tracking-widest text-foreground/40 mb-2">Type system</div>
+            <div className="font-display italic text-[10px] uppercase tracking-widest text-foreground/40 mb-2">Type system</div>
             <div className="font-bold text-lg">Inter / JetBrains Mono</div>
           </div>
         </div>
@@ -71,7 +71,7 @@ function Dashboard() {
                 <div className="font-bold">{topic}</div>
                 <div className="text-xs text-foreground/40">{count} mentions</div>
               </div>
-              <div className="font-mono text-sm font-bold text-primary">{delta}</div>
+              <div className="font-display italic text-sm font-bold text-primary">{delta}</div>
             </div>
           ))}
         </div>
@@ -88,7 +88,7 @@ function Dashboard() {
                 key={i}
                 className="flex items-center gap-4 px-5 py-3 border-b border-border last:border-b-0 hover:bg-foreground/[0.02]"
               >
-                <div className="font-mono text-[10px] text-foreground/30 w-12">{String(i + 1).padStart(2, "0")}</div>
+                <div className="font-display italic text-[10px] text-foreground/30 w-12">{String(i + 1).padStart(2, "0")}</div>
                 <div className="size-7 rounded-full grid place-items-center text-[10px] font-bold text-white" style={{ background: a.color }}>{a.initials}</div>
                 <div className="text-primary">↔</div>
                 <div className="size-7 rounded-full grid place-items-center text-[10px] font-bold text-white" style={{ background: b.color }}>{b.initials}</div>
@@ -108,7 +108,7 @@ function Dashboard() {
 function Kpi({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (
     <div className={`p-5 rounded-2xl ring-1 ring-border ${accent ? "bg-primary-soft ring-primary/20" : ""}`}>
-      <div className="font-mono text-3xl font-extrabold mb-1 tracking-tight">{value}</div>
+      <div className="font-display italic text-3xl font-extrabold mb-1 tracking-tight">{value}</div>
       <div className="text-[10px] text-foreground/40 uppercase font-bold tracking-widest">{label}</div>
     </div>
   );

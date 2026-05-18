@@ -65,7 +65,7 @@ function Landing() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary-soft text-primary rounded-full text-[10px] font-mono font-bold uppercase tracking-widest mb-8 ring-1 ring-primary/20"
+            className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary-soft text-primary rounded-full text-[10px] font-display italic font-bold uppercase tracking-widest mb-8 ring-1 ring-primary/20"
           >
             <span className="size-1.5 bg-primary rounded-full animate-pulse" />
             {event.name} · {event.dates}
@@ -128,7 +128,7 @@ function Landing() {
         {/* Mental model */}
         <section id="graph" className="grid lg:grid-cols-2 gap-16 items-center">
           <div className="space-y-6">
-            <div className="inline-block px-4 py-1.5 bg-primary-soft text-primary font-mono text-[10px] font-bold tracking-widest uppercase rounded-full ring-1 ring-primary/20">
+            <div className="inline-block px-4 py-1.5 bg-primary-soft text-primary font-display italic text-[10px] font-bold tracking-widest uppercase rounded-full ring-1 ring-primary/20">
               The Mental Model
             </div>
             <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-balance">
@@ -142,7 +142,7 @@ function Landing() {
                 <div key={r.id} className="p-4 ring-1 ring-border rounded-2xl">
                   <div className="flex items-center justify-between mb-2">
                     <span className="font-bold text-sm">{r.name}</span>
-                    <span className={`text-[9px] font-mono uppercase tracking-widest px-1.5 py-0.5 rounded ${r.kind === "session" ? "bg-primary-soft text-primary" : "bg-accent/40 text-foreground"}`}>
+                    <span className={`text-[9px] font-display italic tracking-tight normal-case px-1.5 py-0.5 rounded ${r.kind === "session" ? "bg-primary-soft text-primary" : "bg-accent/40 text-foreground"}`}>
                       {r.kind}
                     </span>
                   </div>
@@ -152,7 +152,7 @@ function Landing() {
                       style={{ width: `${(r.current / r.capacity) * 100}%` }}
                     />
                   </div>
-                  <div className="flex justify-between mt-1.5 text-[10px] font-mono text-foreground/40">
+                  <div className="flex justify-between mt-1.5 text-[10px] font-display italic text-foreground/40">
                     <span>{r.current} here</span>
                     <span>cap {r.capacity}</span>
                   </div>
@@ -162,7 +162,7 @@ function Landing() {
           </div>
           <div className="aspect-square bg-foreground rounded-[32px] overflow-hidden ring-1 ring-border relative">
             <NetworkGraph scale="event" height={560} />
-            <div className="absolute top-4 left-4 px-3 py-1.5 bg-background/90 backdrop-blur rounded-full text-[10px] font-mono font-bold uppercase tracking-widest flex items-center gap-2">
+            <div className="absolute top-4 left-4 px-3 py-1.5 bg-background/90 backdrop-blur rounded-full text-[10px] font-display italic font-bold uppercase tracking-widest flex items-center gap-2">
               <span className="size-1.5 bg-primary rounded-full animate-pulse" />
               Live Network · {people.length} nodes
             </div>
@@ -172,7 +172,7 @@ function Landing() {
         {/* Identity card + phone */}
         <section id="card" className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
           <div className="space-y-8 order-2 lg:order-1">
-            <div className="inline-block px-4 py-1.5 bg-primary-soft text-primary font-mono text-[10px] font-bold tracking-widest uppercase rounded-full ring-1 ring-primary/20">
+            <div className="inline-block px-4 py-1.5 bg-primary-soft text-primary font-display italic text-[10px] font-bold tracking-widest uppercase rounded-full ring-1 ring-primary/20">
               The Artifact
             </div>
             <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-balance">
@@ -206,7 +206,7 @@ function Landing() {
         {/* Three scales */}
         <section id="scales" className="space-y-16">
           <div className="text-center max-w-3xl mx-auto space-y-4">
-            <div className="inline-block px-4 py-1.5 bg-primary-soft text-primary font-mono text-[10px] font-bold tracking-widest uppercase rounded-full ring-1 ring-primary/20">
+            <div className="inline-block px-4 py-1.5 bg-primary-soft text-primary font-display italic text-[10px] font-bold tracking-widest uppercase rounded-full ring-1 ring-primary/20">
               Three Scales
             </div>
             <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-balance">
@@ -264,12 +264,12 @@ function Landing() {
             <div className="size-6 bg-primary rounded-md" />
             <span className="font-bold text-white tracking-tighter lowercase">synq<span className="text-white/40 font-normal">map</span></span>
           </div>
-          <div className="flex gap-6 font-mono text-[10px] font-bold uppercase tracking-widest">
+          <div className="flex gap-6 font-display italic text-[10px] font-bold uppercase tracking-widest">
             <a className="hover:text-white transition-colors" href="#">Network Status</a>
             <a className="hover:text-white transition-colors" href="#">Privacy Mesh</a>
             <a className="hover:text-white transition-colors" href="#">Press Kit</a>
           </div>
-          <div className="text-[10px] font-mono">
+          <div className="text-[10px] font-display italic">
             SYSTEM_TIME: 14:22:04 // LATENCY: 12ms
           </div>
         </div>
@@ -281,7 +281,7 @@ function Landing() {
 function Stat({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (
     <div className="p-4 ring-1 ring-border rounded-2xl bg-background">
-      <div className={`font-mono text-2xl font-bold mb-1 ${accent ? "text-primary" : ""}`}>{value}</div>
+      <div className={`font-display italic text-2xl font-bold mb-1 ${accent ? "text-primary" : ""}`}>{value}</div>
       <div className="text-[10px] text-foreground/40 uppercase font-bold tracking-wider">{label}</div>
     </div>
   );
@@ -311,7 +311,7 @@ function ScaleCard({
       <div className="aspect-square mb-6 bg-foreground rounded-2xl relative overflow-hidden">
         {graph}
       </div>
-      <div className="font-mono text-xs font-bold text-primary tracking-widest uppercase mb-2">{tag}</div>
+      <div className="font-display italic text-xs font-bold text-primary tracking-widest uppercase mb-2">{tag}</div>
       <h3 className="text-2xl font-bold mb-3 tracking-tight">{title}</h3>
       <p className="text-sm text-foreground/60 leading-relaxed">{copy}</p>
     </div>
