@@ -550,12 +550,13 @@ export function NetworkGraph({
             className="absolute bottom-3 left-3 right-3 bg-background/95 backdrop-blur-md rounded-2xl p-3 ring-1 ring-border shadow-xl pointer-events-none"
           >
             <div className="flex items-start gap-3">
-              <div
-                className="size-10 rounded-xl grid place-items-center font-bold text-[13px] text-white shrink-0"
-                style={{ background: focusedPerson.color, boxShadow: `0 0 16px ${focusedPerson.color}88` }}
-              >
-                {focusedPerson.initials}
-              </div>
+              <img
+                src={avatarUrl(avatarFor(focusedPerson), 96)}
+                alt={focusedPerson.name}
+                className="size-12 rounded-2xl shrink-0 ring-2 ring-white/40"
+                style={{ background: focusedPerson.color, boxShadow: `0 0 18px ${focusedPerson.color}88` }}
+              />
+
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <div className="font-extrabold text-sm tracking-tight">{focusedPerson.name}</div>
