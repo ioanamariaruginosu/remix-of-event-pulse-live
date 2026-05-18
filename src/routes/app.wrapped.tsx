@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { NetworkGraph } from "@/components/NetworkGraph";
+import { Avatar } from "@/components/Avatar";
 import { pastEvents, people } from "@/data/event";
 
 export const Route = createFileRoute("/app/wrapped")({
