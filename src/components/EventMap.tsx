@@ -44,6 +44,21 @@ function clamp(v: number, lo: number, hi: number) {
   return Math.min(hi, Math.max(lo, v));
 }
 
+function rotatedCanvasInsets(layout: Layout, rect: DOMRect) {
+  const rad = ((layout.rotation ?? 0) * Math.PI) / 180;
+  const cos = Math.abs(Math.cos(rad));
+  const sin = Math.abs(Math.sin(rad));
+  const wPx = (layout.w / 100) * rect.width;
+  const hPx = (layout.h / 100) * rect.height;
+  const rotatedWPx = wPx * cos + hPx * sin;
+  const rotatedHPx = wPx * sin + hPx * cos;
+
+  return {
+    x: ((rotatedWPx - wPx) / 2 / rect.width) * 100,
+    y: ((rotatedHPx - hPx) / 2 / rect.height) * 100,
+  };
+}
+
 export function EventMap({
   eventId,
   role,
@@ -329,19 +344,11 @@ function VenueMapCanvas({
     const dxPct = ((e.clientX - d.startX) / rect.width) * 100;
     const dyPct = ((e.clientY - d.startY) / rect.height) * 100;
     if (d.mode === "move") {
-      // Use the rotated axis-aligned bounding box so movement follows the
-      // pointer regardless of rotation — never clipped by the unrotated frame.
-      const rad = ((d.start.rotation ?? 0) * Math.PI) / 180;
-      const cos = Math.abs(Math.cos(rad));
-      const sin = Math.abs(Math.sin(rad));
-      const aabbW = d.start.w * cos + d.start.h * sin;
-      const aabbH = d.start.w * sin + d.start.h * cos;
-      // Allow the center to reach the canvas edges (rotated corners may
-      // overflow slightly — that's fine and expected for free placement).
-      const minX = -(aabbW - d.start.w) / 2;
-      const maxX = 100 - d.start.w - (aabbW - d.start.w) / 2;
-      const minY = -(aabbH - d.start.h) / 2;
-      const maxY = 100 - d.start.h - (aabbH - d.start.h) / 2;
+      const inset = rotatedCanvasInsets(d.start, rect);
+      const minX = Math.max(0, inset.x);
+      const maxX = 100 - d.start.w - Math.max(0, inset.x);
+      const minY = Math.max(0, inset.y);
+      const maxY = 100 - d.start.h - Math.max(0, inset.y);
       const x = clamp(Math.round((d.start.x + dxPct) * 10) / 10, minX, maxX);
       const y = clamp(Math.round((d.start.y + dyPct) * 10) / 10, minY, maxY);
       onUpdate(d.id, { x, y });
