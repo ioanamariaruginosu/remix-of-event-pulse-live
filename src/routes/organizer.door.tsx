@@ -21,6 +21,7 @@ function Door() {
   const [roomId, setRoomId] = useState<string>(rooms[0].id);
   const [pulseKey, setPulseKey] = useState(0);
   const [lastTapped, setLastTapped] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const room = rooms.find((r) => r.id === roomId)!;
   const count = useRoomCount(roomId);
@@ -33,16 +34,20 @@ function Door() {
     [membership, roomId],
   );
 
-  const tap = (personId: string) => {
-    tapInAttendee(personId, roomId, "organizer-1");
-    setLastTapped(personId);
+  const selected = selectedId ? people.find((p) => p.id === selectedId) ?? null : null;
+
+  const confirmTap = () => {
+    if (!selected) return;
+    tapInAttendee(selected.id, roomId, "organizer-1");
+    setLastTapped(selected.id);
     setPulseKey((k) => k + 1);
+    setSelectedId(null);
   };
 
-  // Simulate the next person in the queue tapping
-  const simulateNext = () => {
+  // Simulate: queue up a random attendee (does NOT sign them in)
+  const simulateScan = () => {
     const next = queue[Math.floor(Math.random() * Math.min(queue.length, 8))];
-    if (next) tap(next.id);
+    if (next) setSelectedId(next.id);
   };
 
   return (
@@ -54,7 +59,7 @@ function Door() {
           </div>
           <h1 className="text-4xl lg:text-5xl font-extrabold tracking-tight">Check-in</h1>
           <p className="text-foreground/60 mt-2 max-w-xl">
-            Tap each attendee's phone at the door. They're signed into the room and appear on the live graph instantly.
+            Pick the attendee whose phone is at the reader, then tap the pad to sign them into the room. The graph updates instantly.
           </p>
         </div>
         <div className="flex items-center gap-2 p-1 rounded-xl ring-1 ring-border overflow-x-auto max-w-full">
@@ -93,10 +98,33 @@ function Door() {
             </div>
           </div>
 
+          {/* Selected attendee strip */}
+          <div className="mt-6 rounded-2xl ring-1 ring-white/10 bg-white/[0.04] p-3 flex items-center gap-3 min-h-[68px]">
+            {selected ? (
+              <>
+                <Avatar person={selected} size={44} className="ring-2 ring-white/20" />
+                <div className="flex-1 min-w-0">
+                  <div className="font-bold text-sm truncate">{selected.name}</div>
+                  <div className="text-[11px] text-white/50 truncate">{selected.oneLiner}</div>
+                </div>
+                <button
+                  onClick={() => setSelectedId(null)}
+                  className="text-[10px] font-display italic text-white/40 hover:text-white px-2"
+                >
+                  clear
+                </button>
+              </>
+            ) : (
+              <div className="text-[11px] text-white/40 font-display italic px-1">
+                No phone detected — pick an attendee from the roster or scan
+              </div>
+            )}
+          </div>
+
           {/* NFC pulse target */}
           <div className="flex-1 grid place-items-center relative">
             <AnimatePresence>
-              {[0, 1, 2].map((i) => (
+              {selected && [0, 1, 2].map((i) => (
                 <motion.div
                   key={`${pulseKey}-${i}`}
                   className="absolute rounded-full border border-accent"
@@ -106,18 +134,26 @@ function Door() {
                 />
               ))}
             </AnimatePresence>
-            <motion.div
+            <motion.button
               key={`core-${pulseKey}`}
+              onClick={confirmTap}
+              disabled={!selected}
               initial={{ scale: 0.9 }}
-              animate={{ scale: [0.9, 1.05, 1] }}
+              animate={{ scale: selected ? [0.9, 1.05, 1] : 1 }}
               transition={{ duration: 0.5 }}
-              className="size-32 rounded-full bg-accent text-foreground grid place-items-center font-display italic font-bold text-center leading-tight shadow-[0_0_60px_rgba(190,242,100,0.5)]"
+              className={`size-32 rounded-full grid place-items-center font-display italic font-bold text-center leading-tight transition ${
+                selected
+                  ? "bg-accent text-foreground shadow-[0_0_60px_rgba(190,242,100,0.5)] hover:scale-[1.03] cursor-pointer"
+                  : "bg-white/10 text-white/40 cursor-not-allowed"
+              }`}
             >
               <div>
-                <div className="text-[10px] uppercase tracking-widest opacity-60">tap to</div>
-                <div className="text-2xl">sign in</div>
+                <div className="text-[10px] uppercase tracking-widest opacity-60">
+                  {selected ? "tap to" : "waiting"}
+                </div>
+                <div className="text-2xl">{selected ? "sign in" : "—"}</div>
               </div>
-            </motion.div>
+            </motion.button>
           </div>
 
           <div className="flex items-center justify-between gap-3">
@@ -125,13 +161,14 @@ function Door() {
               NFC · BLE · QR fallback
             </div>
             <button
-              onClick={simulateNext}
+              onClick={simulateScan}
               className="px-4 py-2 bg-accent text-foreground rounded-xl font-bold text-xs hover:scale-[1.02] transition-transform"
             >
-              Simulate tap ↺
+              Simulate scan ↺
             </button>
           </div>
         </div>
+
 
         {/* Live feed + queue */}
         <div className="space-y-4">
