@@ -45,7 +45,7 @@ function Brief() {
             if (!p) return null;
             return (
               <div key={id} className="p-3 rounded-xl bg-primary-soft ring-1 ring-primary/20 flex items-center gap-3">
-                <div className="size-9 rounded-lg grid place-items-center text-white font-bold text-xs" style={{ background: p.color }}>{p.initials}</div>
+                <Avatar person={p} size={40} className="ring-2 ring-background shadow-sm" />
                 <div className="flex-1">
                   <div className="font-bold text-sm">{p.name}</div>
                   <div className="text-[10px] text-foreground/60">Spoke up during the talk</div>
