@@ -61,13 +61,14 @@ function PastEvents() {
                 return (
                   <div
                     key={pid}
-                    className="size-9 rounded-full grid place-items-center font-bold text-xs text-white ring-2 ring-black/30 -ml-2 first:ml-0"
-                    style={{ background: p.color, zIndex: 10 - i }}
+                    className="rounded-full ring-2 ring-black/30 -ml-2 first:ml-0 overflow-hidden"
+                    style={{ zIndex: 10 - i }}
                   >
-                    {p.initials}
+                    <Avatar person={p} size={36} />
                   </div>
                 );
               })}
+
               <div className="size-9 rounded-full bg-white/15 backdrop-blur grid place-items-center text-[10px] font-bold -ml-2">
                 +{featured.cards - 4}
               </div>
