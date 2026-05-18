@@ -27,12 +27,12 @@ export function IdentityCard({ person, tilt = false, className = "", serial = "0
       />
       <div className="relative p-6 h-full flex flex-col justify-between text-white">
         <div className="flex justify-between items-start">
-          <div
-            className="size-12 rounded-full ring-1 ring-white/20 grid place-items-center font-bold text-sm"
-            style={{ background: person.color }}
-          >
-            {person.initials}
-          </div>
+          <Avatar
+            person={person}
+            size={56}
+            className="ring-2 ring-white/30 shadow-lg"
+          />
+
           <div className="font-display italic text-[10px] text-white/40 tracking-widest uppercase">
             ID // {serial}
           </div>
