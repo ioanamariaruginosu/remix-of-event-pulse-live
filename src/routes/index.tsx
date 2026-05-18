@@ -298,7 +298,7 @@ function Landing() {
                 Organize Your Hub
               </Link>
               <Link to="/venue" className="px-8 py-4 bg-foreground text-white rounded-2xl font-bold ring-1 ring-white/20 hover:bg-foreground/80 transition-colors">
-                View the Spectacle
+                View the Event
               </Link>
             </div>
           </div>
