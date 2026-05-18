@@ -31,6 +31,21 @@ function Dashboard() {
       </div>
 
       <section className="space-y-4">
+        <h2 className="text-2xl font-extrabold tracking-tight">Venue map</h2>
+        <p className="text-sm text-foreground/60 -mt-2">
+          This is the "You are here" map attendees see. Replace the image, rotate, or add floors —
+          changes apply to everyone in the event.
+        </p>
+        <EventMap
+          eventId="current"
+          role="organizer"
+          title="You are here · live for attendees"
+          defaultContent={<VenueFloorPlan />}
+        />
+      </section>
+
+      <section className="space-y-4">
+
         <h2 className="text-2xl font-extrabold tracking-tight">Branding</h2>
         <div className="p-6 rounded-3xl ring-1 ring-border bg-background grid md:grid-cols-3 gap-6 items-center">
           <div>
