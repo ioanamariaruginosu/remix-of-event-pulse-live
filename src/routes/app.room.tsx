@@ -50,15 +50,15 @@ function RoomView() {
           ))}
         </div>
       </div>
-
       <EventMap
         eventId="current"
         role="attendee"
         title="You are here · Floor 1"
-        defaultContent={
-          <VenueFloorPlan activeRoomId={roomId} onSelect={setRoomId} showLivePosition />
-        }
+        activeRoomId={roomId}
+        onSelectRoom={setRoomId}
+        showLivePosition
       />
+
 
 
 
