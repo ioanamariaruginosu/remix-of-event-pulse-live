@@ -266,6 +266,15 @@ function buildSlides(ev: typeof pastEvents[number], topPeople: ReturnType<typeof
       node: <PhotoCollageSlide photos={ev.photos} />,
     },
     {
+      bg: "linear-gradient(150deg,#0a0a1a,#1a2a4e)",
+      node: <EventAnalyticsSlide ev={ev} />,
+    },
+    {
+      bg: "linear-gradient(160deg,#0a0a1a,#2e1a0a)",
+      node: <EventActivitySlide ev={ev} />,
+    },
+
+    {
       bg: "linear-gradient(135deg,#000,#7c3aed)",
       node: (
         <div className="flex-1 flex flex-col justify-center items-center text-center">
