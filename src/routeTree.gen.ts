@@ -9,38 +9,108 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as OrganizerRouteImport } from './routes/organizer'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as OrganizerIndexRouteImport } from './routes/organizer.index'
+import { Route as OrganizerSessionsRouteImport } from './routes/organizer.sessions'
+import { Route as OrganizerRoomsRouteImport } from './routes/organizer.rooms'
+import { Route as OrganizerLiveRouteImport } from './routes/organizer.live'
 
+const OrganizerRoute = OrganizerRouteImport.update({
+  id: '/organizer',
+  path: '/organizer',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OrganizerIndexRoute = OrganizerIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => OrganizerRoute,
+} as any)
+const OrganizerSessionsRoute = OrganizerSessionsRouteImport.update({
+  id: '/sessions',
+  path: '/sessions',
+  getParentRoute: () => OrganizerRoute,
+} as any)
+const OrganizerRoomsRoute = OrganizerRoomsRouteImport.update({
+  id: '/rooms',
+  path: '/rooms',
+  getParentRoute: () => OrganizerRoute,
+} as any)
+const OrganizerLiveRoute = OrganizerLiveRouteImport.update({
+  id: '/live',
+  path: '/live',
+  getParentRoute: () => OrganizerRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/organizer': typeof OrganizerRouteWithChildren
+  '/organizer/live': typeof OrganizerLiveRoute
+  '/organizer/rooms': typeof OrganizerRoomsRoute
+  '/organizer/sessions': typeof OrganizerSessionsRoute
+  '/organizer/': typeof OrganizerIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/organizer/live': typeof OrganizerLiveRoute
+  '/organizer/rooms': typeof OrganizerRoomsRoute
+  '/organizer/sessions': typeof OrganizerSessionsRoute
+  '/organizer': typeof OrganizerIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/organizer': typeof OrganizerRouteWithChildren
+  '/organizer/live': typeof OrganizerLiveRoute
+  '/organizer/rooms': typeof OrganizerRoomsRoute
+  '/organizer/sessions': typeof OrganizerSessionsRoute
+  '/organizer/': typeof OrganizerIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/organizer'
+    | '/organizer/live'
+    | '/organizer/rooms'
+    | '/organizer/sessions'
+    | '/organizer/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/organizer/live'
+    | '/organizer/rooms'
+    | '/organizer/sessions'
+    | '/organizer'
+  id:
+    | '__root__'
+    | '/'
+    | '/organizer'
+    | '/organizer/live'
+    | '/organizer/rooms'
+    | '/organizer/sessions'
+    | '/organizer/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  OrganizerRoute: typeof OrganizerRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/organizer': {
+      id: '/organizer'
+      path: '/organizer'
+      fullPath: '/organizer'
+      preLoaderRoute: typeof OrganizerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,12 +118,69 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/organizer/': {
+      id: '/organizer/'
+      path: '/'
+      fullPath: '/organizer/'
+      preLoaderRoute: typeof OrganizerIndexRouteImport
+      parentRoute: typeof OrganizerRoute
+    }
+    '/organizer/sessions': {
+      id: '/organizer/sessions'
+      path: '/sessions'
+      fullPath: '/organizer/sessions'
+      preLoaderRoute: typeof OrganizerSessionsRouteImport
+      parentRoute: typeof OrganizerRoute
+    }
+    '/organizer/rooms': {
+      id: '/organizer/rooms'
+      path: '/rooms'
+      fullPath: '/organizer/rooms'
+      preLoaderRoute: typeof OrganizerRoomsRouteImport
+      parentRoute: typeof OrganizerRoute
+    }
+    '/organizer/live': {
+      id: '/organizer/live'
+      path: '/live'
+      fullPath: '/organizer/live'
+      preLoaderRoute: typeof OrganizerLiveRouteImport
+      parentRoute: typeof OrganizerRoute
+    }
   }
 }
 
+interface OrganizerRouteChildren {
+  OrganizerLiveRoute: typeof OrganizerLiveRoute
+  OrganizerRoomsRoute: typeof OrganizerRoomsRoute
+  OrganizerSessionsRoute: typeof OrganizerSessionsRoute
+  OrganizerIndexRoute: typeof OrganizerIndexRoute
+}
+
+const OrganizerRouteChildren: OrganizerRouteChildren = {
+  OrganizerLiveRoute: OrganizerLiveRoute,
+  OrganizerRoomsRoute: OrganizerRoomsRoute,
+  OrganizerSessionsRoute: OrganizerSessionsRoute,
+  OrganizerIndexRoute: OrganizerIndexRoute,
+}
+
+const OrganizerRouteWithChildren = OrganizerRoute._addFileChildren(
+  OrganizerRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  OrganizerRoute: OrganizerRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
