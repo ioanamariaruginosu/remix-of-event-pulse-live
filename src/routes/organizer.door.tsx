@@ -203,12 +203,8 @@ function Door() {
                     lastTapped === p.id ? "ring-primary bg-primary-soft" : ""
                   }`}
                 >
-                  <div
-                    className="size-8 rounded-full grid place-items-center text-[10px] font-bold text-white"
-                    style={{ background: p.color }}
-                  >
-                    {p.initials}
-                  </div>
+                  <Avatar person={p} size={36} className="ring-2 ring-border" />
+
                   <div className="text-[10px] font-bold truncate w-full text-center">
                     {p.name.split(" ")[0]}
                   </div>
