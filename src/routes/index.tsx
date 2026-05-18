@@ -241,6 +241,50 @@ function Landing() {
         </section>
 
         {/* Final CTA */}
+        {/* Vision */}
+        <section id="vision" className="space-y-16">
+          <div className="max-w-3xl mx-auto text-center space-y-6">
+            <div className="inline-block px-4 py-1.5 bg-primary-soft text-primary font-display italic text-[10px] font-bold tracking-widest uppercase rounded-full ring-1 ring-primary/20">
+              The Vision
+            </div>
+            <h2 className="text-4xl md:text-6xl font-extrabold tracking-tight text-balance leading-[0.95]">
+              Organizers empowered.<br />
+              <span className="text-primary italic">Never overwhelmed.</span>
+            </h2>
+            <p className="text-lg md:text-xl text-foreground/60 leading-relaxed text-pretty">
+              AI should handle the grind so organizers can do the human work: curating meaningful, personal experiences. And events should not end. They should evolve. Every talk, every panel, every insight becomes a living knowledge engine that keeps teaching long after the room clears.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            <PillarCard
+              tag="Pillar 01"
+              title="Energy"
+              metric="90%"
+              metricLabel="of new learning lost in a week without reinforcement"
+              copy="The Ebbinghaus forgetting curve is brutal. Roughly half of what attendees learn vanishes within an hour, and close to ninety percent is gone in seven days. synqmap keeps the signal alive with timed reinforcement, so the energy in the room actually compounds."
+              source="Ebbinghaus, Memory (1885); replicated by Murre and Dros, PLOS ONE 10(7), 2015."
+            />
+            <PillarCard
+              tag="Pillar 02"
+              title="Followup"
+              metric="92%"
+              metricLabel="of B2B event teams plan to improve post event followup this year"
+              copy="Followup failure is universal. Nearly every organizer admits the after event motion is broken, and ROI measurement is even further behind. We turn each handshake into a structured trail your team can actually act on."
+              source="Forrester Q1 2024 State of B2B Events Survey, Conrad Mills, July 2024."
+              highlight
+            />
+            <PillarCard
+              tag="Pillar 03"
+              title="Afterwards"
+              metric="1 in 5"
+              metricLabel="enterprises integrate their event platform with their marketing stack"
+              copy="Anonymous afterwards is the default. Only one in five enterprises connects their primary event platform to the rest of their stack, so attendee data dies in a silo the moment the lights go down. synqmap pipes the live graph straight into the systems your team already uses."
+              source="Forrester Q1 2024 State of B2B Events Survey."
+            />
+          </div>
+        </section>
+
         <section className="bg-primary rounded-[40px] p-12 md:p-16 text-center text-white relative overflow-hidden">
           <div className="absolute top-0 right-0 w-96 h-96 bg-accent/30 blur-[120px] rounded-full" />
           <div className="absolute bottom-0 left-0 w-96 h-96 bg-white/10 blur-[120px] rounded-full" />
@@ -314,6 +358,53 @@ function ScaleCard({
       <div className="font-display italic text-xs font-bold text-primary tracking-widest uppercase mb-2">{tag}</div>
       <h3 className="text-2xl font-bold mb-3 tracking-tight">{title}</h3>
       <p className="text-sm text-foreground/60 leading-relaxed">{copy}</p>
+    </div>
+  );
+}
+
+function PillarCard({
+  tag,
+  title,
+  metric,
+  metricLabel,
+  copy,
+  source,
+  highlight,
+}: {
+  tag: string;
+  title: string;
+  metric: string;
+  metricLabel: string;
+  copy: string;
+  source: string;
+  highlight?: boolean;
+}) {
+  return (
+    <div
+      className={`group p-8 rounded-[32px] ring-1 transition-all flex flex-col gap-6 ${
+        highlight
+          ? "bg-foreground text-background ring-foreground"
+          : "bg-background ring-border hover:ring-primary/30"
+      }`}
+    >
+      <div className={`font-display italic text-[10px] font-bold tracking-widest uppercase ${highlight ? "text-accent" : "text-primary"}`}>
+        {tag}
+      </div>
+      <h3 className="text-3xl font-extrabold tracking-tight">{title}</h3>
+      <div>
+        <div className={`text-5xl md:text-6xl font-extrabold tracking-tight ${highlight ? "text-accent" : "text-primary"}`}>
+          {metric}
+        </div>
+        <div className={`text-xs mt-2 ${highlight ? "text-background/60" : "text-foreground/50"}`}>
+          {metricLabel}
+        </div>
+      </div>
+      <p className={`text-sm leading-relaxed ${highlight ? "text-background/80" : "text-foreground/70"}`}>
+        {copy}
+      </p>
+      <div className={`mt-auto text-[10px] font-display italic ${highlight ? "text-background/40" : "text-foreground/40"}`}>
+        {source}
+      </div>
     </div>
   );
 }
