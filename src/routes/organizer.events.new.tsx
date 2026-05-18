@@ -41,7 +41,7 @@ function NewEvent() {
         <div className="font-display italic text-[10px] uppercase tracking-widest text-foreground/40 mb-2">
           New event
         </div>
-        <h1 className="text-5xl font-extrabold tracking-tight">
+        <h1 className="text-3xl lg:text-5xl font-extrabold tracking-tight">
           {form.name || "Untitled event"}
         </h1>
         <p className="text-foreground/50 mt-2">{form.tagline || "Set the stage for your gathering."}</p>
@@ -49,7 +49,8 @@ function NewEvent() {
 
       <Stepper step={step} setStep={setStep} />
 
-      <div className="p-8 ring-1 ring-border rounded-3xl bg-background space-y-6 min-h-[360px]">
+      <div className="p-5 lg:p-8 ring-1 ring-border rounded-3xl bg-background space-y-6 min-h-[360px]">
+
         {step === 0 && (
           <div className="space-y-5">
             <Field label="Event name">
