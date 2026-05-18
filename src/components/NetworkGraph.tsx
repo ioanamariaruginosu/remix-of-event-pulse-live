@@ -108,15 +108,18 @@ export function NetworkGraph({
   const H = height;
 
   /* Per-node derived visual state: color from cluster, match-strength from
-     similarity to the center person (the "you" node). */
+     similarity to the center person (the "you" node). Min radius is generous
+     enough that every node fits a legible avatar. */
   const enriched = useMemo(() => {
+    const minR = scale === "personal" ? 14 : 13;
     return nodes.map((n) => {
       const cl = clusterFor(n);
       const match = center ? matchScore(center, n) : 0;
-      const baseR = n.id === centerId ? 22 : 8 + Math.round(match * 10);
+      const baseR = n.id === centerId ? 24 : minR + Math.round(match * 8);
       return { ...n, color: cl.color, cluster: cl.id, match, baseR };
     });
-  }, [nodes, center, centerId]);
+  }, [nodes, center, centerId, scale]);
+
 
   const positions = useMemo(() => {
     const map = new Map<string, { x: number; y: number }>();
