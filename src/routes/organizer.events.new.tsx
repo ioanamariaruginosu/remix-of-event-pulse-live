@@ -239,7 +239,7 @@ function NewEvent() {
 
 function Stepper({ step, setStep }: { step: number; setStep: (n: number) => void }) {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2 overflow-x-auto -mx-5 px-5 lg:mx-0 lg:px-0 [&::-webkit-scrollbar]:hidden">
       {steps.map((s, i) => {
         const active = i === step;
         const done = i < step;
