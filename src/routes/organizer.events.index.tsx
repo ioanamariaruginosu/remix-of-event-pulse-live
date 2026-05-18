@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { event, pastEvents } from "@/data/event";
 
-export const Route = createFileRoute("/organizer/events")({
+export const Route = createFileRoute("/organizer/events/")({
   head: () => ({ meta: [{ title: "Organizer · Events — synqmap" }] }),
   component: Events,
 });
