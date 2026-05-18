@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { motion } from "motion/react";
 import { NetworkGraph } from "@/components/NetworkGraph";
 import { Avatar } from "@/components/Avatar";
 import { RoomPhotos } from "@/components/RoomPhotos";
