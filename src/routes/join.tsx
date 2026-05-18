@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { PhoneFrame } from "@/components/PhoneFrame";
+
 import { Logo } from "@/components/Logo";
 
 export const Route = createFileRoute("/join")({
@@ -144,11 +144,6 @@ function Join() {
         </div>
       </div>
 
-      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 hidden lg:block opacity-30 pointer-events-none">
-        <PhoneFrame>
-          <div className="p-6" />
-        </PhoneFrame>
-      </div>
     </div>
   );
 }
