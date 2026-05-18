@@ -4,7 +4,7 @@ import { NetworkGraph } from "@/components/NetworkGraph";
 import { event, rooms, tickerEvents } from "@/data/event";
 
 export const Route = createFileRoute("/venue")({
-  head: () => ({ meta: [{ title: "Venue Screen — Eurhack 2026" }] }),
+  head: () => ({ meta: [{ title: "Venue Screen — synqmap" }] }),
   component: Venue,
 });
 

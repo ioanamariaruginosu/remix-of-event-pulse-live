@@ -73,13 +73,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Eurhack 2026 — Physical space, live graphed." },
+      { title: "synqmap — Physical space, live graphed." },
       {
         name: "description",
         content:
           "A live network for in-person events. Rooms are physical, sessions are temporal — and every handshake snaps into a glowing constellation.",
       },
-      { property: "og:title", content: "Eurhack 2026 — Physical space, live graphed." },
+      { property: "og:title", content: "synqmap — Physical space, live graphed." },
       { property: "og:type", content: "website" },
     ],
     links: [

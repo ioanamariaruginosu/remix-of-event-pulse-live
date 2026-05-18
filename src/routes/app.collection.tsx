@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { people, edges } from "@/data/event";
 
 export const Route = createFileRoute("/app/collection")({
-  head: () => ({ meta: [{ title: "Your deck — Eurhack 2026" }] }),
+  head: () => ({ meta: [{ title: "Your deck — synqmap" }] }),
   component: Collection,
 });
 

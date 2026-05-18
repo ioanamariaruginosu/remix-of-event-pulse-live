@@ -5,7 +5,7 @@ import { IdentityCard } from "@/components/IdentityCard";
 import { people } from "@/data/event";
 
 export const Route = createFileRoute("/app/exchange")({
-  head: () => ({ meta: [{ title: "Tap to exchange — Eurhack 2026" }] }),
+  head: () => ({ meta: [{ title: "Tap to exchange — synqmap" }] }),
   component: Exchange,
 });
 

@@ -5,7 +5,7 @@ import { PhoneFrame } from "@/components/PhoneFrame";
 import { Logo } from "@/components/Logo";
 
 export const Route = createFileRoute("/join")({
-  head: () => ({ meta: [{ title: "Join — Eurhack 2026" }] }),
+  head: () => ({ meta: [{ title: "Join — synqmap" }] }),
   component: Join,
 });
 

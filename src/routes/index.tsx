@@ -9,13 +9,13 @@ import { people, event, rooms } from "@/data/event";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Eurhack 2026 — Physical space, live graphed." },
+      { title: "synqmap — Physical space, live graphed." },
       {
         name: "description",
         content:
           "Turn every handshake into a data point. Rooms are physical, sessions are temporal. The live network for in-person events.",
       },
-      { property: "og:title", content: "Eurhack 2026 — Physical space, live graphed." },
+      { property: "og:title", content: "synqmap — Physical space, live graphed." },
       {
         property: "og:description",
         content: "The live network for in-person events. Tap to exchange identity cards.",
@@ -96,7 +96,7 @@ function Landing() {
             transition={{ duration: 0.8, delay: 0.3 }}
             className="max-w-2xl mx-auto text-lg md:text-xl text-foreground/60 mb-12 text-pretty"
           >
-            Turn every handshake into a data point. Eurhack 2026 converts rooms into physical nodes and sessions into temporal edges — projected onto the venue wall in real time.
+            Turn every handshake into a data point. synqmap converts rooms into physical nodes and sessions into temporal edges — projected onto the venue wall in real time.
           </motion.p>
 
           <motion.div
@@ -262,7 +262,7 @@ function Landing() {
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-2">
             <div className="size-6 bg-primary rounded-md" />
-            <span className="font-bold text-white tracking-tighter">EURHACK <span className="text-white/40 font-normal">2026</span></span>
+            <span className="font-bold text-white tracking-tighter lowercase">synq<span className="text-white/40 font-normal">map</span></span>
           </div>
           <div className="flex gap-6 font-mono text-[10px] font-bold uppercase tracking-widest">
             <a className="hover:text-white transition-colors" href="#">Network Status</a>
