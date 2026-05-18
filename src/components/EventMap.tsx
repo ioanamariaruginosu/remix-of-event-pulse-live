@@ -52,21 +52,6 @@ function clamp(v: number, lo: number, hi: number) {
   return Math.min(hi, Math.max(lo, v));
 }
 
-function rotatedCanvasInsets(layout: Layout, rect: DOMRect) {
-  const rad = ((layout.rotation ?? 0) * Math.PI) / 180;
-  const cos = Math.abs(Math.cos(rad));
-  const sin = Math.abs(Math.sin(rad));
-  const wPx = (layout.w / 100) * rect.width;
-  const hPx = (layout.h / 100) * rect.height;
-  const rotatedWPx = wPx * cos + hPx * sin;
-  const rotatedHPx = wPx * sin + hPx * cos;
-
-  return {
-    x: ((rotatedWPx - wPx) / 2 / rect.width) * 100,
-    y: ((rotatedHPx - hPx) / 2 / rect.height) * 100,
-  };
-}
-
 export function EventMap({
   eventId,
   role,
@@ -327,6 +312,10 @@ function VenueMapCanvas({
     startX: number;
     startY: number;
     start: Layout;
+    overflowLeft: number;
+    overflowRight: number;
+    overflowTop: number;
+    overflowBottom: number;
   } | null>(null);
 
   const onPointerDown =
@@ -337,12 +326,30 @@ function VenueMapCanvas({
       const rect = canvasRef.current?.getBoundingClientRect();
       if (!rect) return;
       onSelect(id);
+      const layout = layouts[id];
+      const layoutLeft = (layout.x / 100) * rect.width;
+      const layoutTop = (layout.y / 100) * rect.height;
+      const layoutWidth = (layout.w / 100) * rect.width;
+      const layoutHeight = (layout.h / 100) * rect.height;
+      const roomBox =
+        mode === "move"
+          ? (e.currentTarget as HTMLElement).getBoundingClientRect()
+          : ({
+              left: rect.left + layoutLeft,
+              top: rect.top + layoutTop,
+              right: rect.left + layoutLeft + layoutWidth,
+              bottom: rect.top + layoutTop + layoutHeight,
+            } as DOMRect);
       dragRef.current = {
         id,
         mode,
         startX: e.clientX,
         startY: e.clientY,
-        start: { ...layouts[id] },
+        start: { ...layout },
+        overflowLeft: layoutLeft - (roomBox.left - rect.left),
+        overflowRight: roomBox.right - rect.left - (layoutLeft + layoutWidth),
+        overflowTop: layoutTop - (roomBox.top - rect.top),
+        overflowBottom: roomBox.bottom - rect.top - (layoutTop + layoutHeight),
       };
       (e.currentTarget as Element).setPointerCapture(e.pointerId);
     };
@@ -354,11 +361,10 @@ function VenueMapCanvas({
     const dxPct = ((e.clientX - d.startX) / rect.width) * 100;
     const dyPct = ((e.clientY - d.startY) / rect.height) * 100;
     if (d.mode === "move") {
-      const inset = rotatedCanvasInsets(d.start, rect);
-      const minX = Math.max(0, inset.x);
-      const maxX = 100 - d.start.w - Math.max(0, inset.x);
-      const minY = Math.max(0, inset.y);
-      const maxY = 100 - d.start.h - Math.max(0, inset.y);
+      const minX = (d.overflowLeft / rect.width) * 100;
+      const maxX = 100 - d.start.w - (d.overflowRight / rect.width) * 100;
+      const minY = (d.overflowTop / rect.height) * 100;
+      const maxY = 100 - d.start.h - (d.overflowBottom / rect.height) * 100;
       const x = clamp(Math.round((d.start.x + dxPct) * 10) / 10, minX, maxX);
       const y = clamp(Math.round((d.start.y + dyPct) * 10) / 10, minY, maxY);
       onUpdate(d.id, { x, y });
