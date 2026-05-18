@@ -2,6 +2,7 @@ import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-r
 import { motion } from "motion/react";
 import { people } from "@/data/event";
 import { Avatar } from "@/components/Avatar";
+import { useYou } from "@/data/profile";
 
 export const Route = createFileRoute("/app")({
   component: AppLayout,
@@ -17,7 +18,7 @@ const tabs = [
 
 function AppLayout() {
   const path = useRouterState({ select: (s) => s.location.pathname });
-  const you = people[0];
+  const you = useYou(people[0]);
 
   return (
     <div className="min-h-[100dvh] bg-background text-foreground antialiased flex flex-col relative overflow-hidden">
