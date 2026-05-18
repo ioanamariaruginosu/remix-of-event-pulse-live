@@ -96,7 +96,7 @@ function Landing() {
             transition={{ duration: 0.8, delay: 0.3 }}
             className="max-w-2xl mx-auto text-lg md:text-xl text-foreground/60 mb-12 text-pretty"
           >
-            Turn every handshake into a data point. Eurhack 2026 converts rooms into physical nodes and sessions into temporal edges — projected onto the venue wall in real time.
+            Turn every handshake into a data point. synqmap converts rooms into physical nodes and sessions into temporal edges — projected onto the venue wall in real time.
           </motion.p>
 
           <motion.div
