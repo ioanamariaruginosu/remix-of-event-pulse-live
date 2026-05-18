@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { event, rooms, sessions, people, edges } from "@/data/event";
 import { Avatar } from "@/components/Avatar";
 import { EventMap } from "@/components/EventMap";
-import { BRAND_COLORS, setBrandColor, useBrandColor } from "@/data/theme";
+import { BRAND_COLORS, setBrandColor, useBrandColor, BRAND_FONTS, setBrandFont, useBrandFont } from "@/data/theme";
 
 
 export const Route = createFileRoute("/organizer/")({
@@ -12,6 +12,8 @@ export const Route = createFileRoute("/organizer/")({
 
 function Dashboard() {
   const brand = useBrandColor() ?? "#ebc020";
+  const fontId = useBrandFont() ?? "general-sans";
+  const activeFont = BRAND_FONTS.find((f) => f.id === fontId) ?? BRAND_FONTS[0];
   return (
     <div className="p-8 lg:p-12 space-y-12 max-w-6xl">
       <div>
@@ -105,12 +107,41 @@ function Dashboard() {
           </div>
           <div>
             <div className="font-display italic text-[10px] uppercase tracking-widest text-foreground/40 mb-2">Type system</div>
-            <div className="font-bold text-lg">General Sans</div>
-            <div className="mt-1 text-xs text-foreground/50">Display + body + mono — one family, three weights.</div>
-            <div className="mt-3 flex items-baseline gap-3">
-              <span className="text-2xl font-extrabold tracking-tight">Aa</span>
-              <span className="font-display italic text-base text-foreground/60">Aa</span>
-              <span className="font-mono text-sm text-foreground/60">Aa</span>
+            <div className="font-bold text-lg" style={{ fontFamily: activeFont.stack }}>
+              {activeFont.label}
+            </div>
+            <div
+              className="mt-2 flex items-baseline gap-3"
+              style={{ fontFamily: activeFont.stack }}
+            >
+              <span className="text-3xl font-extrabold tracking-tight">Aa</span>
+              <span className="italic text-lg text-foreground/60">Aa</span>
+              <span className="text-sm text-foreground/60">Aa</span>
+            </div>
+            <div className="mt-3 flex gap-1.5 flex-wrap">
+              {BRAND_FONTS.map((f) => {
+                const active = f.id === fontId;
+                return (
+                  <button
+                    key={f.id}
+                    type="button"
+                    onClick={() => setBrandFont(f.id)}
+                    aria-pressed={active}
+                    title={f.label}
+                    style={{ fontFamily: f.stack }}
+                    className={`px-2.5 py-1 rounded-md text-xs ring-1 transition ${
+                      active
+                        ? "ring-foreground bg-foreground text-background"
+                        : "ring-border hover:ring-foreground/40 text-foreground/70"
+                    }`}
+                  >
+                    {f.label}
+                  </button>
+                );
+              })}
+            </div>
+            <div className="mt-2 text-[10px] font-display italic text-foreground/40">
+              Applies live across the app.
             </div>
           </div>
         </div>
