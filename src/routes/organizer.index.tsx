@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { event, rooms, sessions, people, edges } from "@/data/event";
 import { Avatar } from "@/components/Avatar";
 import { EventMap } from "@/components/EventMap";
+import { BRAND_COLORS, setBrandColor, useBrandColor } from "@/data/theme";
 
 
 export const Route = createFileRoute("/organizer/")({
@@ -10,6 +11,7 @@ export const Route = createFileRoute("/organizer/")({
 });
 
 function Dashboard() {
+  const brand = useBrandColor() ?? "#ebc020";
   return (
     <div className="p-8 lg:p-12 space-y-12 max-w-6xl">
       <div>
@@ -60,10 +62,45 @@ function Dashboard() {
           </div>
           <div>
             <div className="font-display italic text-[10px] uppercase tracking-widest text-foreground/40 mb-2">Palette</div>
-            <div className="flex gap-2">
-              {["#0f172a", "#ffffff", "#7c3aed", "#d9f99d"].map((c) => (
-                <div key={c} className="size-10 rounded-lg ring-1 ring-border" style={{ background: c }} />
-              ))}
+            <div className="flex gap-2 flex-wrap">
+              {BRAND_COLORS.map((c) => {
+                const active = c.hex.toLowerCase() === brand.toLowerCase();
+                return (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => setBrandColor(c.hex)}
+                    aria-label={`Set primary color to ${c.label}`}
+                    aria-pressed={active}
+                    title={c.label}
+                    className={`size-10 rounded-lg ring-2 transition relative ${
+                      active ? "ring-foreground scale-110" : "ring-border hover:ring-foreground/40"
+                    }`}
+                    style={{ background: c.hex }}
+                  >
+                    {active && (
+                      <span className="absolute inset-0 grid place-items-center text-white mix-blend-difference text-sm font-bold">
+                        ✓
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+              <label
+                className="size-10 rounded-lg ring-2 ring-border grid place-items-center cursor-pointer hover:ring-foreground/40 transition text-foreground/40 text-lg"
+                title="Custom color"
+              >
+                +
+                <input
+                  type="color"
+                  className="sr-only"
+                  value={brand}
+                  onChange={(e) => setBrandColor(e.target.value)}
+                />
+              </label>
+            </div>
+            <div className="mt-2 text-[10px] font-display italic text-foreground/40">
+              Applies live to attendees & organizers.
             </div>
           </div>
           <div>

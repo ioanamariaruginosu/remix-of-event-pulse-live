@@ -10,6 +10,7 @@ import {
 
 import appCss from "../styles.css?url";
 import { DemoSwitcher } from "@/components/DemoSwitcher";
+import { BrandThemeApplier } from "@/data/theme";
 
 function NotFoundComponent() {
   return (
@@ -120,6 +121,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <Outlet />
       <DemoSwitcher />
+      <BrandThemeApplier />
     </QueryClientProvider>
   );
 }
