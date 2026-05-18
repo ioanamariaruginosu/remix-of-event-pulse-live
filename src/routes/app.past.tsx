@@ -129,6 +129,7 @@ function PastEvents() {
                 <ShareLinkedInIcon url={`/app/wrapped?e=${ev.id}`} />
                 <span className="text-foreground/30">→</span>
               </div>
+            </Link>
           </motion.div>
         ))}
       </div>
