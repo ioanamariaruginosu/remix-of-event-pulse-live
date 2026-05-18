@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { sessionBrief, people } from "@/data/event";
+import { Avatar } from "@/components/Avatar";
 
 export const Route = createFileRoute("/app/brief")({
   head: () => ({ meta: [{ title: "Session brief — synqmap" }] }),
