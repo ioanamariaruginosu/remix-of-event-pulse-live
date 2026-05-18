@@ -54,8 +54,11 @@ function RoomView() {
         eventId="current"
         role="attendee"
         title="You are here · Floor 1"
-        defaultContent={<VenueMiniMap activeRoomId={roomId} onSelect={setRoomId} />}
+        defaultContent={
+          <VenueFloorPlan activeRoomId={roomId} onSelect={setRoomId} showLivePosition />
+        }
       />
+
 
 
 
