@@ -1,5 +1,6 @@
 import { motion } from "motion/react";
 import type { Person } from "@/data/event";
+import { Avatar } from "@/components/Avatar";
 
 type Props = {
   person: Person;
