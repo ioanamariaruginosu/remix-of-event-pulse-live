@@ -9,11 +9,44 @@ export const Route = createFileRoute("/join")({
   component: Join,
 });
 
+type Persona = "professional" | "founder" | "investor" | "student" | "researcher" | "other";
+
 const steps = [
   { id: "scan", title: "Scan the event QR" },
-  { id: "intent", title: "Set your intent" },
-  { id: "card", title: "Build your card" },
+  { id: "identity", title: "Who you are" },
+  { id: "background", title: "Where you spend your days" },
+  { id: "expertise", title: "What you know" },
+  { id: "interests", title: "What you want to talk about" },
+  { id: "intent", title: "Why you came" },
+  { id: "socials", title: "How people can reach you" },
 ];
+
+const personaOptions: { id: Persona; label: string; copy: string }[] = [
+  { id: "professional", label: "Professional", copy: "Working at a company or agency." },
+  { id: "founder", label: "Founder", copy: "Building a startup, with or without funding." },
+  { id: "investor", label: "Investor", copy: "VC, angel, or scout looking at deals." },
+  { id: "student", label: "Student", copy: "Undergrad, masters, or PhD." },
+  { id: "researcher", label: "Researcher", copy: "Academia, lab, or independent." },
+  { id: "other", label: "Other", copy: "Hobbyist, between things, or just curious." },
+];
+
+const expertiseOptions = [
+  "design", "engineering", "ml", "ai-research", "product", "data",
+  "infra", "hardware", "robotics", "spatial", "graphs", "evals",
+  "marketing", "growth", "ops", "finance", "legal", "sales",
+];
+const interestOptions = [
+  "founders", "vc", "hiring", "mentorship", "collaborators", "co-founder",
+  "research", "open-source", "policy", "climate", "health", "fintech",
+  "creative-tools", "robotics", "spatial-computing", "agents", "education",
+];
+const lookingForOptions = [
+  "Co-founder", "First hires", "Mentorship", "Investors", "Customers",
+  "Collaborators", "Job opportunities", "Just exploring",
+];
+const seniorityOptions = ["Intern", "IC", "Senior IC", "Manager", "Director", "VP", "C-level", "Founder"];
+const stageOptions = ["Idea", "Pre-seed", "Seed", "Series A", "Series B+", "Profitable"];
+const studyLevelOptions = ["BSc", "MSc", "PhD", "Postdoc", "Exchange"];
 
 function Join() {
   const [step, setStep] = useState(0);
