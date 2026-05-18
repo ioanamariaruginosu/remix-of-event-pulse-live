@@ -7,8 +7,10 @@ export const Route = createFileRoute("/organizer")({
 
 const nav = [
   { to: "/organizer", label: "Dashboard", exact: true },
+  { to: "/organizer/events", label: "Events" },
   { to: "/organizer/rooms", label: "Rooms" },
   { to: "/organizer/sessions", label: "Schedule" },
+  { to: "/organizer/invitations", label: "Invitations" },
   { to: "/organizer/live", label: "Live Ops" },
 ];
 
