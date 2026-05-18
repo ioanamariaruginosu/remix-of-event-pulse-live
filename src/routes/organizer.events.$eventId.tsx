@@ -3,15 +3,23 @@ import { pastEvents, people, edges, type PastEvent } from "@/data/event";
 import { Avatar } from "@/components/Avatar";
 import { EventMap } from "@/components/EventMap";
 
+const upcomingEvents = [
+  { id: "ue1", name: "Helsinki Founders Week", date: "Sep 14–16, 2026", city: "Helsinki", attendees: 480, status: "upcoming" as const, cover: "linear-gradient(135deg,#a78bfa,#f472b6)" },
+  { id: "ue2", name: "Paris Design Salon", date: "Oct 02, 2026", city: "Paris", attendees: 120, status: "draft" as const, cover: "linear-gradient(135deg,#fbbf24,#fb7185)" },
+];
+type UpcomingEvent = (typeof upcomingEvents)[number];
+
 
 export const Route = createFileRoute("/organizer/events/$eventId")({
   head: ({ params }) => ({
     meta: [{ title: `Organizer · ${params.eventId} — synqmap` }],
   }),
   loader: ({ params }) => {
-    const ev = pastEvents.find((e) => e.id === params.eventId);
-    if (!ev) throw notFound();
-    return { ev };
+    const past = pastEvents.find((e) => e.id === params.eventId);
+    if (past) return { kind: "past" as const, ev: past };
+    const upcoming = upcomingEvents.find((e) => e.id === params.eventId);
+    if (upcoming) return { kind: "upcoming" as const, ev: upcoming };
+    throw notFound();
   },
   notFoundComponent: () => (
     <div className="p-12">
@@ -19,11 +27,64 @@ export const Route = createFileRoute("/organizer/events/$eventId")({
       <Link to="/organizer/events" className="text-primary font-bold">← Back to events</Link>
     </div>
   ),
-  component: ArchiveEvent,
+  component: EventDetail,
 });
 
+function EventDetail() {
+  const data = Route.useLoaderData() as
+    | { kind: "past"; ev: PastEvent }
+    | { kind: "upcoming"; ev: UpcomingEvent };
+  if (data.kind === "past") return <ArchiveEvent />;
+  return <ConfigureEvent ev={data.ev} />;
+}
+
+function ConfigureEvent({ ev }: { ev: UpcomingEvent }) {
+  const sections: { to: "/organizer" | "/organizer/rooms" | "/organizer/sessions" | "/organizer/invitations" | "/organizer/door"; label: string; copy: string }[] = [
+    { to: "/organizer", label: "Dashboard & map", copy: "Edit the venue map, branding, and headline KPIs." },
+    { to: "/organizer/rooms", label: "Rooms", copy: "Add, rename, or remove rooms and tracks." },
+    { to: "/organizer/sessions", label: "Schedule", copy: "Plan sessions, speakers, and time slots." },
+    { to: "/organizer/invitations", label: "Invitations", copy: "Send invites and manage RSVPs." },
+    { to: "/organizer/door", label: "Door check-in", copy: "Pre-print badges and configure check-in." },
+  ];
+  return (
+    <div className="p-8 lg:p-12 space-y-10 max-w-5xl">
+      <div>
+        <Link to="/organizer/events" className="text-xs font-bold text-foreground/50 hover:text-foreground inline-flex items-center gap-1">← All events</Link>
+        <div className="mt-4 rounded-3xl overflow-hidden ring-1 ring-border">
+          <div className="h-32" style={{ background: ev.cover }} />
+          <div className="p-6 sm:p-8 space-y-2">
+            <span className={`inline-block text-[9px] font-display italic font-bold uppercase tracking-widest px-2 py-1 rounded ${ev.status === "upcoming" ? "bg-accent/40 text-foreground" : "bg-foreground/5 text-foreground/60"}`}>
+              {ev.status}
+            </span>
+            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">{ev.name}</h1>
+            <div className="text-sm text-foreground/60">{ev.date} · {ev.city} · {ev.attendees.toLocaleString()} registered</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div className="font-display italic text-[10px] uppercase tracking-widest text-foreground/40 mb-3">Configure</div>
+        <div className="grid sm:grid-cols-2 gap-3">
+          {sections.map((s) => (
+            <Link
+              key={s.to}
+              to={s.to}
+              className="p-5 rounded-2xl ring-1 ring-border bg-background hover:ring-primary/40 hover:bg-foreground/[0.02] transition-colors block"
+            >
+              <div className="font-bold tracking-tight">{s.label}</div>
+              <div className="text-xs text-foreground/60 mt-1">{s.copy}</div>
+              <div className="text-[10px] font-display italic font-bold uppercase tracking-widest text-primary mt-3">Open ↗</div>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ArchiveEvent() {
-  const { ev } = Route.useLoaderData() as { ev: PastEvent };
+  const data = Route.useLoaderData() as { kind: "past"; ev: PastEvent };
+  const ev = data.ev;
 
   // Derived analytics
   const avgConversation = +(ev.hours * 60 / Math.max(1, ev.conversations)).toFixed(1);
