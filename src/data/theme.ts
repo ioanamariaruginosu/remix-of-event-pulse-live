@@ -34,6 +34,8 @@ export function applyBrandColor(hex: string) {
     "--primary-soft",
     `color-mix(in oklab, ${hex} 18%, transparent)`,
   );
+  root.style.setProperty("--accent", hex);
+  root.style.setProperty("--ring", hex);
 }
 
 export function setBrandColor(hex: string) {
