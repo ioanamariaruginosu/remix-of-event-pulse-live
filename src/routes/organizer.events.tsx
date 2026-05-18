@@ -159,9 +159,19 @@ function EventCard({ row, accent, compact }: { row: EventRow; accent?: boolean; 
                 Live ops ↗
               </Link>
             )}
-            <button className="px-3 py-1.5 text-xs font-bold ring-1 ring-border rounded-lg hover:bg-foreground/5">
-              Open
-            </button>
+            {row.status === "past" ? (
+              <Link
+                to="/organizer/events/$eventId"
+                params={{ eventId: row.id }}
+                className="px-3 py-1.5 text-xs font-bold bg-foreground text-white rounded-lg hover:bg-primary transition-colors"
+              >
+                Analytics ↗
+              </Link>
+            ) : (
+              <button className="px-3 py-1.5 text-xs font-bold ring-1 ring-border rounded-lg hover:bg-foreground/5">
+                Open
+              </button>
+            )}
           </div>
         </div>
       </div>
