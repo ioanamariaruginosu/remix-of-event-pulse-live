@@ -42,7 +42,7 @@ function Events() {
     id: "current",
     name: event.name,
     date: event.dates,
-    city: "Berlin",
+    city: "Rotterdam",
     attendees: event.attendees,
     status: "live",
     cover: "linear-gradient(135deg,#7c3aed,#22d3ee)",
@@ -105,11 +105,7 @@ function Events() {
 }
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="font-display italic text-[10px] uppercase tracking-widest text-foreground/40">
-      {children}
-    </div>
-  );
+  return <div className="font-display italic text-[10px] uppercase tracking-widest text-foreground/40">{children}</div>;
 }
 
 function EventCard({ row, accent, compact }: { row: EventRow; accent?: boolean; compact?: boolean }) {
@@ -117,10 +113,10 @@ function EventCard({ row, accent, compact }: { row: EventRow; accent?: boolean; 
     row.status === "live"
       ? "bg-primary-soft text-primary"
       : row.status === "upcoming"
-      ? "bg-accent/40 text-foreground"
-      : row.status === "draft"
-      ? "bg-foreground/5 text-foreground/60"
-      : "bg-foreground/5 text-foreground/50";
+        ? "bg-accent/40 text-foreground"
+        : row.status === "draft"
+          ? "bg-foreground/5 text-foreground/60"
+          : "bg-foreground/5 text-foreground/50";
 
   return (
     <div
@@ -128,10 +124,7 @@ function EventCard({ row, accent, compact }: { row: EventRow; accent?: boolean; 
         accent ? "ring-primary/30" : "ring-border"
       }`}
     >
-      <div
-        className={`relative ${compact ? "h-24" : "h-40"}`}
-        style={{ background: row.cover }}
-      >
+      <div className={`relative ${compact ? "h-24" : "h-40"}`} style={{ background: row.cover }}>
         <div className="absolute top-3 left-3 flex items-center gap-2">
           <span
             className={`text-[9px] font-display italic font-bold uppercase tracking-widest px-2 py-1 rounded ${tone}`}
@@ -145,18 +138,14 @@ function EventCard({ row, accent, compact }: { row: EventRow; accent?: boolean; 
       </div>
       <div className={`p-5 flex-1 flex flex-col gap-3 ${compact ? "" : "p-6"}`}>
         <div>
-          <h3 className={`font-extrabold tracking-tight ${compact ? "text-lg" : "text-2xl"}`}>
-            {row.name}
-          </h3>
+          <h3 className={`font-extrabold tracking-tight ${compact ? "text-lg" : "text-2xl"}`}>{row.name}</h3>
           <div className="text-xs text-foreground/50 mt-1">
             {row.date} · {row.city}
           </div>
         </div>
         <div className="flex items-end justify-between mt-auto pt-2">
           <div>
-            <div className="font-display italic text-2xl font-extrabold">
-              {row.attendees.toLocaleString()}
-            </div>
+            <div className="font-display italic text-2xl font-extrabold">{row.attendees.toLocaleString()}</div>
             <div className="font-display italic text-[10px] uppercase tracking-widest text-foreground/40">
               {row.status === "past" ? "attendees" : "registered"}
             </div>
