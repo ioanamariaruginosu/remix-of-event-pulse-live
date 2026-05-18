@@ -75,6 +75,8 @@ function RoomView() {
           ))}
         </div>
       </div>
+
+      <RoomPhotos roomId={roomId} />
     </div>
   );
 }
