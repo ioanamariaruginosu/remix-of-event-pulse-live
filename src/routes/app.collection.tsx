@@ -213,116 +213,129 @@ function DetailSheet({ card, onClose }: { card: Card; onClose: () => void }) {
 
   return (
     <motion.div
-      className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-end justify-center"
+      className="fixed inset-0 z-[70] bg-black/60 backdrop-blur-md flex items-end justify-center"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       onClick={onClose}
     >
       <motion.div
-        className="w-full max-w-md bg-background rounded-t-3xl overflow-hidden max-h-[90vh] flex flex-col"
+        className="w-full max-w-md bg-background rounded-t-[28px] overflow-hidden max-h-[88dvh] flex flex-col shadow-[0_-20px_60px_-10px_rgba(0,0,0,0.5)]"
         initial={{ y: "100%" }}
         animate={{ y: 0 }}
         exit={{ y: "100%" }}
-        transition={{ type: "spring", stiffness: 320, damping: 32 }}
+        transition={{ type: "spring", stiffness: 340, damping: 34 }}
         onClick={(e) => e.stopPropagation()}
+        drag="y"
+        dragConstraints={{ top: 0, bottom: 0 }}
+        dragElastic={{ top: 0, bottom: 0.4 }}
+        onDragEnd={(_, info) => {
+          if (info.offset.y > 120 || info.velocity.y > 500) onClose();
+        }}
       >
-        {/* Drag handle */}
-        <div className="pt-2 pb-1 flex justify-center">
+        {/* Drag handle + close */}
+        <div className="relative pt-3 pb-2 flex justify-center shrink-0">
           <div className="w-10 h-1 rounded-full bg-foreground/20" />
+          <button
+            onClick={onClose}
+            aria-label="Close"
+            className="absolute right-4 top-2 size-8 rounded-full bg-foreground/5 hover:bg-foreground/10 grid place-items-center text-foreground/60"
+          >
+            <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
         </div>
 
-        {/* Hero */}
-        <div
-          className="px-6 pt-4 pb-6 text-white relative overflow-hidden"
-          style={{
-            background: `linear-gradient(135deg, ${person.color}, var(--foreground))`,
-          }}
-        >
-          <div className="flex items-center gap-4">
-            <Avatar person={person} size={80} className="ring-4 ring-white/30 shadow-xl" />
-            <div className="min-w-0">
-              <div className="font-extrabold text-2xl tracking-tight leading-tight">{person.name}</div>
-              <div className="text-xs text-white/80 mt-1">{person.oneLiner}</div>
+        {/* Scrollable body — hero + content, full bleed scroll */}
+        <div className="overflow-y-auto overscroll-contain flex-1">
+          {/* Hero */}
+          <div
+            className="px-6 pt-5 pb-6 text-white relative"
+            style={{
+              background: `linear-gradient(135deg, ${person.color}, var(--foreground))`,
+            }}
+          >
+            <div className="flex flex-col items-center text-center gap-3">
+              <Avatar person={person} size={88} className="ring-4 ring-white/30 shadow-xl" />
+              <div>
+                <div className="font-extrabold text-2xl tracking-tight leading-tight">{person.name}</div>
+                <div className="text-xs text-white/80 mt-1 max-w-[260px] mx-auto">{person.oneLiner}</div>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Scrollable body */}
-        <div className="overflow-y-auto px-6 py-5 space-y-5">
-          <section>
-            <div className="text-[9px] font-display italic font-bold uppercase tracking-widest text-foreground/40 mb-1.5">
-              Why you matched
-            </div>
-            <div className="text-sm leading-relaxed">{reason}</div>
-          </section>
+          <div className="px-6 py-5 space-y-5">
+            <section
+              className="p-4 rounded-2xl"
+              style={{ background: `${person.color}1a` }}
+            >
+              <div className="text-[9px] font-display italic font-bold uppercase tracking-widest text-foreground/50 mb-1.5">
+                Why you matched
+              </div>
+              <div className="text-sm leading-relaxed">{reason}</div>
+            </section>
 
-          <section>
-            <div className="text-[9px] font-display italic font-bold uppercase tracking-widest text-foreground/40 mb-1.5">
-              Looking for
-            </div>
-            <div className="text-sm leading-relaxed">{person.intent}</div>
-          </section>
+            <section>
+              <div className="text-[9px] font-display italic font-bold uppercase tracking-widest text-foreground/40 mb-1.5">
+                Looking for
+              </div>
+              <div className="text-sm leading-relaxed">{person.intent}</div>
+            </section>
 
-          <section>
-            <div className="text-[9px] font-display italic font-bold uppercase tracking-widest text-foreground/40 mb-2">
-              Topics
-            </div>
-            <div className="flex flex-wrap gap-1.5">
-              {person.tags.map((t) => (
-                <span
-                  key={t}
-                  className="px-2.5 py-1 rounded-full bg-foreground/5 text-[10px] font-bold uppercase tracking-wider"
-                >
-                  {t}
-                </span>
-              ))}
-            </div>
-          </section>
-
-          {socials.length > 0 && (
             <section>
               <div className="text-[9px] font-display italic font-bold uppercase tracking-widest text-foreground/40 mb-2">
-                Connect
+                Topics
               </div>
-              <div className="space-y-2">
-                {socials.map(([k, v]) => (
-                  <a
-                    key={k}
-                    href={socialHref(k, v)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-3 p-3 rounded-xl ring-1 ring-border hover:bg-foreground/5 transition-colors"
+              <div className="flex flex-wrap gap-1.5">
+                {person.tags.map((t) => (
+                  <span
+                    key={t}
+                    className="px-2.5 py-1 rounded-full bg-foreground/5 text-[10px] font-bold uppercase tracking-wider"
                   >
-                    <div
-                      className="size-9 rounded-lg grid place-items-center text-white shrink-0"
-                      style={{ background: person.color }}
-                    >
-                      <span className="text-xs font-bold">{socialIcon(k)}</span>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-[10px] font-display italic uppercase tracking-widest text-foreground/50">
-                        {socialLabel(k)}
-                      </div>
-                      <div className="text-sm font-bold truncate">{v}</div>
-                    </div>
-                    <div className="text-foreground/30 text-xs">↗</div>
-                  </a>
+                    {t}
+                  </span>
                 ))}
               </div>
             </section>
-          )}
+
+            {socials.length > 0 && (
+              <section>
+                <div className="text-[9px] font-display italic font-bold uppercase tracking-widest text-foreground/40 mb-2">
+                  Connect
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  {socials.map(([k, v]) => (
+                    <a
+                      key={k}
+                      href={socialHref(k, v)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 p-2.5 rounded-xl ring-1 ring-border hover:bg-foreground/5 transition-colors min-w-0"
+                    >
+                      <div
+                        className="size-8 rounded-lg grid place-items-center text-white shrink-0"
+                        style={{ background: person.color }}
+                      >
+                        <span className="text-[11px] font-bold">{socialIcon(k)}</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[8px] font-display italic uppercase tracking-widest text-foreground/50 leading-none">
+                          {socialLabel(k)}
+                        </div>
+                        <div className="text-xs font-bold truncate mt-0.5">{v}</div>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              </section>
+            )}
+          </div>
         </div>
 
-        {/* Footer */}
-        <div className="px-6 py-4 border-t border-border flex gap-2">
-          <button
-            onClick={onClose}
-            className="flex-1 py-3 rounded-full ring-1 ring-border text-xs font-bold uppercase tracking-widest"
-          >
-            Close
-          </button>
-          <button className="flex-[2] py-3 rounded-full bg-primary text-white text-xs font-bold uppercase tracking-widest">
+        {/* Sticky CTA — clears bottom nav */}
+        <div className="px-5 pt-3 pb-6 border-t border-border bg-background shrink-0">
+          <button className="w-full py-3.5 rounded-full bg-primary text-white text-xs font-bold uppercase tracking-widest shadow-lg shadow-primary/30">
             Send a message
           </button>
         </div>
