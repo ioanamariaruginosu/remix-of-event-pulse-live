@@ -50,9 +50,59 @@ const studyLevelOptions = ["BSc", "MSc", "PhD", "Postdoc", "Exchange"];
 
 function Join() {
   const [step, setStep] = useState(0);
-  const [intent, setIntent] = useState("Looking for: a co-founder for a research-heavy startup");
-  const [tags, setTags] = useState<string[]>(["design", "ml"]);
-  const allTags = ["design", "ml", "founders", "vc", "infra", "hardware", "spatial", "graphs", "rotterdam", "evals"];
+
+  // Identity
+  const [fullName, setFullName] = useState("");
+  const [pronouns, setPronouns] = useState("");
+  const [persona, setPersona] = useState<Persona | null>(null);
+
+  // Background — professional / founder / investor / researcher / other
+  const [role, setRole] = useState("");
+  const [company, setCompany] = useState("");
+  const [seniority, setSeniority] = useState<string>("");
+  const [companyStage, setCompanyStage] = useState<string>("");
+  const [fundName, setFundName] = useState("");
+  const [checkSize, setCheckSize] = useState("");
+  const [lab, setLab] = useState("");
+
+  // Background — student
+  const [university, setUniversity] = useState("");
+  const [programme, setProgramme] = useState("");
+  const [studyLevel, setStudyLevel] = useState<string>("");
+  const [gradYear, setGradYear] = useState("");
+
+  // Expertise & interests
+  const [expertise, setExpertise] = useState<string[]>([]);
+  const [interests, setInterests] = useState<string[]>([]);
+
+  // Intent
+  const [intent, setIntent] = useState("");
+  const [lookingFor, setLookingFor] = useState<string[]>([]);
+  const [offering, setOffering] = useState("");
+
+  // Socials
+  const [socials, setSocials] = useState<Record<string, string>>({});
+
+  const toggleFrom = (list: string[], v: string, max?: number) =>
+    list.includes(v)
+      ? list.filter((x) => x !== v)
+      : max && list.length >= max
+        ? list
+        : [...list, v];
+
+  const canContinue = (() => {
+    if (step === 1) return fullName.trim().length > 0 && persona !== null;
+    if (step === 2) {
+      if (persona === "student") return university.trim() && programme.trim();
+      if (persona === "investor") return fundName.trim();
+      if (persona === "researcher") return lab.trim() || company.trim();
+      return role.trim() && company.trim();
+    }
+    if (step === 3) return expertise.length > 0;
+    if (step === 4) return interests.length > 0;
+    if (step === 5) return intent.trim().length > 0 && lookingFor.length > 0;
+    return true;
+  })();
 
   return (
     <div className="min-h-screen bg-background text-foreground">
