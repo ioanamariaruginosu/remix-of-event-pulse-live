@@ -329,8 +329,21 @@ function VenueMapCanvas({
     const dxPct = ((e.clientX - d.startX) / rect.width) * 100;
     const dyPct = ((e.clientY - d.startY) / rect.height) * 100;
     if (d.mode === "move") {
-      const x = clamp(Math.round(d.start.x + dxPct), 0, 100 - d.start.w);
-      const y = clamp(Math.round(d.start.y + dyPct), 0, 100 - d.start.h);
+      // Use the rotated axis-aligned bounding box so movement follows the
+      // pointer regardless of rotation — never clipped by the unrotated frame.
+      const rad = ((d.start.rotation ?? 0) * Math.PI) / 180;
+      const cos = Math.abs(Math.cos(rad));
+      const sin = Math.abs(Math.sin(rad));
+      const aabbW = d.start.w * cos + d.start.h * sin;
+      const aabbH = d.start.w * sin + d.start.h * cos;
+      // Allow the center to reach the canvas edges (rotated corners may
+      // overflow slightly — that's fine and expected for free placement).
+      const minX = -(aabbW - d.start.w) / 2;
+      const maxX = 100 - d.start.w - (aabbW - d.start.w) / 2;
+      const minY = -(aabbH - d.start.h) / 2;
+      const maxY = 100 - d.start.h - (aabbH - d.start.h) / 2;
+      const x = clamp(Math.round((d.start.x + dxPct) * 10) / 10, minX, maxX);
+      const y = clamp(Math.round((d.start.y + dyPct) * 10) / 10, minY, maxY);
       onUpdate(d.id, { x, y });
     } else {
       const w = clamp(Math.round(d.start.w + dxPct), 8, 100 - d.start.x);
