@@ -49,9 +49,13 @@ function RoomView() {
         </div>
       </div>
 
-      <VenueMiniMap activeRoomId={roomId} onSelect={setRoomId} />
+      <EventMap
+        eventId="current"
+        role="attendee"
+        title="You are here · Floor 1"
+        defaultContent={<VenueMiniMap activeRoomId={roomId} onSelect={setRoomId} />}
+      />
 
-      <EventMap eventId="current" role="attendee" title="Venue map" />
 
 
 
