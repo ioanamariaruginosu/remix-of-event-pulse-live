@@ -164,12 +164,10 @@ function Door() {
                     transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
                     className="flex items-center gap-3 py-2 border-b border-border last:border-b-0"
                   >
-                    <div
-                      className="size-9 rounded-full grid place-items-center text-[11px] font-bold text-white shrink-0"
-                      style={{ background: p.color, boxShadow: `0 0 12px ${p.color}66` }}
-                    >
-                      {p.initials}
+                    <div className="shrink-0" style={{ filter: `drop-shadow(0 0 10px ${p.color}66)` }}>
+                      <Avatar person={p} size={36} className="ring-2 ring-background" />
                     </div>
+
                     <div className="flex-1 min-w-0">
                       <div className="font-bold text-sm truncate">{p.name}</div>
                       <div className="text-[11px] text-foreground/40 truncate">{p.oneLiner}</div>
