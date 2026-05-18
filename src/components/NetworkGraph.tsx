@@ -23,6 +23,40 @@ function rand(seed: string) {
   return (hash(seed) % 10000) / 10000;
 }
 
+/* --- Interest clusters → color identity ---
+   People who share an interest cluster share a color, so the graph
+   reads at a glance: "who is like me?" = "who shares my color?". */
+const CLUSTERS: { id: string; color: string; tags: string[] }[] = [
+  { id: "design", color: "#ff5e7e", tags: ["design", "ux", "spatial", "product", "architecture", "creative", "webgl"] },
+  { id: "ai", color: "#a78bfa", tags: ["ml", "llm", "evals", "agents", "voice", "whisper", "research"] },
+  { id: "infra", color: "#22d3ee", tags: ["infra", "devtools", "backend", "p2p", "local-first", "graphs", "consulting"] },
+  { id: "hw", color: "#bef264", tags: ["hardware", "ble", "robotics", "badges", "games"] },
+  { id: "money", color: "#fbbf24", tags: ["vc", "funding", "fintech", "founders"] },
+  { id: "people", color: "#f472b6", tags: ["devrel", "pm", "writing", "panel"] },
+];
+const DEFAULT_CLUSTER = { id: "other", color: "#94a3b8", tags: [] as string[] };
+
+function clusterFor(p: Person) {
+  for (const tag of p.tags) {
+    const c = CLUSTERS.find((c) => c.tags.includes(tag));
+    if (c) return c;
+  }
+  return DEFAULT_CLUSTER;
+}
+
+/** Jaccard-style match score 0..1 between two people based on tags. */
+function matchScore(a: Person, b: Person) {
+  if (a.id === b.id) return 1;
+  const setA = new Set(a.tags);
+  let inter = 0;
+  for (const t of b.tags) if (setA.has(t)) inter++;
+  const union = new Set([...a.tags, ...b.tags]).size || 1;
+  const jac = inter / union;
+  // boost when in same cluster even with low tag overlap
+  const sameCluster = clusterFor(a).id === clusterFor(b).id ? 0.25 : 0;
+  return Math.min(1, jac * 1.8 + sameCluster);
+}
+
 export function NetworkGraph({
   scale = "event",
   roomId,
@@ -37,7 +71,7 @@ export function NetworkGraph({
   const [selected, setSelected] = useState<string | null>(null);
   const [hovered, setHovered] = useState<string | null>(null);
 
-  const { nodes, links } = useMemo(() => {
+  const { nodes, links, center } = useMemo(() => {
     let people: Person[] = allPeople;
     if (scale === "room" && roomId) {
       people = allPeople.filter((p) => p.roomId === roomId);
@@ -50,12 +84,25 @@ export function NetworkGraph({
       people = allPeople.filter((p) => directIds.has(p.id));
     }
     const ids = new Set(people.map((p) => p.id));
+    // Edges = mutual taps that exchanged identity cards
     const links = allEdges.filter((e) => ids.has(e.source) && ids.has(e.target));
-    return { nodes: people, links };
+    const center = centerId ? allPeople.find((p) => p.id === centerId) ?? null : null;
+    return { nodes: people, links, center };
   }, [scale, roomId, centerId]);
 
   const W = 800;
   const H = height;
+
+  /* Per-node derived visual state: color from cluster, match-strength from
+     similarity to the center person (the "you" node). */
+  const enriched = useMemo(() => {
+    return nodes.map((n) => {
+      const cl = clusterFor(n);
+      const match = center ? matchScore(center, n) : 0;
+      const baseR = n.id === centerId ? 22 : 8 + Math.round(match * 10);
+      return { ...n, color: cl.color, cluster: cl.id, match, baseR };
+    });
+  }, [nodes, center, centerId]);
 
   const positions = useMemo(() => {
     const map = new Map<string, { x: number; y: number }>();
@@ -64,30 +111,44 @@ export function NetworkGraph({
 
     if (scale === "personal" && centerId) {
       map.set(centerId, { x: cx, y: cy });
-      const others = nodes.filter((n) => n.id !== centerId);
-      others.forEach((n, i) => {
-        const ring = i % 3 === 0 ? 0 : 1;
-        const ringR = ring === 0 ? Math.min(W, H) * 0.22 : Math.min(W, H) * 0.38;
-        const ringCount = others.filter((_, j) => j % 3 === 0).length || 1;
-        const angleStep = (Math.PI * 2) / (ring === 0 ? ringCount : Math.max(others.length - ringCount, 1));
-        const indexInRing = ring === 0
-          ? Math.floor(i / 3)
-          : i - Math.floor((i + 1) / 3);
-        const jitter = (rand(n.id + "j") - 0.5) * 0.4;
-        const angle = indexInRing * angleStep + jitter + (ring * 0.3);
+      const others = enriched.filter((n) => n.id !== centerId);
+      // Place high-match people closer to center
+      const sorted = [...others].sort((a, b) => b.match - a.match);
+      sorted.forEach((n, i) => {
+        const inner = i < Math.ceil(sorted.length / 3);
+        const ringR = inner ? Math.min(W, H) * 0.22 : Math.min(W, H) * 0.38;
+        const ringTotal = inner ? Math.ceil(sorted.length / 3) : sorted.length - Math.ceil(sorted.length / 3);
+        const indexInRing = inner ? i : i - Math.ceil(sorted.length / 3);
+        const angleStep = (Math.PI * 2) / Math.max(ringTotal, 1);
+        const jitter = (rand(n.id + "j") - 0.5) * 0.35;
+        const angle = indexInRing * angleStep + jitter + (inner ? 0 : 0.3);
         map.set(n.id, { x: cx + Math.cos(angle) * ringR, y: cy + Math.sin(angle) * ringR });
       });
     } else if (scale === "room") {
-      const r = Math.min(W, H) * 0.32;
-      nodes.forEach((n, i) => {
-        const angle = (i / nodes.length) * Math.PI * 2;
-        const rr = r * (0.4 + rand(n.id) * 0.6);
-        map.set(n.id, { x: cx + Math.cos(angle) * rr, y: cy + Math.sin(angle) * rr });
+      // Cluster-aware placement: group people of same cluster together
+      const clusters = Array.from(new Set(enriched.map((n) => n.cluster)));
+      const r = Math.min(W, H) * 0.34;
+      const byCluster = new Map<string, typeof enriched>();
+      enriched.forEach((n) => {
+        const arr = byCluster.get(n.cluster) ?? [];
+        arr.push(n);
+        byCluster.set(n.cluster, arr);
+      });
+      clusters.forEach((cId, ci) => {
+        const arr = byCluster.get(cId)!;
+        const sectorAngle = (Math.PI * 2) / clusters.length;
+        const baseAngle = ci * sectorAngle;
+        arr.forEach((n, i) => {
+          const sub = (i / arr.length) * sectorAngle * 0.8 - sectorAngle * 0.4;
+          const rr = r * (0.55 + rand(n.id) * 0.45);
+          const a = baseAngle + sub;
+          map.set(n.id, { x: cx + Math.cos(a) * rr, y: cy + Math.sin(a) * rr });
+        });
       });
     } else {
-      const cols = Math.ceil(Math.sqrt(nodes.length * (W / H)));
-      const rows = Math.ceil(nodes.length / cols);
-      nodes.forEach((n, i) => {
+      const cols = Math.ceil(Math.sqrt(enriched.length * (W / H)));
+      const rows = Math.ceil(enriched.length / cols);
+      enriched.forEach((n, i) => {
         const col = i % cols;
         const row = Math.floor(i / cols);
         const baseX = (col + 0.5) * (W / cols);
@@ -98,12 +159,12 @@ export function NetworkGraph({
       });
     }
     return map;
-  }, [nodes, scale, centerId, H]);
+  }, [enriched, scale, centerId, H]);
 
   const isDark = variant === "dark";
-  const linkStroke = isDark ? "rgba(255,255,255,0.18)" : "rgba(20,20,30,0.12)";
-  const linkStrong = isDark ? "rgba(255,255,255,0.45)" : "rgba(80,40,180,0.5)";
+  const linkStroke = isDark ? "rgba(255,255,255,0.22)" : "rgba(20,20,30,0.14)";
   const labelFill = isDark ? "rgba(255,255,255,0.7)" : "rgba(20,20,30,0.7)";
+  const doodleStroke = isDark ? "rgba(255,255,255,0.45)" : "rgba(20,20,30,0.5)";
 
   const focus = selected || hovered;
   const neighbors = useMemo(() => {
@@ -116,10 +177,18 @@ export function NetworkGraph({
     return n;
   }, [focus, links]);
 
-  const focusedPerson = focus ? nodes.find((n) => n.id === focus) : null;
+  const focusedPerson = focus ? enriched.find((n) => n.id === focus) : null;
   const focusedEdges = focus
     ? links.filter((l) => l.source === focus || l.target === focus)
     : [];
+
+  // Top match (for the "high match ↗" doodle annotation)
+  const topMatch = useMemo(() => {
+    if (!centerId) return null;
+    const others = enriched.filter((n) => n.id !== centerId);
+    if (!others.length) return null;
+    return others.reduce((a, b) => (a.match > b.match ? a : b));
+  }, [enriched, centerId]);
 
   function handleClick(id: string) {
     if (!interactive) return;
@@ -142,25 +211,71 @@ export function NetworkGraph({
       >
         <defs>
           <radialGradient id="ng-bg" cx="50%" cy="50%" r="60%">
-            <stop offset="0%" stopColor="oklch(0.53 0.27 295)" stopOpacity={isDark ? 0.25 : 0.08} />
-            <stop offset="100%" stopColor="oklch(0.53 0.27 295)" stopOpacity="0" />
+            <stop offset="0%" stopColor="#a78bfa" stopOpacity={isDark ? 0.28 : 0.10} />
+            <stop offset="100%" stopColor="#a78bfa" stopOpacity="0" />
           </radialGradient>
-          <radialGradient id="ng-nodeGlow" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="oklch(0.65 0.27 295)" stopOpacity="0.5" />
-            <stop offset="60%" stopColor="oklch(0.65 0.27 295)" stopOpacity="0.1" />
-            <stop offset="100%" stopColor="oklch(0.65 0.27 295)" stopOpacity="0" />
+          <radialGradient id="ng-bg2" cx="20%" cy="80%" r="40%">
+            <stop offset="0%" stopColor="#22d3ee" stopOpacity={isDark ? 0.18 : 0.06} />
+            <stop offset="100%" stopColor="#22d3ee" stopOpacity="0" />
           </radialGradient>
+          <radialGradient id="ng-bg3" cx="85%" cy="15%" r="38%">
+            <stop offset="0%" stopColor="#ff5e7e" stopOpacity={isDark ? 0.16 : 0.05} />
+            <stop offset="100%" stopColor="#ff5e7e" stopOpacity="0" />
+          </radialGradient>
+          {/* Per-cluster glow gradients */}
+          {CLUSTERS.map((c) => (
+            <radialGradient key={c.id} id={`ng-glow-${c.id}`} cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor={c.color} stopOpacity="0.6" />
+              <stop offset="60%" stopColor={c.color} stopOpacity="0.12" />
+              <stop offset="100%" stopColor={c.color} stopOpacity="0" />
+            </radialGradient>
+          ))}
+          <radialGradient id={`ng-glow-${DEFAULT_CLUSTER.id}`} cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor={DEFAULT_CLUSTER.color} stopOpacity="0.5" />
+            <stop offset="100%" stopColor={DEFAULT_CLUSTER.color} stopOpacity="0" />
+          </radialGradient>
+
+          {/* Doodle: hand-drawn arrow head */}
+          <marker id="ng-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill={doodleStroke} />
+          </marker>
         </defs>
 
         <rect x="0" y="0" width={W} height={H} fill="url(#ng-bg)" />
+        <rect x="0" y="0" width={W} height={H} fill="url(#ng-bg2)" />
+        <rect x="0" y="0" width={W} height={H} fill="url(#ng-bg3)" />
 
-        {isDark && Array.from({ length: 40 }).map((_, i) => {
+        {/* Starfield */}
+        {isDark && Array.from({ length: 50 }).map((_, i) => {
           const x = (hash("bg" + i) % 1000) / 1000 * W;
           const y = (hash("bg" + i + "y") % 1000) / 1000 * H;
-          return <circle key={"bg" + i} cx={x} cy={y} r={0.6} fill="rgba(255,255,255,0.25)" />;
+          const r = 0.4 + ((hash("bg" + i + "r") % 100) / 100) * 1.1;
+          return <circle key={"bg" + i} cx={x} cy={y} r={r} fill="rgba(255,255,255,0.28)" />;
         })}
 
-        {/* Links */}
+        {/* Background doodles — asterisks & squiggles, like marginalia */}
+        <g opacity={0.55} fontFamily="var(--font-display)" fontStyle="italic" fill={doodleStroke}>
+          <text x={40} y={50} fontSize={22}>✺</text>
+          <text x={W - 60} y={H - 30} fontSize={18}>✦</text>
+          <text x={60} y={H - 40} fontSize={14}>○</text>
+          <text x={W - 80} y={70} fontSize={16}>+</text>
+          <path
+            d={`M 30 ${H * 0.5} q 20 -10 40 0 t 40 0`}
+            stroke={doodleStroke}
+            strokeWidth={1}
+            fill="none"
+            strokeLinecap="round"
+          />
+          <path
+            d={`M ${W - 110} ${H * 0.35} q 15 8 30 0 t 30 0`}
+            stroke={doodleStroke}
+            strokeWidth={1}
+            fill="none"
+            strokeLinecap="round"
+          />
+        </g>
+
+        {/* Links = exchanged taps */}
         {links.map((l, i) => {
           const a = positions.get(l.source);
           const b = positions.get(l.target);
@@ -172,35 +287,40 @@ export function NetworkGraph({
           const len = Math.sqrt(dx * dx + dy * dy) || 1;
           const nx = -dy / len;
           const ny = dx / len;
-          const curve = (rand(l.source + l.target) - 0.5) * 60;
+          const curve = (rand(l.source + l.target) - 0.5) * 70;
           const ctrlX = mx + nx * curve;
           const ctrlY = my + ny * curve;
           const path = `M ${a.x} ${a.y} Q ${ctrlX} ${ctrlY} ${b.x} ${b.y}`;
           const involvesCenter = centerId && (l.source === centerId || l.target === centerId);
           const involvesFocus = focus && (l.source === focus || l.target === focus);
           const dimmed = focus && !involvesFocus;
-          const dur = 4 + (i % 6);
-          const stroke = involvesFocus
-            ? "oklch(0.93 0.16 124)"
-            : involvesCenter
-            ? linkStrong
+          const dur = 3.5 + (i % 6) * 0.6;
+
+          // Edge gets the color of whichever endpoint isn't the center
+          const otherId = involvesCenter ? (l.source === centerId ? l.target : l.source) : l.source;
+          const otherNode = enriched.find((n) => n.id === otherId);
+          const edgeColor = involvesFocus
+            ? "#bef264"
+            : involvesCenter && otherNode
+            ? otherNode.color
             : linkStroke;
 
           return (
             <g key={i} style={{ opacity: dimmed ? 0.08 : 1, transition: "opacity .3s" }}>
               <motion.path
                 d={path}
-                stroke={stroke}
-                strokeWidth={involvesFocus ? 1.8 : involvesCenter ? 1.4 : 0.8}
+                stroke={edgeColor}
+                strokeWidth={involvesFocus ? 2 : involvesCenter ? 1.6 : 0.9}
+                strokeLinecap="round"
                 fill="none"
                 initial={{ pathLength: 0, opacity: 0 }}
-                animate={{ pathLength: 1, opacity: 1 }}
+                animate={{ pathLength: 1, opacity: involvesCenter ? 0.9 : 0.7 }}
                 transition={{ duration: 1.2, delay: i * 0.03, ease: [0.16, 1, 0.3, 1] }}
               />
               <circle
-                r={involvesFocus ? 2.4 : 1.6}
-                fill={involvesFocus ? "oklch(0.93 0.16 124)" : involvesCenter ? "oklch(0.93 0.16 124)" : "oklch(0.75 0.2 295)"}
-                opacity={0.9}
+                r={involvesFocus ? 2.6 : 1.8}
+                fill={involvesFocus ? "#bef264" : edgeColor === linkStroke ? "#a78bfa" : edgeColor}
+                opacity={0.95}
               >
                 <animateMotion dur={`${dur}s`} repeatCount="indefinite" path={path} begin={`${(i % 4) * 0.5}s`} />
               </circle>
@@ -209,20 +329,25 @@ export function NetworkGraph({
         })}
 
         {/* Nodes */}
-        {nodes.map((n, i) => {
+        {enriched.map((n, i) => {
           const p = positions.get(n.id);
           if (!p) return null;
           const isCenter = n.id === centerId;
           const isFocus = focus === n.id;
           const dimmed = focus && !neighbors?.has(n.id);
-          const baseR = isCenter || isFocus ? 18 : 7 + (hash(n.id) % 5);
+          const baseR = isCenter || isFocus ? 22 : n.baseR;
+          // Match-driven pulse: higher match → bigger, faster glow
+          const pulseScale = 1.4 + n.match * 1.6;
+          const pulseDur = Math.max(1.4, 3.2 - n.match * 1.8);
           const driftDur = 8 + (hash(n.id) % 6);
+          const glowId = `ng-glow-${n.cluster}`;
+          const showLabel = showLabels || isCenter || isFocus || n.match > 0.55;
 
           return (
             <motion.g
               key={n.id}
               initial={{ opacity: 0, scale: 0.4 }}
-              animate={{ opacity: dimmed ? 0.25 : 1, scale: 1 }}
+              animate={{ opacity: dimmed ? 0.22 : 1, scale: 1 }}
               transition={{ duration: 0.5, delay: i * 0.02, ease: [0.16, 1, 0.3, 1] }}
               style={{ cursor: interactive ? "pointer" : "default" }}
               onClick={(e) => {
@@ -236,46 +361,65 @@ export function NetworkGraph({
                 animate={{ x: [0, 5, -4, 2, 0], y: [0, -4, 3, -2, 0] }}
                 transition={{ duration: driftDur, repeat: Infinity, ease: "easeInOut" }}
               >
-                <circle cx={p.x} cy={p.y} r={baseR * 3.5} fill="url(#ng-nodeGlow)" />
+                {/* Soft cluster-colored glow halo */}
+                <circle cx={p.x} cy={p.y} r={baseR * (3 + n.match * 2)} fill={`url(#${glowId})`} />
 
-                {(isCenter || isFocus) && (
-                  <>
-                    <motion.circle
-                      cx={p.x}
-                      cy={p.y}
-                      r={baseR}
-                      fill="none"
-                      stroke={isFocus ? "oklch(0.93 0.16 124)" : "oklch(0.65 0.27 295)"}
-                      strokeWidth={1.5}
-                      initial={{ opacity: 0.6, scale: 1 }}
-                      animate={{ opacity: 0, scale: 3 }}
-                      transition={{ duration: 2.4, repeat: Infinity, ease: "easeOut" }}
-                      style={{ transformOrigin: `${p.x}px ${p.y}px` }}
-                    />
-                  </>
+                {/* Match-driven pulsing rings — stronger for better matches */}
+                {(n.match > 0.2 || isCenter || isFocus) && (
+                  <motion.circle
+                    cx={p.x}
+                    cy={p.y}
+                    r={baseR}
+                    fill="none"
+                    stroke={isFocus ? "#bef264" : n.color}
+                    strokeWidth={1.5}
+                    initial={{ opacity: 0.55, scale: 1 }}
+                    animate={{ opacity: 0, scale: pulseScale }}
+                    transition={{ duration: pulseDur, repeat: Infinity, ease: "easeOut" }}
+                    style={{ transformOrigin: `${p.x}px ${p.y}px` }}
+                  />
+                )}
+                {n.match > 0.55 && !isCenter && (
+                  <motion.circle
+                    cx={p.x}
+                    cy={p.y}
+                    r={baseR}
+                    fill="none"
+                    stroke={n.color}
+                    strokeWidth={1}
+                    initial={{ opacity: 0.4, scale: 1 }}
+                    animate={{ opacity: 0, scale: pulseScale + 0.6 }}
+                    transition={{ duration: pulseDur, repeat: Infinity, ease: "easeOut", delay: pulseDur * 0.4 }}
+                    style={{ transformOrigin: `${p.x}px ${p.y}px` }}
+                  />
                 )}
 
-                {/* Larger hit target for interactivity */}
+                {/* Hit target */}
                 {interactive && (
-                  <circle cx={p.x} cy={p.y} r={Math.max(baseR + 8, 16)} fill="transparent" />
+                  <circle cx={p.x} cy={p.y} r={Math.max(baseR + 10, 18)} fill="transparent" />
                 )}
 
                 <circle
                   cx={p.x}
                   cy={p.y}
                   r={baseR}
-                  fill={isCenter ? "oklch(0.53 0.27 295)" : n.color}
-                  stroke={isFocus ? "oklch(0.93 0.16 124)" : isDark ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,1)"}
-                  strokeWidth={isFocus ? 3 : isCenter ? 2.5 : 1.5}
-                  style={{ filter: `drop-shadow(0 0 ${baseR * 0.6}px ${n.color}aa)` }}
+                  fill={isCenter ? "#ffffff" : n.color}
+                  stroke={isFocus ? "#bef264" : isCenter ? n.color : isDark ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,1)"}
+                  strokeWidth={isFocus ? 3 : isCenter ? 3 : 1.5}
+                  style={{ filter: `drop-shadow(0 0 ${baseR * (0.5 + n.match)}px ${n.color}cc)` }}
                 />
 
-                {(isCenter || isFocus || baseR >= 10) && (
+                {/* Center "you" dot inside the center node */}
+                {isCenter && (
+                  <circle cx={p.x} cy={p.y} r={baseR * 0.4} fill={n.color} />
+                )}
+
+                {(isCenter || isFocus || baseR >= 11) && !isCenter && (
                   <text
                     x={p.x}
                     y={p.y + baseR / 3}
                     textAnchor="middle"
-                    fontSize={isCenter || isFocus ? 11 : baseR * 0.9}
+                    fontSize={isFocus ? 11 : Math.max(9, baseR * 0.85)}
                     fontWeight={800}
                     fill="white"
                     letterSpacing="0.5"
@@ -285,26 +429,80 @@ export function NetworkGraph({
                   </text>
                 )}
 
-                {(showLabels || isCenter || isFocus) && (
+                {showLabel && !isCenter && (
                   <text
                     x={p.x}
                     y={p.y + baseR + 16}
                     textAnchor="middle"
-                    fontSize={isCenter || isFocus ? 12 : 10}
-                    fontWeight={isCenter || isFocus ? 700 : 500}
+                    fontSize={isFocus ? 12 : 10}
+                    fontWeight={isFocus ? 700 : 500}
                     fill={labelFill}
                     fontFamily="var(--font-display)"
                     fontStyle="italic"
                     style={{ pointerEvents: "none" }}
                   >
-                    {n.name}
+                    {n.name.split(" ")[0]}
                   </text>
                 )}
               </motion.g>
             </motion.g>
           );
         })}
+
+        {/* Doodle annotations — "you", "high match" */}
+        {center && positions.get(center.id) && (() => {
+          const p = positions.get(center.id)!;
+          return (
+            <g fontFamily="var(--font-display)" fontStyle="italic" fill={doodleStroke}>
+              <path
+                d={`M ${p.x + 50} ${p.y - 38} q -15 -4 -28 8`}
+                stroke={doodleStroke}
+                strokeWidth={1.2}
+                fill="none"
+                strokeLinecap="round"
+                markerEnd="url(#ng-arrow)"
+              />
+              <text x={p.x + 52} y={p.y - 42} fontSize={13} fontWeight={600}>you</text>
+            </g>
+          );
+        })()}
+        {topMatch && positions.get(topMatch.id) && topMatch.match > 0.3 && (() => {
+          const p = positions.get(topMatch.id)!;
+          const flipX = p.x > W * 0.6;
+          const dx = flipX ? -56 : 56;
+          const anchor = flipX ? "end" : "start";
+          return (
+            <g fontFamily="var(--font-display)" fontStyle="italic" fill={doodleStroke}>
+              <path
+                d={`M ${p.x + dx} ${p.y - 32} q ${flipX ? 18 : -18} -6 ${flipX ? 30 : -30} 6`}
+                stroke={doodleStroke}
+                strokeWidth={1.2}
+                fill="none"
+                strokeLinecap="round"
+                markerEnd="url(#ng-arrow)"
+              />
+              <text x={p.x + dx} y={p.y - 38} fontSize={12} textAnchor={anchor}>
+                high match ✺
+              </text>
+            </g>
+          );
+        })()}
       </svg>
+
+      {/* Legend chip */}
+      {(scale === "room" || scale === "personal") && (
+        <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 max-w-[60%] pointer-events-none">
+          {CLUSTERS.filter((c) => enriched.some((n) => n.cluster === c.id)).slice(0, 4).map((c) => (
+            <div
+              key={c.id}
+              className="flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-display italic tracking-tight normal-case bg-background/70 backdrop-blur-md ring-1 ring-border"
+            >
+              <span className="size-2 rounded-full" style={{ background: c.color }} />
+              <span className="text-foreground/70">{c.id}</span>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Interactive info card */}
       <AnimatePresence>
@@ -320,16 +518,27 @@ export function NetworkGraph({
             <div className="flex items-start gap-3">
               <div
                 className="size-10 rounded-xl grid place-items-center font-bold text-[13px] text-white shrink-0"
-                style={{ background: focusedPerson.color }}
+                style={{ background: focusedPerson.color, boxShadow: `0 0 16px ${focusedPerson.color}88` }}
               >
                 {focusedPerson.initials}
               </div>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <div className="font-extrabold text-sm tracking-tight">{focusedPerson.name}</div>
                   <div className="text-[9px] font-display italic tracking-tight normal-case text-foreground/40">
-                    {focusedEdges.length} link{focusedEdges.length === 1 ? "" : "s"}
+                    {focusedEdges.length} tap{focusedEdges.length === 1 ? "" : "s"}
                   </div>
+                  {centerId && focusedPerson.id !== centerId && (
+                    <div
+                      className="text-[9px] font-bold px-1.5 py-0.5 rounded-full"
+                      style={{
+                        background: `${focusedPerson.color}22`,
+                        color: focusedPerson.color,
+                      }}
+                    >
+                      {Math.round(focusedPerson.match * 100)}% match
+                    </div>
+                  )}
                 </div>
                 <div className="text-[11px] text-foreground/60 leading-snug mt-0.5 line-clamp-2">{focusedPerson.oneLiner}</div>
                 <div className="flex gap-1 flex-wrap mt-1.5">
@@ -345,7 +554,6 @@ export function NetworkGraph({
         )}
       </AnimatePresence>
 
-      {/* Hint when interactive and nothing selected */}
       {interactive && !focus && (
         <div className="absolute top-3 right-3 px-2.5 py-1 bg-background/80 backdrop-blur-md rounded-full text-[9px] font-display italic font-bold uppercase tracking-widest text-foreground/60 ring-1 ring-border pointer-events-none">
           Tap a node
