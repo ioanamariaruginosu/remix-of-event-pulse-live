@@ -235,9 +235,13 @@ function Door() {
               {queue.slice(0, 24).map((p) => (
                 <button
                   key={p.id}
-                  onClick={() => tap(p.id)}
-                  className={`group flex flex-col items-center gap-1 p-2 rounded-xl ring-1 ring-border hover:ring-primary/40 hover:bg-foreground/[0.02] transition ${
-                    lastTapped === p.id ? "ring-primary bg-primary-soft" : ""
+                  onClick={() => setSelectedId(p.id)}
+                  className={`group flex flex-col items-center gap-1 p-2 rounded-xl ring-1 transition ${
+                    selectedId === p.id
+                      ? "ring-primary bg-primary-soft"
+                      : lastTapped === p.id
+                      ? "ring-primary/40"
+                      : "ring-border hover:ring-primary/40 hover:bg-foreground/[0.02]"
                   }`}
                 >
                   <Avatar person={p} size={36} className="ring-2 ring-border" />
