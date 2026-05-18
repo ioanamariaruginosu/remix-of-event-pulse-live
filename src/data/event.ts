@@ -31,7 +31,7 @@ export type Person = {
 
 export const event = {
   name: "Eurhack 2026",
-  dates: "May 22–24, 2026 · Berlin",
+  dates: "May 22–24, 2026 · Rotterdam",
   attendees: 1242,
   online: 842,
 };
@@ -130,7 +130,7 @@ const peopleSeed: Omit<Person, "color">[] = [
     initials: "YO",
     oneLiner: "Building something at the edge of design & ML.",
     intent: "Looking for: a co-founder for a research-heavy startup",
-    tags: ["design", "ml", "berlin"],
+    tags: ["design", "ml", "rotterdam"],
     socials: { linkedin: "/in/you", x: "@you" },
     roomId: "track-a",
   },
