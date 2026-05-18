@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { NetworkGraph } from "@/components/NetworkGraph";
 import { people, suggestions, edges } from "@/data/event";
+import { Avatar } from "@/components/Avatar";
+import { useUserAvatar } from "@/data/avatars";
 
 export const Route = createFileRoute("/app/")({
   head: () => ({ meta: [{ title: "Your trail — synqmap" }] }),
@@ -9,6 +11,7 @@ export const Route = createFileRoute("/app/")({
 
 function Personal() {
   const you = people[0];
+  const userAvatar = useUserAvatar();
   const match = people.find((p) => p.id === suggestions.closestMatch)!;
   const bridge = people.find((p) => p.id === suggestions.bridgePerson)!;
   const collected = edges.filter((e) => e.source === "you" || e.target === "you").length;
@@ -22,10 +25,29 @@ function Personal() {
           <div className="text-[10px] font-display italic text-foreground/40 uppercase tracking-widest">Welcome back</div>
           <div className="font-extrabold text-xl tracking-tight">{you.name}</div>
         </div>
-        <div className="size-10 rounded-full grid place-items-center font-bold text-sm text-white" style={{ background: you.color }}>
-          {you.initials}
-        </div>
+        <Link to="/app/avatar" aria-label="Customize avatar">
+          <Avatar person={you} size={44} ring className="hover:scale-105 transition" />
+        </Link>
       </div>
+
+      {!userAvatar && (
+        <Link
+          to="/app/avatar"
+          className="block relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary/80 to-accent p-4 text-white group"
+        >
+          <div className="flex items-center gap-3">
+            <Avatar person={you} size={48} className="ring-2 ring-white/40" />
+            <div className="flex-1 min-w-0">
+              <div className="text-[9px] font-display italic uppercase tracking-widest text-white/60">First things first</div>
+              <div className="font-extrabold text-sm tracking-tight">Pick a face — make this yours</div>
+              <div className="text-[11px] text-white/70 mt-0.5">13 styles · infinite seeds · zero AI-slop</div>
+            </div>
+            <div className="text-2xl group-hover:translate-x-1 transition">→</div>
+          </div>
+        </Link>
+      )}
+
+
 
       <div className="p-4 bg-foreground text-white rounded-2xl">
         <div className="flex items-end justify-between mb-2">

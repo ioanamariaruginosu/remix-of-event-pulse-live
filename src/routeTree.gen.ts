@@ -30,6 +30,7 @@ import { Route as AppExchangeRouteImport } from './routes/app.exchange'
 import { Route as AppCollectionRouteImport } from './routes/app.collection'
 import { Route as AppCardRouteImport } from './routes/app.card'
 import { Route as AppBriefRouteImport } from './routes/app.brief'
+import { Route as AppAvatarRouteImport } from './routes/app.avatar'
 import { Route as OrganizerEventsNewRouteImport } from './routes/organizer.events.new'
 
 const VenueRoute = VenueRouteImport.update({
@@ -137,6 +138,11 @@ const AppBriefRoute = AppBriefRouteImport.update({
   path: '/brief',
   getParentRoute: () => AppRoute,
 } as any)
+const AppAvatarRoute = AppAvatarRouteImport.update({
+  id: '/avatar',
+  path: '/avatar',
+  getParentRoute: () => AppRoute,
+} as any)
 const OrganizerEventsNewRoute = OrganizerEventsNewRouteImport.update({
   id: '/new',
   path: '/new',
@@ -149,6 +155,7 @@ export interface FileRoutesByFullPath {
   '/join': typeof JoinRoute
   '/organizer': typeof OrganizerRouteWithChildren
   '/venue': typeof VenueRoute
+  '/app/avatar': typeof AppAvatarRoute
   '/app/brief': typeof AppBriefRoute
   '/app/card': typeof AppCardRoute
   '/app/collection': typeof AppCollectionRoute
@@ -171,6 +178,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/join': typeof JoinRoute
   '/venue': typeof VenueRoute
+  '/app/avatar': typeof AppAvatarRoute
   '/app/brief': typeof AppBriefRoute
   '/app/card': typeof AppCardRoute
   '/app/collection': typeof AppCollectionRoute
@@ -196,6 +204,7 @@ export interface FileRoutesById {
   '/join': typeof JoinRoute
   '/organizer': typeof OrganizerRouteWithChildren
   '/venue': typeof VenueRoute
+  '/app/avatar': typeof AppAvatarRoute
   '/app/brief': typeof AppBriefRoute
   '/app/card': typeof AppCardRoute
   '/app/collection': typeof AppCollectionRoute
@@ -222,6 +231,7 @@ export interface FileRouteTypes {
     | '/join'
     | '/organizer'
     | '/venue'
+    | '/app/avatar'
     | '/app/brief'
     | '/app/card'
     | '/app/collection'
@@ -244,6 +254,7 @@ export interface FileRouteTypes {
     | '/'
     | '/join'
     | '/venue'
+    | '/app/avatar'
     | '/app/brief'
     | '/app/card'
     | '/app/collection'
@@ -268,6 +279,7 @@ export interface FileRouteTypes {
     | '/join'
     | '/organizer'
     | '/venue'
+    | '/app/avatar'
     | '/app/brief'
     | '/app/card'
     | '/app/collection'
@@ -444,6 +456,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppBriefRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/avatar': {
+      id: '/app/avatar'
+      path: '/avatar'
+      fullPath: '/app/avatar'
+      preLoaderRoute: typeof AppAvatarRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/organizer/events/new': {
       id: '/organizer/events/new'
       path: '/new'
@@ -455,6 +474,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppRouteChildren {
+  AppAvatarRoute: typeof AppAvatarRoute
   AppBriefRoute: typeof AppBriefRoute
   AppCardRoute: typeof AppCardRoute
   AppCollectionRoute: typeof AppCollectionRoute
@@ -467,6 +487,7 @@ interface AppRouteChildren {
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppAvatarRoute: AppAvatarRoute,
   AppBriefRoute: AppBriefRoute,
   AppCardRoute: AppCardRoute,
   AppCollectionRoute: AppCollectionRoute,

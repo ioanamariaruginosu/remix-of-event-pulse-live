@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { people as allPeople, edges as allEdges, type Person } from "@/data/event";
 import { useMembership } from "@/data/presence";
+import { avatarUrl, defaultAvatarFor, useUserAvatar } from "@/data/avatars";
 
 
 type Props = {
@@ -74,6 +75,13 @@ export function NetworkGraph({
   const [hovered, setHovered] = useState<string | null>(null);
 
   const membership = useMembership();
+  const userOverride = useUserAvatar();
+
+  function avatarFor(p: Person) {
+    if (p.id === "you" && userOverride) return userOverride;
+    return defaultAvatarFor(p);
+  }
+
 
   const { nodes, links, center } = useMemo(() => {
     let people: Person[] = allPeople;
@@ -405,35 +413,55 @@ export function NetworkGraph({
                   <circle cx={p.x} cy={p.y} r={Math.max(baseR + 10, 18)} fill="transparent" />
                 )}
 
-                <circle
-                  cx={p.x}
-                  cy={p.y}
-                  r={baseR}
-                  fill={isCenter ? "#ffffff" : n.color}
-                  stroke={isFocus ? "#bef264" : isCenter ? n.color : isDark ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,1)"}
-                  strokeWidth={isFocus ? 3 : isCenter ? 3 : 1.5}
-                  style={{ filter: `drop-shadow(0 0 ${baseR * (0.5 + n.match)}px ${n.color}cc)` }}
-                />
-
-                {/* Center "you" dot inside the center node */}
-                {isCenter && (
-                  <circle cx={p.x} cy={p.y} r={baseR * 0.4} fill={n.color} />
+                {/* Avatar puck — DiceBear portrait clipped to a circle.
+                    Small nodes fall back to a solid color disc so the graph
+                    still reads when zoomed out. */}
+                {baseR >= 9 ? (
+                  <>
+                    <defs>
+                      <clipPath id={`ng-clip-${n.id}`}>
+                        <circle cx={p.x} cy={p.y} r={baseR - 1} />
+                      </clipPath>
+                    </defs>
+                    {/* Colored backdrop so transparent avatars still show cluster identity */}
+                    <circle
+                      cx={p.x}
+                      cy={p.y}
+                      r={baseR}
+                      fill={n.color}
+                      style={{ filter: `drop-shadow(0 0 ${baseR * (0.5 + n.match)}px ${n.color}cc)` }}
+                    />
+                    <image
+                      href={avatarUrl(avatarFor(n), 128)}
+                      x={p.x - baseR}
+                      y={p.y - baseR}
+                      width={baseR * 2}
+                      height={baseR * 2}
+                      clipPath={`url(#ng-clip-${n.id})`}
+                      preserveAspectRatio="xMidYMid slice"
+                      style={{ pointerEvents: "none" }}
+                    />
+                    <circle
+                      cx={p.x}
+                      cy={p.y}
+                      r={baseR}
+                      fill="none"
+                      stroke={isFocus ? "#bef264" : isCenter ? "#ffffff" : isDark ? "rgba(255,255,255,0.85)" : "rgba(20,20,30,0.6)"}
+                      strokeWidth={isFocus ? 3 : isCenter ? 3 : 1.5}
+                    />
+                  </>
+                ) : (
+                  <circle
+                    cx={p.x}
+                    cy={p.y}
+                    r={baseR}
+                    fill={n.color}
+                    stroke={isFocus ? "#bef264" : isDark ? "rgba(255,255,255,0.85)" : "rgba(20,20,30,0.4)"}
+                    strokeWidth={1}
+                    style={{ filter: `drop-shadow(0 0 ${baseR * (0.5 + n.match)}px ${n.color}cc)` }}
+                  />
                 )}
 
-                {(isCenter || isFocus || baseR >= 11) && !isCenter && (
-                  <text
-                    x={p.x}
-                    y={p.y + baseR / 3}
-                    textAnchor="middle"
-                    fontSize={isFocus ? 11 : Math.max(9, baseR * 0.85)}
-                    fontWeight={800}
-                    fill="white"
-                    letterSpacing="0.5"
-                    style={{ pointerEvents: "none" }}
-                  >
-                    {n.initials}
-                  </text>
-                )}
 
                 {showLabel && !isCenter && (
                   <text
@@ -522,12 +550,13 @@ export function NetworkGraph({
             className="absolute bottom-3 left-3 right-3 bg-background/95 backdrop-blur-md rounded-2xl p-3 ring-1 ring-border shadow-xl pointer-events-none"
           >
             <div className="flex items-start gap-3">
-              <div
-                className="size-10 rounded-xl grid place-items-center font-bold text-[13px] text-white shrink-0"
-                style={{ background: focusedPerson.color, boxShadow: `0 0 16px ${focusedPerson.color}88` }}
-              >
-                {focusedPerson.initials}
-              </div>
+              <img
+                src={avatarUrl(avatarFor(focusedPerson), 96)}
+                alt={focusedPerson.name}
+                className="size-12 rounded-2xl shrink-0 ring-2 ring-white/40"
+                style={{ background: focusedPerson.color, boxShadow: `0 0 18px ${focusedPerson.color}88` }}
+              />
+
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <div className="font-extrabold text-sm tracking-tight">{focusedPerson.name}</div>
