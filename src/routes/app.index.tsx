@@ -3,7 +3,7 @@ import { NetworkGraph } from "@/components/NetworkGraph";
 import { people, suggestions, edges } from "@/data/event";
 
 export const Route = createFileRoute("/app/")({
-  head: () => ({ meta: [{ title: "Your trail — Eurhack 2026" }] }),
+  head: () => ({ meta: [{ title: "Your trail — synqmap" }] }),
   component: Personal,
 });
 

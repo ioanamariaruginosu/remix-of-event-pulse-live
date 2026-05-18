@@ -4,7 +4,7 @@ import { NetworkGraph } from "@/components/NetworkGraph";
 import { people, rooms, sessions } from "@/data/event";
 
 export const Route = createFileRoute("/app/room")({
-  head: () => ({ meta: [{ title: "Room — Eurhack 2026" }] }),
+  head: () => ({ meta: [{ title: "Room — synqmap" }] }),
   component: RoomView,
 });
 

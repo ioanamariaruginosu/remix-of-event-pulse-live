@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { sessionBrief, people } from "@/data/event";
 
 export const Route = createFileRoute("/app/brief")({
-  head: () => ({ meta: [{ title: "Session brief — Eurhack 2026" }] }),
+  head: () => ({ meta: [{ title: "Session brief — synqmap" }] }),
   component: Brief,
 });
 

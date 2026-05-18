@@ -3,7 +3,7 @@ import { IdentityCard } from "@/components/IdentityCard";
 import { people } from "@/data/event";
 
 export const Route = createFileRoute("/app/card")({
-  head: () => ({ meta: [{ title: "Your card — Eurhack 2026" }] }),
+  head: () => ({ meta: [{ title: "Your card — synqmap" }] }),
   component: CardPage,
 });
 

@@ -3,7 +3,7 @@ import { NetworkGraph } from "@/components/NetworkGraph";
 import { edges } from "@/data/event";
 
 export const Route = createFileRoute("/app/map")({
-  head: () => ({ meta: [{ title: "Your map — Eurhack 2026" }] }),
+  head: () => ({ meta: [{ title: "Your map — synqmap" }] }),
   component: MapView,
 });
 

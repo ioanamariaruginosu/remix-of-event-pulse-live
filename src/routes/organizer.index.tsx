@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { event, rooms, sessions, people, edges } from "@/data/event";
 
 export const Route = createFileRoute("/organizer/")({
-  head: () => ({ meta: [{ title: "Organizer · Dashboard — Eurhack 2026" }] }),
+  head: () => ({ meta: [{ title: "Organizer · Dashboard — synqmap" }] }),
   component: Dashboard,
 });
 

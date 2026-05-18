@@ -4,7 +4,7 @@ import { NetworkGraph } from "@/components/NetworkGraph";
 import { useEffect, useState } from "react";
 
 export const Route = createFileRoute("/organizer/live")({
-  head: () => ({ meta: [{ title: "Organizer · Live Ops — Eurhack 2026" }] }),
+  head: () => ({ meta: [{ title: "Organizer · Live Ops — synqmap" }] }),
   component: LiveOps,
 });
 

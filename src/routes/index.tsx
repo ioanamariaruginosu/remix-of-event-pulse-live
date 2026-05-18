@@ -9,13 +9,13 @@ import { people, event, rooms } from "@/data/event";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Eurhack 2026 — Physical space, live graphed." },
+      { title: "synqmap — Physical space, live graphed." },
       {
         name: "description",
         content:
           "Turn every handshake into a data point. Rooms are physical, sessions are temporal. The live network for in-person events.",
       },
-      { property: "og:title", content: "Eurhack 2026 — Physical space, live graphed." },
+      { property: "og:title", content: "synqmap — Physical space, live graphed." },
       {
         property: "og:description",
         content: "The live network for in-person events. Tap to exchange identity cards.",
