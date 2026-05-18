@@ -1,6 +1,7 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { people } from "@/data/event";
+import { Avatar } from "@/components/Avatar";
 
 export const Route = createFileRoute("/app")({
   component: AppLayout,
