@@ -125,8 +125,10 @@ function PastEvents() {
                   <span>{ev.topTopics[0].label}</span>
                 </div>
               </div>
-              <div className="self-center pr-4 text-foreground/30">→</div>
-            </Link>
+              <div className="self-center pr-3 flex items-center gap-1">
+                <ShareLinkedInIcon url={`/app/wrapped?e=${ev.id}`} />
+                <span className="text-foreground/30">→</span>
+              </div>
           </motion.div>
         ))}
       </div>
