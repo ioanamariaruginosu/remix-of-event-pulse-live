@@ -1,6 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { pastEvents, people, edges, type PastEvent } from "@/data/event";
 import { Avatar } from "@/components/Avatar";
+import { EventMap } from "@/components/EventMap";
 
 export const Route = createFileRoute("/organizer/events/$eventId")({
   head: ({ params }) => ({
@@ -172,6 +173,7 @@ function ArchiveEvent() {
       {/* Rooms breakdown */}
       <section className="space-y-4">
         <SectionHeader title="Rooms" sub="How the floor plan was used." />
+        <EventMap eventId={ev.id} role="organizer" title="Venue map · organizer controls" />
         <div className="grid md:grid-cols-3 gap-3">
           {ev.rooms.map((r, i) => {
             const share = Math.round(((seed + i * 7) % 60) + 20);

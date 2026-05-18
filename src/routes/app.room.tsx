@@ -5,6 +5,7 @@ import { NetworkGraph } from "@/components/NetworkGraph";
 import { Avatar } from "@/components/Avatar";
 import { RoomPhotos } from "@/components/RoomPhotos";
 import { LiveChat } from "@/components/LiveChat";
+import { EventMap } from "@/components/EventMap";
 import { people, rooms, sessions } from "@/data/event";
 
 export const Route = createFileRoute("/app/room")({
@@ -49,6 +50,10 @@ function RoomView() {
       </div>
 
       <VenueMiniMap activeRoomId={roomId} onSelect={setRoomId} />
+
+      <EventMap eventId="current" role="attendee" title="Venue map" />
+
+
 
       <div className="aspect-square bg-foreground rounded-2xl overflow-hidden">
         <NetworkGraph scale="room" roomId={roomId} height={320} showLabels />
