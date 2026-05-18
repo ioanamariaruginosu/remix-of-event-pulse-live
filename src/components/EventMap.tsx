@@ -347,9 +347,9 @@ function VenueMapCanvas({
         startY: e.clientY,
         start: { ...layout },
         overflowLeft: layoutLeft - (roomBox.left - rect.left),
-        overflowRight: (roomBox.right - rect.left) - (layoutLeft + layoutWidth),
+        overflowRight: roomBox.right - rect.left - (layoutLeft + layoutWidth),
         overflowTop: layoutTop - (roomBox.top - rect.top),
-        overflowBottom: (roomBox.bottom - rect.top) - (layoutTop + layoutHeight),
+        overflowBottom: roomBox.bottom - rect.top - (layoutTop + layoutHeight),
       };
       (e.currentTarget as Element).setPointerCapture(e.pointerId);
     };
