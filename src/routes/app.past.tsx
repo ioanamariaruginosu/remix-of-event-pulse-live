@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { pastEvents, people } from "@/data/event";
 import { Avatar } from "@/components/Avatar";
+import { ShareLinkedInButton, ShareLinkedInIcon } from "@/components/ShareLinkedIn";
 
 export const Route = createFileRoute("/app/past")({
   head: () => ({ meta: [{ title: "Past events — synqmap" }] }),
@@ -73,11 +74,18 @@ function PastEvents() {
                 +{featured.cards - 4}
               </div>
             </div>
-            <div className="mt-5 inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-white text-foreground font-bold text-sm">
-              Open wrap
-              <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M5 12h14M13 6l6 6-6 6" />
-              </svg>
+            <div className="mt-5 flex items-center gap-2">
+              <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-white text-foreground font-bold text-sm">
+                Open wrap
+                <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
+              </div>
+              <ShareLinkedInButton
+                url={`/app/wrapped?e=${featured.id}`}
+                label="Share"
+                variant="dark"
+              />
             </div>
           </div>
         </div>
@@ -117,7 +125,10 @@ function PastEvents() {
                   <span>{ev.topTopics[0].label}</span>
                 </div>
               </div>
-              <div className="self-center pr-4 text-foreground/30">→</div>
+              <div className="self-center pr-3 flex items-center gap-1">
+                <ShareLinkedInIcon url={`/app/wrapped?e=${ev.id}`} />
+                <span className="text-foreground/30">→</span>
+              </div>
             </Link>
           </motion.div>
         ))}

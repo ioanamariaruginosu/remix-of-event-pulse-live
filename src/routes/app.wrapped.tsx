@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { NetworkGraph } from "@/components/NetworkGraph";
 import { Avatar } from "@/components/Avatar";
 import { pastEvents, people } from "@/data/event";
+import { ShareLinkedInButton, ShareLinkedInIcon } from "@/components/ShareLinkedIn";
 
 export const Route = createFileRoute("/app/wrapped")({
   head: () => ({ meta: [{ title: "Event wrapped — synqmap" }] }),
@@ -53,7 +54,14 @@ function Wrapped() {
       {/* Top bar */}
       <div className="absolute top-7 inset-x-4 z-30 flex items-center justify-between text-[10px] font-display italic tracking-tight normal-case text-white/70">
         <span>{ev.name} · {ev.date}</span>
-        <Link to="/app" className="text-white/70">Close ✕</Link>
+        <div className="flex items-center gap-1">
+          <ShareLinkedInIcon
+            url={`/app/wrapped?e=${ev.id}`}
+            ariaLabel="Share wrap on LinkedIn"
+            className="text-white/70 hover:text-white hover:bg-white/10"
+          />
+          <Link to="/app" className="text-white/70 ml-1">Close ✕</Link>
+        </div>
       </div>
 
       {/* Tap zones */}
@@ -279,12 +287,19 @@ function buildSlides(ev: typeof pastEvents[number], topPeople: ReturnType<typeof
             <Stat label="Cards" value={ev.cards} />
           </div>
 
-          <Link
-            to="/app"
-            className="mt-8 px-6 py-3 rounded-full bg-white text-foreground font-bold text-sm"
-          >
-            Back to current event
-          </Link>
+          <div className="mt-8 flex flex-col items-center gap-2 w-full">
+            <ShareLinkedInButton
+              url={`/app/wrapped?e=${ev.id}`}
+              label="Share my wrap on LinkedIn"
+              variant="dark"
+            />
+            <Link
+              to="/app"
+              className="px-6 py-2.5 rounded-full bg-white/10 text-white/80 font-bold text-xs"
+            >
+              Back to current event
+            </Link>
+          </div>
         </div>
       ),
     },
