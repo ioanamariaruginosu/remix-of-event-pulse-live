@@ -83,6 +83,11 @@ export function EventMap({
     setHydrated(true);
   }, [eventId, rooms]);
 
+  // Editing auto-expands the map to fullscreen; exiting edit returns to inline.
+  useEffect(() => {
+    setFullscreen(editing);
+  }, [editing]);
+
   // Persist when organizer changes layouts.
   useEffect(() => {
     if (!hydrated) return;
