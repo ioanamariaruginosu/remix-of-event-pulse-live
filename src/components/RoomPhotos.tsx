@@ -212,12 +212,11 @@ export function RoomPhotos({ roomId }: { roomId: string }) {
                 y: depth * 12,
                 x: depth % 2 === 0 ? depth * 6 : depth * -6,
                 rotate: depth % 2 === 0 ? depth * 3.5 : depth * -3.5,
-                opacity: 1 - depth * 0.2,
               }}
               transition={{ type: "spring", stiffness: 260, damping: 28 }}
               style={{ zIndex: 10 - depth }}
             >
-              <PhotoCard photo={photo} uploader={uploader} dim />
+              <PhotoCard photo={photo} uploader={uploader} />
             </motion.div>
           );
         })}
