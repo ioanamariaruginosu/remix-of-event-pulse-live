@@ -1,12 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { motion } from "motion/react";
 import { NetworkGraph } from "@/components/NetworkGraph";
 import { Avatar } from "@/components/Avatar";
 import { RoomPhotos } from "@/components/RoomPhotos";
 import { LiveChat } from "@/components/LiveChat";
 import { EventMap } from "@/components/EventMap";
+import { VenueFloorPlan } from "@/components/VenueFloorPlan";
 import { people, rooms, sessions } from "@/data/event";
+
 
 export const Route = createFileRoute("/app/room")({
   head: () => ({ meta: [{ title: "Room — synqmap" }] }),
