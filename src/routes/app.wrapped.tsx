@@ -266,6 +266,15 @@ function buildSlides(ev: typeof pastEvents[number], topPeople: ReturnType<typeof
       node: <PhotoCollageSlide photos={ev.photos} />,
     },
     {
+      bg: "linear-gradient(150deg,#0a0a1a,#1a2a4e)",
+      node: <EventAnalyticsSlide ev={ev} />,
+    },
+    {
+      bg: "linear-gradient(160deg,#0a0a1a,#2e1a0a)",
+      node: <EventActivitySlide ev={ev} />,
+    },
+
+    {
       bg: "linear-gradient(135deg,#000,#7c3aed)",
       node: (
         <div className="flex-1 flex flex-col justify-center items-center text-center">
@@ -364,3 +373,111 @@ function PhotoCollageSlide({ photos }: { photos: { url: string; caption: string;
     </div>
   );
 }
+
+function EventAnalyticsSlide({ ev }: { ev: typeof pastEvents[number] }) {
+  const avgConversation = +(ev.hours * 60 / Math.max(1, ev.conversations)).toFixed(1);
+  const cardsPerHour = +(ev.cards / Math.max(1, ev.hours)).toFixed(1);
+  const matchRate = Math.round((ev.newConnections / Math.max(1, ev.cards)) * 100);
+  const items = [
+    { label: "cards exchanged", value: ev.cards.toLocaleString(), sub: `across ${ev.hours}h` },
+    { label: "new connections", value: `+${ev.newConnections}`, sub: `${matchRate}% match rate` },
+    { label: "conversations", value: ev.conversations.toLocaleString(), sub: `${avgConversation} min avg` },
+    { label: "cards / hour", value: cardsPerHour, sub: `peak velocity` },
+  ];
+  return (
+    <div className="flex-1 flex flex-col">
+      <div className="text-[10px] font-display italic tracking-tight normal-case text-white/60 mb-1">Event analytics</div>
+      <h2 className="font-extrabold text-3xl tracking-tight mb-5">
+        How the room performed
+      </h2>
+      <div className="grid grid-cols-2 gap-3">
+        {items.map((it, i) => (
+          <motion.div
+            key={it.label}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.1, duration: 0.5 }}
+            className="rounded-2xl bg-white/5 ring-1 ring-white/10 p-4"
+          >
+            <div className="font-extrabold text-3xl tracking-tight">{it.value}</div>
+            <div className="font-display italic text-[10px] uppercase tracking-widest text-white/40 mt-1">{it.label}</div>
+            <div className="font-display italic text-[11px] text-white/60 mt-1.5">{it.sub}</div>
+          </motion.div>
+        ))}
+      </div>
+      <div className="mt-5 rounded-2xl bg-accent/20 ring-1 ring-accent/30 p-4">
+        <div className="font-display italic text-[10px] uppercase tracking-widest text-white/50 mb-1">Headline insight</div>
+        <div className="font-extrabold text-base leading-snug">
+          "{ev.topTopics[0].label}" carried{" "}
+          {Math.round((ev.topTopics[0].count / ev.topTopics.reduce((s, t) => s + t.count, 0)) * 100)}% of the
+          room's conversations.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EventActivitySlide({ ev }: { ev: typeof pastEvents[number] }) {
+  const seed = ev.id.charCodeAt(2);
+  const hourly = Array.from({ length: 12 }, (_, i) => {
+    const v = Math.abs(Math.sin((seed + i) * 1.7)) * 80 + 20;
+    return Math.round(v);
+  });
+  const rooms = ev.rooms.slice(0, 4).map((r, i) => ({
+    name: r,
+    share: Math.round(((seed + i * 7) % 60) + 20),
+  }));
+  return (
+    <div className="flex-1 flex flex-col">
+      <div className="text-[10px] font-display italic tracking-tight normal-case text-white/60 mb-1">Activity</div>
+      <h2 className="font-extrabold text-3xl tracking-tight mb-4">When the room came alive</h2>
+      <div className="rounded-2xl bg-white/5 ring-1 ring-white/10 p-4">
+        <div className="font-display italic text-[10px] uppercase tracking-widest text-white/40 mb-3">
+          Card exchanges per hour
+        </div>
+        <div className="h-28 flex items-end gap-1.5">
+          {hourly.map((h, i) => (
+            <div key={i} className="flex-1 flex flex-col items-center gap-1.5">
+              <motion.div
+                initial={{ height: 0 }}
+                animate={{ height: `${h}%` }}
+                transition={{ delay: i * 0.04, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                className="w-full bg-accent rounded-sm"
+              />
+              <div className="font-display italic text-[9px] text-white/40">{i + 9}h</div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="mt-4">
+        <div className="font-display italic text-[10px] uppercase tracking-widest text-white/40 mb-2">
+          Rooms · share of cards
+        </div>
+        <div className="space-y-2">
+          {rooms.map((r, i) => (
+            <motion.div
+              key={r.name}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: i * 0.08, duration: 0.4 }}
+            >
+              <div className="flex items-baseline justify-between mb-1">
+                <span className="font-bold text-sm truncate">{r.name}</span>
+                <span className="font-display italic text-xs text-white/60">{r.share}%</span>
+              </div>
+              <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                <motion.div
+                  className="h-full bg-white"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${r.share}%` }}
+                  transition={{ delay: i * 0.08 + 0.2, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                />
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
