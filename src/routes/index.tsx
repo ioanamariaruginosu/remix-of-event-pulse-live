@@ -96,7 +96,7 @@ function Landing() {
             transition={{ duration: 0.8, delay: 0.3 }}
             className="max-w-2xl mx-auto text-lg md:text-xl text-foreground/60 mb-12 text-pretty"
           >
-            Organizers empowered, never overwhelmed. We let AI handle the grind so you can curate meaningful, personal experiences. Events should not end. They should evolve into living knowledge engines that keep teaching long after the room clears.
+            Synqmap is the one place for live events interactions and archives that stick with you.
           </motion.p>
 
           <motion.div
