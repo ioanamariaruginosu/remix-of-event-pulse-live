@@ -17,7 +17,7 @@ export function DemoSwitcher() {
     <div className="fixed bottom-5 right-5 z-[100]">
       {open && (
         <div className="mb-2 bg-foreground text-white rounded-2xl p-2 shadow-2xl ring-1 ring-white/10 min-w-[200px]">
-          <div className="font-mono text-[10px] uppercase tracking-widest text-white/40 px-2 py-1">
+          <div className="font-display italic text-[10px] uppercase tracking-widest text-white/40 px-2 py-1">
             Demo Switcher
           </div>
           {targets.map((t) => {
@@ -42,7 +42,7 @@ export function DemoSwitcher() {
         className="size-12 bg-foreground text-white rounded-full grid place-items-center shadow-xl ring-2 ring-primary/40 hover:ring-primary transition-all cursor-pointer"
         aria-label="Demo switcher"
       >
-        <span className="font-mono text-[10px] font-bold tracking-tight leading-none text-center">
+        <span className="font-display italic text-[10px] font-bold tracking-tight leading-none text-center">
           DEMO<br/>NAV
         </span>
       </button>

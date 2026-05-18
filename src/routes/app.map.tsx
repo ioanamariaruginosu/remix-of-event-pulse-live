@@ -12,7 +12,7 @@ function MapView() {
   return (
     <div className="px-5 pt-6 space-y-5 pb-10">
       <div>
-        <div className="text-[10px] font-mono text-foreground/40 uppercase tracking-widest">End of day artifact</div>
+        <div className="text-[10px] font-display italic text-foreground/40 uppercase tracking-widest">End of day artifact</div>
         <h1 className="font-extrabold text-2xl tracking-tight">Your Map</h1>
       </div>
 
@@ -22,15 +22,15 @@ function MapView() {
         </div>
         <div className="absolute top-6 left-6 right-6 flex items-start justify-between text-white">
           <div>
-            <div className="font-mono text-[9px] uppercase tracking-widest text-white/40">Eurhack 2026 · Day 1</div>
+            <div className="font-display italic text-[9px] uppercase tracking-widest text-white/40">Eurhack 2026 · Day 1</div>
             <div className="font-extrabold text-lg tracking-tight">Your Trail</div>
           </div>
           <div className="text-right">
-            <div className="font-mono text-2xl font-extrabold">{count}</div>
-            <div className="font-mono text-[9px] uppercase tracking-widest text-white/40">connections</div>
+            <div className="font-display italic text-2xl font-extrabold">{count}</div>
+            <div className="font-display italic text-[9px] uppercase tracking-widest text-white/40">connections</div>
           </div>
         </div>
-        <div className="absolute bottom-6 left-6 right-6 flex justify-between font-mono text-[9px] uppercase tracking-widest text-white/40">
+        <div className="absolute bottom-6 left-6 right-6 flex justify-between font-display italic text-[9px] uppercase tracking-widest text-white/40">
           <span>EURHACK·2026</span>
           <span>BERLIN</span>
         </div>

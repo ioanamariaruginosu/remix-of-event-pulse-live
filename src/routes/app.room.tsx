@@ -17,7 +17,7 @@ function RoomView() {
   return (
     <div className="px-5 pt-6 space-y-5">
       <div className="bg-primary text-white -mx-5 -mt-6 px-5 pt-4 pb-5">
-        <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-white/60">
+        <div className="flex items-center gap-2 text-[10px] font-display italic tracking-tight normal-case text-white/60">
           <span className="size-1.5 bg-white rounded-full animate-pulse" />
           BLE detected
         </div>
@@ -26,7 +26,7 @@ function RoomView() {
       </div>
 
       <div>
-        <div className="text-[9px] font-mono text-foreground/40 uppercase tracking-widest mb-2">Switch room (demo)</div>
+        <div className="text-[9px] font-display italic text-foreground/40 uppercase tracking-widest mb-2">Switch room (demo)</div>
         <div className="flex gap-1 overflow-x-auto pb-1 -mx-1 px-1">
           {rooms.map((r) => (
             <button
@@ -48,7 +48,7 @@ function RoomView() {
 
       {session && (
         <div className="p-4 ring-1 ring-border rounded-2xl">
-          <div className="text-[9px] font-mono text-primary font-bold uppercase tracking-widest mb-1">Now on stage</div>
+          <div className="text-[9px] font-display italic text-primary font-bold uppercase tracking-widest mb-1">Now on stage</div>
           <div className="font-bold tracking-tight">{session.title}</div>
           <div className="text-xs text-foreground/60 mt-1">{session.speaker} · {session.time}</div>
           <Link to="/app/brief" className="mt-3 inline-block text-xs font-bold text-primary">View live brief →</Link>
@@ -56,7 +56,7 @@ function RoomView() {
       )}
 
       <div>
-        <div className="text-[10px] font-mono text-foreground/40 uppercase tracking-widest mb-3">Who you should meet here</div>
+        <div className="text-[10px] font-display italic text-foreground/40 uppercase tracking-widest mb-3">Who you should meet here</div>
         <div className="space-y-2">
           {here.slice(0, 5).map((p, i) => (
             <div key={p.id} className={`p-3 rounded-xl flex items-center gap-3 ${i === 0 ? "bg-primary-soft ring-1 ring-primary/20" : "ring-1 ring-border"}`}>
@@ -68,7 +68,7 @@ function RoomView() {
                 <div className="text-[10px] text-foreground/50 truncate">{p.intent}</div>
               </div>
               {i === 0 && (
-                <div className="text-[9px] font-mono font-bold text-primary uppercase tracking-widest italic">Match</div>
+                <div className="text-[9px] font-display italic font-bold text-primary uppercase tracking-widest italic">Match</div>
               )}
             </div>
           ))}

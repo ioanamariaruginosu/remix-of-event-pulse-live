@@ -12,7 +12,7 @@ function CardPage() {
   return (
     <div className="px-5 pt-6 space-y-5 pb-10">
       <div>
-        <div className="text-[10px] font-mono text-foreground/40 uppercase tracking-widest">Your identity</div>
+        <div className="text-[10px] font-display italic text-foreground/40 uppercase tracking-widest">Your identity</div>
         <h1 className="font-extrabold text-2xl tracking-tight">Card #001</h1>
       </div>
       <div className="flex justify-center pt-4">

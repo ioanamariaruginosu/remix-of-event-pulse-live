@@ -32,14 +32,14 @@ export function IdentityCard({ person, tilt = false, className = "", serial = "0
           >
             {person.initials}
           </div>
-          <div className="font-mono text-[10px] text-white/40 tracking-widest uppercase">
+          <div className="font-display italic text-[10px] text-white/40 tracking-widest uppercase">
             ID // {serial}
           </div>
         </div>
         <div>
           <div className="font-bold text-2xl mb-1 tracking-tight">{person.name}</div>
           <div className="text-white/60 text-xs mb-3 italic">"{person.oneLiner}"</div>
-          <div className="text-[10px] text-white/40 uppercase font-mono mb-1 tracking-widest">Intent</div>
+          <div className="text-[10px] text-white/40 uppercase font-display italic mb-1 tracking-widest">Intent</div>
           <div className="text-sm text-white/80 mb-4">{person.intent}</div>
           <div className="flex flex-wrap gap-1.5 mb-4">
             {person.tags.map((t) => (
@@ -48,7 +48,7 @@ export function IdentityCard({ person, tilt = false, className = "", serial = "0
               </span>
             ))}
           </div>
-          <div className="flex gap-3 text-[10px] text-white/50 font-mono pt-3 border-t border-white/10">
+          <div className="flex gap-3 text-[10px] text-white/50 font-display italic pt-3 border-t border-white/10">
             {person.socials.linkedin && <span>in {person.socials.linkedin}</span>}
             {person.socials.x && <span>x {person.socials.x}</span>}
             {person.socials.github && <span>gh {person.socials.github}</span>}

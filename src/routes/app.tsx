@@ -38,7 +38,7 @@ function AppLayout() {
               <span className="absolute -bottom-0.5 -right-0.5 size-2.5 rounded-full bg-emerald-500 ring-2 ring-background" />
             </div>
             <div className="leading-tight">
-              <div className="text-[9px] font-mono uppercase tracking-widest text-foreground/40">Live · Day 1</div>
+              <div className="text-[9px] font-display italic tracking-tight normal-case text-foreground/40">Live · Day 1</div>
               <div className="font-extrabold text-sm tracking-tight">{you.name}</div>
             </div>
           </div>

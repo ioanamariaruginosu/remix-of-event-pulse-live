@@ -50,7 +50,7 @@ function Wrapped() {
       </div>
 
       {/* Top bar */}
-      <div className="absolute top-7 inset-x-4 z-30 flex items-center justify-between text-[10px] font-mono uppercase tracking-widest text-white/70">
+      <div className="absolute top-7 inset-x-4 z-30 flex items-center justify-between text-[10px] font-display italic tracking-tight normal-case text-white/70">
         <span>{ev.name} · {ev.date}</span>
         <Link to="/app" className="text-white/70">Close ✕</Link>
       </div>
@@ -99,7 +99,7 @@ function buildSlides(ev: typeof pastEvents[number], topPeople: ReturnType<typeof
       bg: ev.cover,
       node: (
         <div className="flex-1 flex flex-col justify-end">
-          <div className="text-[10px] font-mono uppercase tracking-[0.3em] text-white/70 mb-3">Your wrapped</div>
+          <div className="text-[10px] font-display italic tracking-tight normal-case text-white/70 mb-3">Your wrapped</div>
           <h1 className="font-extrabold text-5xl leading-[0.95] tracking-tight">
             {ev.name}
           </h1>
@@ -112,7 +112,7 @@ function buildSlides(ev: typeof pastEvents[number], topPeople: ReturnType<typeof
       bg: "linear-gradient(160deg,#0a0a1a,#1a0a2e)",
       node: (
         <div className="flex-1 flex flex-col justify-center items-center text-center">
-          <div className="text-[10px] font-mono uppercase tracking-[0.3em] text-white/50 mb-2">You spent</div>
+          <div className="text-[10px] font-display italic tracking-tight normal-case text-white/50 mb-2">You spent</div>
           <motion.div
             initial={{ scale: 0.6, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -130,7 +130,7 @@ function buildSlides(ev: typeof pastEvents[number], topPeople: ReturnType<typeof
       bg: "linear-gradient(140deg,#1a0a2e,#7c3aed)",
       node: (
         <div className="flex-1 flex flex-col">
-          <div className="text-[10px] font-mono uppercase tracking-[0.3em] text-white/60">Your top topics</div>
+          <div className="text-[10px] font-display italic tracking-tight normal-case text-white/60">Your top topics</div>
           <div className="flex-1 flex flex-col justify-center">
             {ev.topTopics.map((t, i) => {
               const max = ev.topTopics[0].count;
@@ -144,7 +144,7 @@ function buildSlides(ev: typeof pastEvents[number], topPeople: ReturnType<typeof
                 >
                   <div className="flex items-baseline justify-between mb-1">
                     <span className="font-extrabold text-2xl tracking-tight">#{t.label}</span>
-                    <span className="font-mono text-xs text-white/60">{t.count}</span>
+                    <span className="font-display italic text-xs text-white/60">{t.count}</span>
                   </div>
                   <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
                     <motion.div
@@ -165,7 +165,7 @@ function buildSlides(ev: typeof pastEvents[number], topPeople: ReturnType<typeof
       bg: "linear-gradient(160deg,#0a0a1a,#0a1a2e)",
       node: (
         <div className="flex-1 flex flex-col">
-          <div className="text-[10px] font-mono uppercase tracking-[0.3em] text-white/60 mb-3">Your network grew by</div>
+          <div className="text-[10px] font-display italic tracking-tight normal-case text-white/60 mb-3">Your network grew by</div>
           <motion.div
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -178,7 +178,7 @@ function buildSlides(ev: typeof pastEvents[number], topPeople: ReturnType<typeof
           <div className="flex-1 relative mt-4 rounded-2xl overflow-hidden ring-1 ring-white/10 bg-black/30">
             <NetworkGraph scale="personal" centerId="you" height={300} interactive variant="dark" />
           </div>
-          <div className="text-[10px] font-mono uppercase tracking-widest text-white/40 text-center mt-2">
+          <div className="text-[10px] font-display italic tracking-tight normal-case text-white/40 text-center mt-2">
             Tap any node to revisit
           </div>
         </div>
@@ -188,7 +188,7 @@ function buildSlides(ev: typeof pastEvents[number], topPeople: ReturnType<typeof
       bg: "linear-gradient(135deg,#7c3aed,#f472b6)",
       node: (
         <div className="flex-1 flex flex-col justify-center">
-          <div className="text-[10px] font-mono uppercase tracking-[0.3em] text-white/70 mb-3">Your inner circle</div>
+          <div className="text-[10px] font-display italic tracking-tight normal-case text-white/70 mb-3">Your inner circle</div>
           <div className="space-y-2">
             {topPeople.map((p, i) => (
               <motion.div
@@ -205,7 +205,7 @@ function buildSlides(ev: typeof pastEvents[number], topPeople: ReturnType<typeof
                   <div className="font-extrabold text-base">{p.name}</div>
                   <div className="text-[11px] text-white/70 truncate">{p.oneLiner}</div>
                 </div>
-                <div className="font-mono text-[9px] uppercase tracking-widest text-white/60">#{i + 1}</div>
+                <div className="font-display italic text-[9px] uppercase tracking-widest text-white/60">#{i + 1}</div>
               </motion.div>
             ))}
           </div>
@@ -216,7 +216,7 @@ function buildSlides(ev: typeof pastEvents[number], topPeople: ReturnType<typeof
       bg: "linear-gradient(150deg,#0a0a1a,#1f0a2e)",
       node: (
         <div className="flex-1 flex flex-col justify-center items-center text-center">
-          <div className="text-[10px] font-mono uppercase tracking-[0.3em] text-white/50 mb-3">Longest conversation</div>
+          <div className="text-[10px] font-display italic tracking-tight normal-case text-white/50 mb-3">Longest conversation</div>
           <motion.div
             initial={{ scale: 0.7, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -235,7 +235,7 @@ function buildSlides(ev: typeof pastEvents[number], topPeople: ReturnType<typeof
       bg: "linear-gradient(135deg,#1a0a2e,#7c3aed)",
       node: (
         <div className="flex-1 flex flex-col">
-          <div className="text-[10px] font-mono uppercase tracking-[0.3em] text-white/60 mb-3">Highlights</div>
+          <div className="text-[10px] font-display italic tracking-tight normal-case text-white/60 mb-3">Highlights</div>
           <div className="flex-1 flex flex-col justify-center space-y-3">
             {ev.highlights.map((h, i) => (
               <motion.div
@@ -245,7 +245,7 @@ function buildSlides(ev: typeof pastEvents[number], topPeople: ReturnType<typeof
                 transition={{ delay: i * 0.2, duration: 0.5 }}
                 className="text-2xl font-bold leading-tight"
               >
-                <span className="text-accent font-mono text-sm mr-2">0{i + 1}</span>
+                <span className="text-accent font-display italic text-sm mr-2">0{i + 1}</span>
                 {h}
               </motion.div>
             ))}
@@ -257,7 +257,7 @@ function buildSlides(ev: typeof pastEvents[number], topPeople: ReturnType<typeof
       bg: "linear-gradient(135deg,#000,#7c3aed)",
       node: (
         <div className="flex-1 flex flex-col justify-center items-center text-center">
-          <div className="text-[10px] font-mono uppercase tracking-[0.3em] text-white/60 mb-3">In total</div>
+          <div className="text-[10px] font-display italic tracking-tight normal-case text-white/60 mb-3">In total</div>
           <motion.div
             initial={{ scale: 0.7, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -290,7 +290,7 @@ function buildSlides(ev: typeof pastEvents[number], topPeople: ReturnType<typeof
 function Stat({ label, value }: { label: string; value: number }) {
   return (
     <div className="bg-white/5 backdrop-blur ring-1 ring-white/10 rounded-2xl p-3 text-left">
-      <div className="text-[9px] font-mono uppercase tracking-widest text-white/40">{label}</div>
+      <div className="text-[9px] font-display italic tracking-tight normal-case text-white/40">{label}</div>
       <div className="font-extrabold text-2xl tracking-tight">{value}</div>
     </div>
   );

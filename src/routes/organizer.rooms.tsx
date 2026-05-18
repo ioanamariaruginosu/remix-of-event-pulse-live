@@ -11,7 +11,7 @@ function Rooms() {
     <div className="p-8 lg:p-12 space-y-8 max-w-5xl">
       <div className="flex items-end justify-between">
         <div>
-          <div className="font-mono text-[10px] uppercase tracking-widest text-foreground/40 mb-2">Venue</div>
+          <div className="font-display italic text-[10px] uppercase tracking-widest text-foreground/40 mb-2">Venue</div>
           <h1 className="text-4xl font-extrabold tracking-tight">Rooms</h1>
           <p className="text-foreground/60 mt-2 max-w-xl">Physical zones in the venue. Each gets a QR code at the entrance as a BLE fallback.</p>
         </div>
@@ -28,14 +28,14 @@ function Rooms() {
                 <div className="flex items-center gap-2 mb-1">
                   <h3 className="text-xl font-extrabold tracking-tight">{r.name}</h3>
                   <span
-                    className={`text-[9px] font-mono uppercase tracking-widest px-2 py-0.5 rounded ${
+                    className={`text-[9px] font-display italic tracking-tight normal-case px-2 py-0.5 rounded ${
                       r.kind === "session" ? "bg-primary-soft text-primary" : "bg-accent/40 text-foreground"
                     }`}
                   >
                     {r.kind}
                   </span>
                 </div>
-                <div className="text-xs text-foreground/40 font-mono">ROOM_ID: {r.id.toUpperCase()}</div>
+                <div className="text-xs text-foreground/40 font-display italic">ROOM_ID: {r.id.toUpperCase()}</div>
               </div>
               <div className="size-16 rounded-lg bg-foreground p-2 grid place-items-center">
                 <div
@@ -49,7 +49,7 @@ function Rooms() {
               </div>
             </div>
             <div>
-              <div className="flex justify-between text-[10px] font-mono uppercase tracking-widest text-foreground/40 mb-1">
+              <div className="flex justify-between text-[10px] font-display italic tracking-tight normal-case text-foreground/40 mb-1">
                 <span>Occupancy</span>
                 <span>{r.current} / {r.capacity}</span>
               </div>

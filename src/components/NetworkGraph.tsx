@@ -326,14 +326,14 @@ export function NetworkGraph({
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <div className="font-extrabold text-sm tracking-tight">{focusedPerson.name}</div>
-                  <div className="text-[9px] font-mono uppercase tracking-widest text-foreground/40">
+                  <div className="text-[9px] font-display italic tracking-tight normal-case text-foreground/40">
                     {focusedEdges.length} link{focusedEdges.length === 1 ? "" : "s"}
                   </div>
                 </div>
                 <div className="text-[11px] text-foreground/60 leading-snug mt-0.5 line-clamp-2">{focusedPerson.oneLiner}</div>
                 <div className="flex gap-1 flex-wrap mt-1.5">
                   {focusedPerson.tags.slice(0, 4).map((t) => (
-                    <span key={t} className="text-[9px] font-mono uppercase tracking-widest bg-foreground/5 text-foreground/60 px-1.5 py-0.5 rounded">
+                    <span key={t} className="text-[9px] font-display italic tracking-tight normal-case bg-foreground/5 text-foreground/60 px-1.5 py-0.5 rounded">
                       {t}
                     </span>
                   ))}
@@ -346,7 +346,7 @@ export function NetworkGraph({
 
       {/* Hint when interactive and nothing selected */}
       {interactive && !focus && (
-        <div className="absolute top-3 right-3 px-2.5 py-1 bg-background/80 backdrop-blur-md rounded-full text-[9px] font-mono font-bold uppercase tracking-widest text-foreground/60 ring-1 ring-border pointer-events-none">
+        <div className="absolute top-3 right-3 px-2.5 py-1 bg-background/80 backdrop-blur-md rounded-full text-[9px] font-display italic font-bold uppercase tracking-widest text-foreground/60 ring-1 ring-border pointer-events-none">
           Tap a node
         </div>
       )}

@@ -20,7 +20,7 @@ function Personal() {
     <div className="px-5 pt-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <div className="text-[10px] font-mono text-foreground/40 uppercase tracking-widest">Welcome back</div>
+          <div className="text-[10px] font-display italic text-foreground/40 uppercase tracking-widest">Welcome back</div>
           <div className="font-extrabold text-xl tracking-tight">{you.name}</div>
         </div>
         <div className="size-10 rounded-full grid place-items-center font-bold text-sm text-white" style={{ background: you.color }}>
@@ -31,15 +31,15 @@ function Personal() {
       <div className="p-4 bg-foreground text-white rounded-2xl">
         <div className="flex items-end justify-between mb-2">
           <div>
-            <div className="text-[10px] font-mono text-white/40 uppercase tracking-widest">Level 4 · Networker</div>
+            <div className="text-[10px] font-display italic text-white/40 uppercase tracking-widest">Level 4 · Networker</div>
             <div className="font-extrabold text-2xl tracking-tight">{xp.toLocaleString()} XP</div>
           </div>
-          <div className="text-[10px] font-mono text-accent">+250 today</div>
+          <div className="text-[10px] font-display italic text-accent">+250 today</div>
         </div>
         <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
           <div className="h-full bg-accent" style={{ width: `${(xp / nextLevel) * 100}%` }} />
         </div>
-        <div className="flex justify-between mt-1 text-[10px] font-mono text-white/40">
+        <div className="flex justify-between mt-1 text-[10px] font-display italic text-white/40">
           <span>Lv 4</span>
           <span>{nextLevel - xp} XP to Lv 5</span>
         </div>
@@ -47,7 +47,7 @@ function Personal() {
 
       <div className="aspect-square bg-foreground rounded-2xl overflow-hidden relative">
         <NetworkGraph scale="personal" centerId="you" height={320} showLabels interactive />
-        <div className="absolute top-3 left-3 px-2 py-1 bg-background/90 backdrop-blur rounded-full text-[9px] font-mono font-bold uppercase tracking-widest pointer-events-none">
+        <div className="absolute top-3 left-3 px-2 py-1 bg-background/90 backdrop-blur rounded-full text-[9px] font-display italic font-bold uppercase tracking-widest pointer-events-none">
           Your trail · {collected} cards
         </div>
       </div>
@@ -55,8 +55,8 @@ function Personal() {
       {/* Past events / Wrapped */}
       <div>
         <div className="flex items-end justify-between mb-3">
-          <div className="text-[10px] font-mono text-foreground/40 uppercase tracking-widest">Your event wrapped</div>
-          <span className="text-[9px] font-mono text-foreground/30 uppercase tracking-widest">{pastEvents.length} past</span>
+          <div className="text-[10px] font-display italic text-foreground/40 uppercase tracking-widest">Your event wrapped</div>
+          <span className="text-[9px] font-display italic text-foreground/30 uppercase tracking-widest">{pastEvents.length} past</span>
         </div>
         <div className="flex gap-3 overflow-x-auto -mx-5 px-5 pb-2 snap-x snap-mandatory">
           {pastEvents.map((ev, i) => (
@@ -76,13 +76,13 @@ function Personal() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/10" />
                 <div className="relative h-full flex flex-col justify-between">
                   <div className="flex items-center justify-between">
-                    <div className="text-[9px] font-mono uppercase tracking-widest text-white/80">{ev.date}</div>
+                    <div className="text-[9px] font-display italic tracking-tight normal-case text-white/80">{ev.date}</div>
                     <div className="size-7 rounded-full bg-white/20 backdrop-blur grid place-items-center text-xs">▶</div>
                   </div>
                   <div>
                     <div className="font-extrabold text-xl tracking-tight leading-tight">{ev.name}</div>
                     <div className="text-[11px] text-white/80 mt-0.5">{ev.city}</div>
-                    <div className="flex gap-3 mt-3 text-[10px] font-mono uppercase tracking-widest text-white/80">
+                    <div className="flex gap-3 mt-3 text-[10px] font-display italic tracking-tight normal-case text-white/80">
                       <span><b className="text-base text-white not-italic font-extrabold">{ev.cards}</b> cards</span>
                       <span><b className="text-base text-white not-italic font-extrabold">{ev.newConnections}</b> new</span>
                     </div>
@@ -95,7 +95,7 @@ function Personal() {
       </div>
 
       <div>
-        <div className="text-[10px] font-mono text-foreground/40 uppercase tracking-widest mb-3">Three moves for you</div>
+        <div className="text-[10px] font-display italic text-foreground/40 uppercase tracking-widest mb-3">Three moves for you</div>
         <div className="space-y-2">
           <MoveCard
             tag="Closest match"
@@ -110,7 +110,7 @@ function Personal() {
             color={bridge.color}
           />
           <Link to="/app/room" className="block p-3 rounded-xl bg-primary-soft ring-1 ring-primary/20">
-            <div className="text-[9px] font-mono text-primary font-bold uppercase tracking-widest mb-1">Blind spot</div>
+            <div className="text-[9px] font-display italic text-primary font-bold uppercase tracking-widest mb-1">Blind spot</div>
             <div className="font-bold text-sm">{suggestions.blindSpotCluster}</div>
             <div className="text-xs text-foreground/60 mt-1">You haven't met anyone from the hardware row.</div>
           </Link>
@@ -125,7 +125,7 @@ function MoveCard({ tag, person, why, color }: { tag: string; person: string; wh
     <div className="p-3 rounded-xl ring-1 ring-border flex gap-3 items-start">
       <div className="size-9 rounded-full shrink-0 mt-0.5" style={{ background: color }} />
       <div className="flex-1 min-w-0">
-        <div className="text-[9px] font-mono text-primary font-bold uppercase tracking-widest">{tag}</div>
+        <div className="text-[9px] font-display italic text-primary font-bold uppercase tracking-widest">{tag}</div>
         <div className="font-bold text-sm">{person}</div>
         <div className="text-xs text-foreground/60 mt-0.5">{why}</div>
       </div>

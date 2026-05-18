@@ -37,7 +37,7 @@ function Join() {
               />
             ))}
           </div>
-          <div className="font-mono text-[10px] uppercase tracking-widest text-primary mb-2">
+          <div className="font-display italic text-[10px] uppercase tracking-widest text-primary mb-2">
             Step {step + 1} of {steps.length}
           </div>
           <h1 className="text-3xl font-extrabold tracking-tight">{steps[step].title}</h1>
@@ -77,7 +77,7 @@ function Join() {
                   className="w-full p-4 rounded-2xl ring-1 ring-border bg-background font-medium resize-none focus:ring-2 focus:ring-primary outline-none"
                 />
                 <div>
-                  <div className="font-mono text-[10px] uppercase tracking-widest text-foreground/40 mb-2">Pick 1–3 tags</div>
+                  <div className="font-display italic text-[10px] uppercase tracking-widest text-foreground/40 mb-2">Pick 1–3 tags</div>
                   <div className="flex flex-wrap gap-2">
                     {allTags.map((t) => {
                       const on = tags.includes(t);
