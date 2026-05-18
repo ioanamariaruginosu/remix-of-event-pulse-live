@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { NetworkGraph } from "@/components/NetworkGraph";
+import { Avatar } from "@/components/Avatar";
 import { people, rooms, sessions } from "@/data/event";
 
 export const Route = createFileRoute("/app/room")({
@@ -60,9 +61,8 @@ function RoomView() {
         <div className="space-y-2">
           {here.slice(0, 5).map((p, i) => (
             <div key={p.id} className={`p-3 rounded-xl flex items-center gap-3 ${i === 0 ? "bg-primary-soft ring-1 ring-primary/20" : "ring-1 ring-border"}`}>
-              <div className="size-9 rounded-lg grid place-items-center font-bold text-xs text-white" style={{ background: p.color }}>
-                {p.initials}
-              </div>
+              <Avatar person={p} size={40} className="ring-2 ring-background shadow-sm" />
+
               <div className="flex-1 min-w-0">
                 <div className="font-bold text-sm truncate">{p.name}</div>
                 <div className="text-[10px] text-foreground/50 truncate">{p.intent}</div>

@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { NetworkGraph } from "@/components/NetworkGraph";
+import { Avatar } from "@/components/Avatar";
 import { pastEvents, people } from "@/data/event";
 
 export const Route = createFileRoute("/app/wrapped")({
@@ -198,9 +199,8 @@ function buildSlides(ev: typeof pastEvents[number], topPeople: ReturnType<typeof
                 transition={{ delay: i * 0.1, duration: 0.5 }}
                 className="flex items-center gap-3 bg-black/20 backdrop-blur rounded-2xl p-3 ring-1 ring-white/10"
               >
-                <div className="size-11 rounded-xl grid place-items-center font-bold text-sm" style={{ background: p.color, color: "#fff" }}>
-                  {p.initials}
-                </div>
+                <Avatar person={p} size={44} className="ring-2 ring-white/30 shadow-md" />
+
                 <div className="flex-1 min-w-0">
                   <div className="font-extrabold text-base">{p.name}</div>
                   <div className="text-[11px] text-white/70 truncate">{p.oneLiner}</div>

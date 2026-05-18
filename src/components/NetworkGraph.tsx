@@ -108,15 +108,18 @@ export function NetworkGraph({
   const H = height;
 
   /* Per-node derived visual state: color from cluster, match-strength from
-     similarity to the center person (the "you" node). */
+     similarity to the center person (the "you" node). Min radius is generous
+     enough that every node fits a legible avatar. */
   const enriched = useMemo(() => {
+    const minR = scale === "personal" ? 14 : 13;
     return nodes.map((n) => {
       const cl = clusterFor(n);
       const match = center ? matchScore(center, n) : 0;
-      const baseR = n.id === centerId ? 22 : 8 + Math.round(match * 10);
+      const baseR = n.id === centerId ? 24 : minR + Math.round(match * 8);
       return { ...n, color: cl.color, cluster: cl.id, match, baseR };
     });
-  }, [nodes, center, centerId]);
+  }, [nodes, center, centerId, scale]);
+
 
   const positions = useMemo(() => {
     const map = new Map<string, { x: number; y: number }>();
@@ -413,54 +416,40 @@ export function NetworkGraph({
                   <circle cx={p.x} cy={p.y} r={Math.max(baseR + 10, 18)} fill="transparent" />
                 )}
 
-                {/* Avatar puck — DiceBear portrait clipped to a circle.
-                    Small nodes fall back to a solid color disc so the graph
-                    still reads when zoomed out. */}
-                {baseR >= 9 ? (
-                  <>
-                    <defs>
-                      <clipPath id={`ng-clip-${n.id}`}>
-                        <circle cx={p.x} cy={p.y} r={baseR - 1} />
-                      </clipPath>
-                    </defs>
-                    {/* Colored backdrop so transparent avatars still show cluster identity */}
-                    <circle
-                      cx={p.x}
-                      cy={p.y}
-                      r={baseR}
-                      fill={n.color}
-                      style={{ filter: `drop-shadow(0 0 ${baseR * (0.5 + n.match)}px ${n.color}cc)` }}
-                    />
-                    <image
-                      href={avatarUrl(avatarFor(n), 128)}
-                      x={p.x - baseR}
-                      y={p.y - baseR}
-                      width={baseR * 2}
-                      height={baseR * 2}
-                      clipPath={`url(#ng-clip-${n.id})`}
-                      preserveAspectRatio="xMidYMid slice"
-                      style={{ pointerEvents: "none" }}
-                    />
-                    <circle
-                      cx={p.x}
-                      cy={p.y}
-                      r={baseR}
-                      fill="none"
-                      stroke={isFocus ? "#bef264" : isCenter ? "#ffffff" : isDark ? "rgba(255,255,255,0.85)" : "rgba(20,20,30,0.6)"}
-                      strokeWidth={isFocus ? 3 : isCenter ? 3 : 1.5}
-                    />
-                  </>
-                ) : (
-                  <circle
-                    cx={p.x}
-                    cy={p.y}
-                    r={baseR}
-                    fill={n.color}
-                    stroke={isFocus ? "#bef264" : isDark ? "rgba(255,255,255,0.85)" : "rgba(20,20,30,0.4)"}
-                    strokeWidth={1}
-                    style={{ filter: `drop-shadow(0 0 ${baseR * (0.5 + n.match)}px ${n.color}cc)` }}
-                  />
-                )}
+                {/* Avatar puck — every node gets a DiceBear face clipped to a circle. */}
+                <defs>
+                  <clipPath id={`ng-clip-${n.id}`}>
+                    <circle cx={p.x} cy={p.y} r={baseR - 1} />
+                  </clipPath>
+                </defs>
+                {/* Cluster-colored backdrop so transparent avatars still
+                    communicate identity and the node glows. */}
+                <circle
+                  cx={p.x}
+                  cy={p.y}
+                  r={baseR}
+                  fill={n.color}
+                  style={{ filter: `drop-shadow(0 0 ${baseR * (0.5 + n.match)}px ${n.color}cc)` }}
+                />
+                <image
+                  href={avatarUrl(avatarFor(n), 128)}
+                  x={p.x - baseR}
+                  y={p.y - baseR}
+                  width={baseR * 2}
+                  height={baseR * 2}
+                  clipPath={`url(#ng-clip-${n.id})`}
+                  preserveAspectRatio="xMidYMid slice"
+                  style={{ pointerEvents: "none" }}
+                />
+                <circle
+                  cx={p.x}
+                  cy={p.y}
+                  r={baseR}
+                  fill="none"
+                  stroke={isFocus ? "#bef264" : isCenter ? "#ffffff" : isDark ? "rgba(255,255,255,0.9)" : "rgba(20,20,30,0.6)"}
+                  strokeWidth={isFocus ? 3 : isCenter ? 3 : 1.5}
+                />
+
 
 
                 {showLabel && !isCenter && (
