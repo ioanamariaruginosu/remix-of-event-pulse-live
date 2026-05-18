@@ -149,3 +149,12 @@ function MapIcon({ className = "" }: IconProps) {
     </svg>
   );
 }
+function ArchiveIcon({ className = "" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 7h18M5 7v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7" />
+      <path d="M9 11h6" />
+      <path d="M4 4h16v3H4z" />
+    </svg>
+  );
+}
