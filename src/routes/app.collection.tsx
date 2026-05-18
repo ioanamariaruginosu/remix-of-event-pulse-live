@@ -28,12 +28,8 @@ function Collection() {
           <div key={person.id} className="p-4 rounded-2xl bg-foreground text-white relative overflow-hidden">
             <div className="absolute top-0 right-0 size-32 bg-primary/30 blur-3xl rounded-full" />
             <div className="relative flex items-start gap-3">
-              <div
-                className="size-12 rounded-xl grid place-items-center font-bold text-sm shrink-0"
-                style={{ background: person.color }}
-              >
-                {person.initials}
-              </div>
+              <Avatar person={person} size={52} className="ring-2 ring-white/20 shrink-0 shadow-md" />
+
               <div className="flex-1 min-w-0">
                 <div className="flex items-baseline justify-between gap-2">
                   <div className="font-bold tracking-tight truncate">{person.name}</div>
