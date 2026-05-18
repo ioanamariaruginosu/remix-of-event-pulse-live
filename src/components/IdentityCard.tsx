@@ -1,15 +1,20 @@
 import { motion } from "motion/react";
 import type { Person } from "@/data/event";
 import { Avatar } from "@/components/Avatar";
+import type { ProfileGradient } from "@/data/profile";
 
 type Props = {
   person: Person;
   tilt?: boolean;
   className?: string;
   serial?: string;
+  gradient?: ProfileGradient;
 };
 
-export function IdentityCard({ person, tilt = false, className = "", serial = "001" }: Props) {
+export function IdentityCard({ person, tilt = false, className = "", serial = "001", gradient }: Props) {
+  const bg = gradient
+    ? `linear-gradient(135deg, ${gradient.from} 0%, ${gradient.via} 50%, ${gradient.to} 100%)`
+    : undefined;
   return (
     <motion.div
       whileHover={{ rotate: 0, scale: 1.03 }}
@@ -17,12 +22,16 @@ export function IdentityCard({ person, tilt = false, className = "", serial = "0
       style={{ rotate: tilt ? -8 : 0 }}
       className={`group relative w-72 aspect-[2/3] bg-foreground rounded-[24px] shadow-2xl overflow-hidden ring-1 ring-white/10 ${className}`}
     >
-      <div className="absolute inset-0 bg-gradient-to-tr from-primary/50 via-primary/10 to-transparent" />
+      {gradient ? (
+        <div className="absolute inset-0" style={{ background: bg }} />
+      ) : (
+        <div className="absolute inset-0 bg-gradient-to-tr from-primary/50 via-primary/10 to-transparent" />
+      )}
       <div
         className="absolute inset-0 opacity-30"
         style={{
           backgroundImage:
-            "radial-gradient(circle at 20% 20%, rgba(217,249,157,0.4), transparent 40%), radial-gradient(circle at 80% 80%, rgba(124,58,237,0.4), transparent 40%)",
+            "radial-gradient(circle at 20% 20%, rgba(255,255,255,0.35), transparent 40%), radial-gradient(circle at 80% 80%, rgba(0,0,0,0.35), transparent 40%)",
         }}
       />
       <div className="relative p-6 h-full flex flex-col justify-between text-white">
