@@ -51,6 +51,10 @@ function RoomView() {
 
       <VenueMiniMap activeRoomId={roomId} onSelect={setRoomId} />
 
+      <EventMap eventId="current" role="attendee" title="Venue map" />
+
+
+
       <div className="aspect-square bg-foreground rounded-2xl overflow-hidden">
         <NetworkGraph scale="room" roomId={roomId} height={320} showLabels />
       </div>
