@@ -2,6 +2,8 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { pastEvents, people, edges, type PastEvent } from "@/data/event";
 import { Avatar } from "@/components/Avatar";
 import { EventMap } from "@/components/EventMap";
+import { VenueFloorPlan } from "@/components/VenueFloorPlan";
+
 
 export const Route = createFileRoute("/organizer/events/$eventId")({
   head: ({ params }) => ({
