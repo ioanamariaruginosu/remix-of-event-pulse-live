@@ -1,4 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { useState } from "react";
 import { pastEvents, people, edges, type PastEvent } from "@/data/event";
 import { Avatar } from "@/components/Avatar";
 import { EventMap } from "@/components/EventMap";
@@ -39,15 +40,15 @@ function EventDetail() {
 }
 
 function ConfigureEvent({ ev }: { ev: UpcomingEvent }) {
-  const sections: { to: "/organizer" | "/organizer/rooms" | "/organizer/sessions" | "/organizer/invitations" | "/organizer/door"; label: string; copy: string }[] = [
-    { to: "/organizer", label: "Dashboard & map", copy: "Edit the venue map, branding, and headline KPIs." },
-    { to: "/organizer/rooms", label: "Rooms", copy: "Add, rename, or remove rooms and tracks." },
-    { to: "/organizer/sessions", label: "Schedule", copy: "Plan sessions, speakers, and time slots." },
-    { to: "/organizer/invitations", label: "Invitations", copy: "Send invites and manage RSVPs." },
-    { to: "/organizer/door", label: "Door check-in", copy: "Pre-print badges and configure check-in." },
-  ];
+  const [name, setName] = useState(ev.name);
+  const [date, setDate] = useState(ev.date);
+  const [city, setCity] = useState(ev.city);
+  const [rooms, setRooms] = useState<string[]>(["Main Stage", "Track A", "Coffee Bar"]);
+  const [newRoom, setNewRoom] = useState("");
+  const [schedule, setSchedule] = useState("09:00 Doors open\n10:00 Opening keynote\n11:30 Track A · panel\n13:00 Lunch\n15:00 Workshops\n18:00 Drinks");
+  const [invitesSent, setInvitesSent] = useState(ev.attendees);
   return (
-    <div className="p-8 lg:p-12 space-y-10 max-w-5xl">
+    <div className="p-6 sm:p-8 lg:p-12 space-y-8 max-w-5xl">
       <div>
         <Link to="/organizer/events" className="text-xs font-bold text-foreground/50 hover:text-foreground inline-flex items-center gap-1">← All events</Link>
         <div className="mt-4 rounded-3xl overflow-hidden ring-1 ring-border">
@@ -56,29 +57,76 @@ function ConfigureEvent({ ev }: { ev: UpcomingEvent }) {
             <span className={`inline-block text-[9px] font-display italic font-bold uppercase tracking-widest px-2 py-1 rounded ${ev.status === "upcoming" ? "bg-accent/40 text-foreground" : "bg-foreground/5 text-foreground/60"}`}>
               {ev.status}
             </span>
-            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">{ev.name}</h1>
-            <div className="text-sm text-foreground/60">{ev.date} · {ev.city} · {ev.attendees.toLocaleString()} registered</div>
+            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">{name}</h1>
+            <div className="text-sm text-foreground/60">{date} · {city} · {invitesSent.toLocaleString()} registered</div>
           </div>
         </div>
       </div>
 
-      <div>
-        <div className="font-display italic text-[10px] uppercase tracking-widest text-foreground/40 mb-3">Configure</div>
+      <Panel label="Basics">
+        <Field label="Name"><input value={name} onChange={(e) => setName(e.target.value)} className="w-full px-3 py-2 rounded-lg ring-1 ring-border bg-background text-sm" /></Field>
         <div className="grid sm:grid-cols-2 gap-3">
-          {sections.map((s) => (
-            <Link
-              key={s.to}
-              to={s.to}
-              className="p-5 rounded-2xl ring-1 ring-border bg-background hover:ring-primary/40 hover:bg-foreground/[0.02] transition-colors block"
-            >
-              <div className="font-bold tracking-tight">{s.label}</div>
-              <div className="text-xs text-foreground/60 mt-1">{s.copy}</div>
-              <div className="text-[10px] font-display italic font-bold uppercase tracking-widest text-primary mt-3">Open ↗</div>
-            </Link>
-          ))}
+          <Field label="Date"><input value={date} onChange={(e) => setDate(e.target.value)} className="w-full px-3 py-2 rounded-lg ring-1 ring-border bg-background text-sm" /></Field>
+          <Field label="City"><input value={city} onChange={(e) => setCity(e.target.value)} className="w-full px-3 py-2 rounded-lg ring-1 ring-border bg-background text-sm" /></Field>
         </div>
+      </Panel>
+
+      <Panel label="Rooms">
+        <div className="space-y-2">
+          {rooms.map((r, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <input
+                value={r}
+                onChange={(e) => setRooms((prev) => prev.map((x, j) => (j === i ? e.target.value : x)))}
+                className="flex-1 px-3 py-2 rounded-lg ring-1 ring-border bg-background text-sm"
+              />
+              <button onClick={() => setRooms((prev) => prev.filter((_, j) => j !== i))} className="px-3 py-2 text-xs font-bold ring-1 ring-border rounded-lg hover:bg-foreground/5">Remove</button>
+            </div>
+          ))}
+          <div className="flex gap-2 pt-1">
+            <input value={newRoom} onChange={(e) => setNewRoom(e.target.value)} placeholder="New room name" className="flex-1 px-3 py-2 rounded-lg ring-1 ring-border bg-background text-sm" />
+            <button
+              onClick={() => { if (newRoom.trim()) { setRooms((p) => [...p, newRoom.trim()]); setNewRoom(""); } }}
+              className="px-3 py-2 text-xs font-bold bg-foreground text-white rounded-lg hover:bg-primary"
+            >Add room</button>
+          </div>
+        </div>
+      </Panel>
+
+      <Panel label="Schedule">
+        <textarea value={schedule} onChange={(e) => setSchedule(e.target.value)} rows={7} className="w-full px-3 py-2 rounded-lg ring-1 ring-border bg-background text-sm font-mono leading-relaxed" />
+      </Panel>
+
+      <Panel label="Invitations">
+        <div className="flex items-center gap-3">
+          <div className="font-display italic text-3xl font-extrabold">{invitesSent.toLocaleString()}</div>
+          <div className="text-xs text-foreground/60">invites sent</div>
+          <button onClick={() => setInvitesSent((n) => n + 25)} className="ml-auto px-3 py-2 text-xs font-bold bg-foreground text-white rounded-lg hover:bg-primary">+ Send 25 more</button>
+        </div>
+      </Panel>
+
+      <div className="flex justify-end">
+        <button className="px-5 py-3 bg-primary text-white rounded-xl font-bold text-sm hover:bg-primary/90">Save changes</button>
       </div>
     </div>
+  );
+}
+
+function Panel({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <section className="p-5 sm:p-6 rounded-3xl ring-1 ring-border bg-background space-y-3">
+      <div className="font-display italic text-[10px] uppercase tracking-widest text-foreground/40">{label}</div>
+      {children}
+    </section>
+  );
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <label className="block space-y-1">
+      <div className="text-[10px] font-bold uppercase tracking-widest text-foreground/50">{label}</div>
+      {children}
+    </label>
   );
 }
 
