@@ -1,198 +1,164 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import {
-  Maximize2,
-  X,
-  RotateCw,
-  Upload,
-  ArrowLeft,
-  ArrowRight,
-  Plus,
-  Trash2,
-  RotateCcw,
-} from "lucide-react";
+import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { motion } from "motion/react";
+import { Maximize2, X, RotateCw, Move, RotateCcw, MousePointer2 } from "lucide-react";
+import { rooms as defaultRooms, type Room } from "@/data/event";
 
 export type EventMapRole = "organizer" | "attendee";
 
-type MapItem = {
-  id: string;
-  kind: "default" | "image";
-  label: string;
-  src?: string;
-  rotation: number;
+type Layout = { x: number; y: number; w: number; h: number; rotation: number };
+
+// Sensible default layout for the seeded rooms. Unknown rooms get auto-placed.
+const SEED_LAYOUT: Record<string, Layout> = {
+  main: { x: 8, y: 6, w: 84, h: 22, rotation: 0 },
+  "track-a": { x: 8, y: 32, w: 40, h: 22, rotation: 0 },
+  "track-b": { x: 52, y: 32, w: 40, h: 22, rotation: 0 },
+  atrium: { x: 22, y: 58, w: 56, h: 16, rotation: 0 },
+  coffee: { x: 8, y: 78, w: 36, h: 16, rotation: 0 },
+  lounge: { x: 56, y: 78, w: 36, h: 16, rotation: 0 },
 };
 
-function defaultMaps(): MapItem[] {
-  return [{ id: "default", kind: "default", label: "Floor 1", rotation: 0 }];
+function defaultFor(roomId: string, idx: number): Layout {
+  if (SEED_LAYOUT[roomId]) return SEED_LAYOUT[roomId];
+  const col = idx % 3;
+  const row = Math.floor(idx / 3);
+  return { x: col * 32 + 4, y: row * 28 + 4, w: 28, h: 22, rotation: 0 };
 }
 
-function loadMaps(eventId: string): MapItem[] {
-  try {
-    const raw = localStorage.getItem(`event-maps:${eventId}`);
-    if (raw) {
-      const parsed = JSON.parse(raw) as MapItem[];
-      if (Array.isArray(parsed) && parsed.length) return parsed;
-    }
-  } catch {}
-  return defaultMaps();
+function reconcile(rooms: Room[], saved: Record<string, Layout>): Record<string, Layout> {
+  const next: Record<string, Layout> = {};
+  rooms.forEach((r, i) => {
+    next[r.id] = saved[r.id] ?? defaultFor(r.id, i);
+  });
+  return next;
 }
 
-function saveMaps(eventId: string, maps: MapItem[]) {
+function loadLayouts(eventId: string): Record<string, Layout> {
   try {
-    localStorage.setItem(`event-maps:${eventId}`, JSON.stringify(maps));
+    const raw = localStorage.getItem(`venue-map:${eventId}`);
+    if (raw) return JSON.parse(raw) as Record<string, Layout>;
   } catch {}
+  return {};
+}
+
+function clamp(v: number, lo: number, hi: number) {
+  return Math.min(hi, Math.max(lo, v));
 }
 
 export function EventMap({
   eventId,
   role,
   title = "You are here",
-  defaultContent,
+  rooms = defaultRooms,
+  activeRoomId,
+  onSelectRoom,
+  showLivePosition = false,
 }: {
   eventId: string;
   role: EventMapRole;
   title?: string;
-  defaultContent?: ReactNode;
+  rooms?: Room[];
+  activeRoomId?: string;
+  onSelectRoom?: (id: string) => void;
+  showLivePosition?: boolean;
 }) {
-  const [maps, setMaps] = useState<MapItem[]>(() => loadMaps(eventId));
-  const [activeIdx, setActiveIdx] = useState(0);
+  const isOrganizer = role === "organizer";
+
+  // SSR-safe init from defaults; hydrate from storage after mount.
+  const [layouts, setLayouts] = useState<Record<string, Layout>>(() => reconcile(rooms, {}));
+  const [hydrated, setHydrated] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
-  const fileRef = useRef<HTMLInputElement>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [editing, setEditing] = useState(false);
 
-  useEffect(() => saveMaps(eventId, maps), [eventId, maps]);
   useEffect(() => {
-    if (activeIdx >= maps.length) setActiveIdx(Math.max(0, maps.length - 1));
-  }, [maps.length, activeIdx]);
+    setLayouts(reconcile(rooms, loadLayouts(eventId)));
+    setHydrated(true);
+  }, [eventId, rooms]);
 
-  // Cross-tab sync: when organizer updates, attendees pick it up.
+  // Persist when organizer changes layouts.
+  useEffect(() => {
+    if (!hydrated) return;
+    try {
+      localStorage.setItem(`venue-map:${eventId}`, JSON.stringify(layouts));
+    } catch {}
+  }, [layouts, eventId, hydrated]);
+
+  // Cross-tab sync so attendees pick up organizer edits.
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
-      if (e.key === `event-maps:${eventId}` && e.newValue) {
+      if (e.key === `venue-map:${eventId}` && e.newValue) {
         try {
-          const next = JSON.parse(e.newValue) as MapItem[];
-          if (Array.isArray(next) && next.length) setMaps(next);
+          setLayouts(reconcile(rooms, JSON.parse(e.newValue)));
         } catch {}
       }
     };
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
-  }, [eventId]);
+  }, [eventId, rooms]);
 
-  const active = maps[activeIdx];
-  const isOrganizer = role === "organizer";
-  const isImage = active?.kind === "image";
+  const update = (id: string, patch: Partial<Layout>) =>
+    setLayouts((m) => ({ ...m, [id]: { ...m[id], ...patch } }));
 
-  const update = (patch: Partial<MapItem>) =>
-    setMaps((m) => m.map((x, i) => (i === activeIdx ? { ...x, ...patch } : x)));
+  const resetAll = () => setLayouts(reconcile(rooms, {}));
 
-  const rotate = () => update({ rotation: ((active?.rotation ?? 0) + 90) % 360 });
-
-  const move = (dir: -1 | 1) => {
-    setMaps((m) => {
-      const j = activeIdx + dir;
-      if (j < 0 || j >= m.length) return m;
-      const next = m.slice();
-      [next[activeIdx], next[j]] = [next[j], next[activeIdx]];
-      return next;
-    });
-    setActiveIdx((i) => Math.min(Math.max(i + dir, 0), maps.length - 1));
-  };
-
-  const onUpload = (replace: boolean) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    e.target.value = "";
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      const src = String(reader.result);
-      if (replace) {
-        update({ kind: "image", src, rotation: 0 });
-      } else {
-        const next: MapItem = {
-          id: crypto.randomUUID(),
-          kind: "image",
-          src,
-          rotation: 0,
-          label: `Floor ${maps.length + 1}`,
-        };
-        setMaps((m) => [...m, next]);
-        setActiveIdx(maps.length);
-      }
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const removeActive = () => {
-    if (maps.length <= 1) return;
-    setMaps((m) => m.filter((_, i) => i !== activeIdx));
-  };
-
-  const resetToDefault = () =>
-    update({ kind: "default", src: undefined, rotation: 0, label: active?.label ?? "Floor 1" });
-
-  const MapBody = useMemo(
-    () =>
-      function MapBody({ inFullscreen = false }: { inFullscreen?: boolean }) {
-        if (!active) return null;
-        if (active.kind === "default") {
-          return (
-            <div
-              className="w-full h-full"
-              style={{ transform: `rotate(${active.rotation}deg)`, transition: "transform 300ms" }}
-            >
-              {defaultContent ?? (
-                <div className="w-full h-full grid place-items-center text-xs text-foreground/40">
-                  No map configured
-                </div>
-              )}
-            </div>
-          );
-        }
-        return (
-          <img
-            src={active.src}
-            alt={active.label}
-            draggable={false}
-            className={`max-w-full max-h-full object-contain transition-transform duration-300 ${
-              inFullscreen ? "" : ""
-            }`}
-            style={{ transform: `rotate(${active.rotation}deg)` }}
-          />
-        );
-      },
-    [active, defaultContent]
+  const Map = (
+    <VenueMapCanvas
+      rooms={rooms}
+      layouts={layouts}
+      isOrganizer={isOrganizer}
+      editing={editing}
+      selectedId={selectedId}
+      onSelect={(id) => {
+        setSelectedId(id);
+        if (!editing) onSelectRoom?.(id);
+      }}
+      onUpdate={update}
+      activeRoomId={activeRoomId}
+      showLivePosition={showLivePosition && !editing}
+    />
   );
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-2">
-        <div className="text-[9px] font-display italic text-foreground/40 uppercase tracking-widest">
+      <div className="flex items-center justify-between mb-2 gap-2">
+        <div className="text-[9px] font-display italic text-foreground/40 uppercase tracking-widest truncate">
           {title}
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 shrink-0">
           {isOrganizer && (
             <>
               <button
-                onClick={() => fileRef.current?.click()}
-                className="px-2 py-1 rounded-md ring-1 ring-border text-[9px] font-bold uppercase tracking-widest hover:bg-foreground/5"
-                aria-label={isImage ? "Replace map image" : "Upload custom map image"}
-                title={isImage ? "Replace map image" : "Upload custom map image"}
+                onClick={() => setEditing((v) => !v)}
+                className={`px-2 py-1 rounded-md text-[9px] font-bold uppercase tracking-widest ring-1 ${
+                  editing
+                    ? "bg-primary text-primary-foreground ring-primary"
+                    : "ring-border hover:bg-foreground/5"
+                }`}
+                aria-label={editing ? "Done editing" : "Edit layout"}
+                title={editing ? "Done editing" : "Edit layout"}
               >
-                <Upload className="size-3" />
+                {editing ? <MousePointer2 className="size-3" /> : <Move className="size-3" />}
               </button>
-              <button
-                onClick={rotate}
-                className="px-2 py-1 rounded-md ring-1 ring-border text-[9px] font-bold uppercase tracking-widest hover:bg-foreground/5"
-                aria-label="Rotate map 90 degrees"
-                title="Rotate 90°"
-              >
-                <RotateCw className="size-3" />
-              </button>
-              {isImage && defaultContent && (
+              {editing && selectedId && (
                 <button
-                  onClick={resetToDefault}
+                  onClick={() =>
+                    update(selectedId, {
+                      rotation: ((layouts[selectedId]?.rotation ?? 0) + 90) % 360,
+                    })
+                  }
                   className="px-2 py-1 rounded-md ring-1 ring-border text-[9px] font-bold uppercase tracking-widest hover:bg-foreground/5"
-                  aria-label="Restore default map"
-                  title="Restore default"
+                  aria-label="Rotate selected room"
+                  title="Rotate 90°"
+                >
+                  <RotateCw className="size-3" />
+                </button>
+              )}
+              {editing && (
+                <button
+                  onClick={resetAll}
+                  className="px-2 py-1 rounded-md ring-1 ring-border text-[9px] font-bold uppercase tracking-widest hover:bg-foreground/5"
+                  aria-label="Reset layout"
+                  title="Reset"
                 >
                   <RotateCcw className="size-3" />
                 </button>
@@ -211,91 +177,24 @@ export function EventMap({
       </div>
 
       <div
-        className="relative w-full rounded-2xl bg-foreground/[0.04] ring-1 ring-border overflow-hidden grid place-items-center"
+        className="relative w-full rounded-2xl bg-foreground/[0.04] ring-1 ring-border overflow-hidden"
         style={{ aspectRatio: "16 / 11" }}
       >
-        <div className="w-full h-full p-3">
-          <MapBody />
-        </div>
+        {Map}
       </div>
 
-      {maps.length > 1 || isOrganizer ? (
-        <div className="mt-2 flex items-center gap-1 overflow-x-auto">
-          {maps.map((m, i) => (
-            <button
-              key={m.id}
-              onClick={() => setActiveIdx(i)}
-              className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest whitespace-nowrap ${
-                i === activeIdx ? "bg-foreground text-white" : "bg-foreground/5 text-foreground/60"
-              }`}
-            >
-              {m.label}
-            </button>
-          ))}
-          {isOrganizer && (
-            <>
-              <div className="mx-1 h-4 w-px bg-border" />
-              <button
-                onClick={() => move(-1)}
-                disabled={activeIdx === 0}
-                className="p-1 rounded-md ring-1 ring-border disabled:opacity-30 hover:bg-foreground/5"
-                aria-label="Move map left"
-                title="Reorder ←"
-              >
-                <ArrowLeft className="size-3" />
-              </button>
-              <button
-                onClick={() => move(1)}
-                disabled={activeIdx >= maps.length - 1}
-                className="p-1 rounded-md ring-1 ring-border disabled:opacity-30 hover:bg-foreground/5"
-                aria-label="Move map right"
-                title="Reorder →"
-              >
-                <ArrowRight className="size-3" />
-              </button>
-              <button
-                onClick={() => {
-                  const input = document.createElement("input");
-                  input.type = "file";
-                  input.accept = "image/*";
-                  input.onchange = (ev) =>
-                    onUpload(false)(ev as unknown as React.ChangeEvent<HTMLInputElement>);
-                  input.click();
-                }}
-                className="p-1 rounded-md ring-1 ring-border hover:bg-foreground/5"
-                aria-label="Add new map"
-                title="Add map"
-              >
-                <Plus className="size-3" />
-              </button>
-              {maps.length > 1 && (
-                <button
-                  onClick={removeActive}
-                  className="p-1 rounded-md ring-1 ring-border hover:bg-foreground/5 text-destructive"
-                  aria-label="Remove current map"
-                  title="Remove"
-                >
-                  <Trash2 className="size-3" />
-                </button>
-              )}
-            </>
-          )}
+      {isOrganizer && editing && (
+        <div className="mt-2 text-[10px] text-foreground/50 leading-snug">
+          Drag rooms to move · drag the bottom-right corner to resize · select a room then tap{" "}
+          <RotateCw className="size-3 inline -mt-0.5" /> to rotate · changes are live for attendees.
         </div>
-      ) : null}
-
-      <input
-        ref={fileRef}
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={onUpload(true)}
-      />
+      )}
 
       {fullscreen && (
         <div className="fixed inset-0 z-[200] bg-background/95 backdrop-blur-sm flex flex-col">
           <div className="flex items-center justify-between p-4 border-b border-border">
             <div className="font-display italic text-[10px] uppercase tracking-widest text-foreground/60">
-              {title} · {active?.label}
+              {title}
             </div>
             <button
               onClick={() => setFullscreen(false)}
@@ -305,12 +204,211 @@ export function EventMap({
               <X className="size-4" />
             </button>
           </div>
-          <div className="flex-1 grid place-items-center p-6 overflow-auto">
-            <div className="w-full max-w-3xl aspect-[16/11]">
-              <MapBody inFullscreen />
+          <div className="flex-1 grid place-items-center p-4 sm:p-8">
+            <div className="w-full max-w-4xl">
+              <div
+                className="relative w-full rounded-2xl bg-foreground/[0.04] ring-1 ring-border overflow-hidden"
+                style={{ aspectRatio: "16 / 11" }}
+              >
+                <VenueMapCanvas
+                  rooms={rooms}
+                  layouts={layouts}
+                  isOrganizer={isOrganizer}
+                  editing={editing}
+                  selectedId={selectedId}
+                  onSelect={(id) => {
+                    setSelectedId(id);
+                    if (!editing) onSelectRoom?.(id);
+                  }}
+                  onUpdate={update}
+                  activeRoomId={activeRoomId}
+                  showLivePosition={showLivePosition && !editing}
+                />
+              </div>
             </div>
           </div>
         </div>
+      )}
+    </div>
+  );
+}
+
+function VenueMapCanvas({
+  rooms,
+  layouts,
+  isOrganizer,
+  editing,
+  selectedId,
+  onSelect,
+  onUpdate,
+  activeRoomId,
+  showLivePosition,
+}: {
+  rooms: Room[];
+  layouts: Record<string, Layout>;
+  isOrganizer: boolean;
+  editing: boolean;
+  selectedId: string | null;
+  onSelect: (id: string) => void;
+  onUpdate: (id: string, patch: Partial<Layout>) => void;
+  activeRoomId?: string;
+  showLivePosition?: boolean;
+}) {
+  const canvasRef = useRef<HTMLDivElement>(null);
+  const dragRef = useRef<{
+    id: string;
+    mode: "move" | "resize";
+    startX: number;
+    startY: number;
+    start: Layout;
+  } | null>(null);
+
+  const onPointerDown =
+    (id: string, mode: "move" | "resize") => (e: ReactPointerEvent<HTMLElement>) => {
+      if (!isOrganizer || !editing) return;
+      e.stopPropagation();
+      e.preventDefault();
+      const rect = canvasRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      onSelect(id);
+      dragRef.current = {
+        id,
+        mode,
+        startX: e.clientX,
+        startY: e.clientY,
+        start: { ...layouts[id] },
+      };
+      (e.currentTarget as Element).setPointerCapture(e.pointerId);
+    };
+
+  const onPointerMove = (e: ReactPointerEvent<HTMLElement>) => {
+    const d = dragRef.current;
+    const rect = canvasRef.current?.getBoundingClientRect();
+    if (!d || !rect) return;
+    const dxPct = ((e.clientX - d.startX) / rect.width) * 100;
+    const dyPct = ((e.clientY - d.startY) / rect.height) * 100;
+    if (d.mode === "move") {
+      const x = clamp(Math.round(d.start.x + dxPct), 0, 100 - d.start.w);
+      const y = clamp(Math.round(d.start.y + dyPct), 0, 100 - d.start.h);
+      onUpdate(d.id, { x, y });
+    } else {
+      const w = clamp(Math.round(d.start.w + dxPct), 8, 100 - d.start.x);
+      const h = clamp(Math.round(d.start.h + dyPct), 6, 100 - d.start.y);
+      onUpdate(d.id, { w, h });
+    }
+  };
+
+  const onPointerUp = (e: ReactPointerEvent<HTMLElement>) => {
+    if (!dragRef.current) return;
+    dragRef.current = null;
+    try {
+      (e.currentTarget as Element).releasePointerCapture(e.pointerId);
+    } catch {}
+  };
+
+  const active = activeRoomId ? layouts[activeRoomId] : undefined;
+
+  return (
+    <div
+      ref={canvasRef}
+      className="absolute inset-0 select-none touch-none"
+      onPointerMove={editing ? onPointerMove : undefined}
+      onPointerUp={editing ? onPointerUp : undefined}
+      onPointerCancel={editing ? onPointerUp : undefined}
+    >
+      {/* Grid background */}
+      <div
+        className="absolute inset-0 opacity-[0.08] text-foreground"
+        style={{
+          backgroundImage:
+            "linear-gradient(to right, currentColor 1px, transparent 1px), linear-gradient(to bottom, currentColor 1px, transparent 1px)",
+          backgroundSize: "12px 12px",
+        }}
+      />
+
+      {/* Entrance label */}
+      <div className="absolute bottom-1 left-1/2 -translate-x-1/2 text-[8px] font-display italic text-foreground/40 uppercase tracking-widest pointer-events-none">
+        ↓ entrance
+      </div>
+
+      {/* Live position pill */}
+      {showLivePosition && (
+        <div className="absolute top-1.5 right-2 flex items-center gap-1.5 text-[9px] font-display italic text-primary bg-background/80 backdrop-blur px-1.5 py-0.5 rounded-full pointer-events-none">
+          <span className="size-1.5 rounded-full bg-primary animate-pulse" />
+          live position
+        </div>
+      )}
+
+      {/* Rooms */}
+      {rooms.map((r) => {
+        const pos = layouts[r.id];
+        if (!pos) return null;
+        const isActive = r.id === activeRoomId;
+        const isSelected = selectedId === r.id && editing;
+        const isSocial = r.kind === "social";
+        return (
+          <div
+            key={r.id}
+            onPointerDown={editing ? onPointerDown(r.id, "move") : undefined}
+            onClick={editing ? undefined : () => onSelect(r.id)}
+            role="button"
+            tabIndex={0}
+            className={`absolute rounded-lg flex flex-col items-center justify-center text-center px-1.5 transition-colors ${
+              isActive
+                ? "bg-primary text-primary-foreground shadow-lg ring-2 ring-primary z-10"
+                : isSocial
+                  ? "bg-accent/30 text-foreground/70 ring-1 ring-accent/40"
+                  : "bg-foreground/10 text-foreground/70 ring-1 ring-border"
+            } ${isSelected ? "outline outline-2 outline-offset-2 outline-primary z-20" : ""} ${
+              editing ? "cursor-move" : "cursor-pointer hover:brightness-105"
+            }`}
+            style={{
+              left: `${pos.x}%`,
+              top: `${pos.y}%`,
+              width: `${pos.w}%`,
+              height: `${pos.h}%`,
+              transform: `rotate(${pos.rotation ?? 0}deg)`,
+              transformOrigin: "center",
+            }}
+          >
+            <div className="text-[9px] font-bold uppercase tracking-wider leading-tight truncate w-full">
+              {r.name}
+            </div>
+            <div
+              className={`text-[8px] mt-0.5 ${
+                isActive ? "text-primary-foreground/70" : "text-foreground/40"
+              }`}
+            >
+              {r.current}/{r.capacity}
+            </div>
+            {isSelected && (
+              <div
+                onPointerDown={onPointerDown(r.id, "resize")}
+                className="absolute -right-1.5 -bottom-1.5 size-3.5 rounded-sm bg-primary ring-2 ring-background cursor-nwse-resize touch-none"
+                aria-label="Resize"
+              />
+            )}
+          </div>
+        );
+      })}
+
+      {/* You-are-here pulse */}
+      {showLivePosition && active && activeRoomId && (
+        <motion.div
+          className="absolute pointer-events-none z-30"
+          style={{
+            left: `${active.x + active.w / 2}%`,
+            top: `${active.y + active.h / 2}%`,
+            transform: "translate(-50%, -50%)",
+          }}
+          initial={{ scale: 0.6, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          key={activeRoomId}
+        >
+          <span className="absolute inset-0 size-4 rounded-full bg-white/60 animate-ping" />
+          <span className="relative block size-4 rounded-full bg-white ring-2 ring-primary shadow-lg" />
+        </motion.div>
       )}
     </div>
   );
