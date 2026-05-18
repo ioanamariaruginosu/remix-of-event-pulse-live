@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { people, edges } from "@/data/event";
+import { Avatar } from "@/components/Avatar";
 
 export const Route = createFileRoute("/app/collection")({
   head: () => ({ meta: [{ title: "Your deck — synqmap" }] }),
