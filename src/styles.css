@@ -35,9 +35,10 @@
   --color-ring: var(--ring);
   --color-ring-offset-background: var(--background);
 
-  --font-sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
-  --font-display: 'Instrument Serif', 'Fraunces', ui-serif, Georgia, serif;
-  --font-mono: 'Instrument Serif', ui-serif, Georgia, serif;
+  --font-sans: 'General Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'General Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'General Sans', ui-monospace, monospace;
+
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
