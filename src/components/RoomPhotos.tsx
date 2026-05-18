@@ -1,6 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { motion, AnimatePresence, useMotionValue, useTransform } from "motion/react";
+import { people } from "@/data/event";
+import { Avatar } from "@/components/Avatar";
 
-type Photo = { id: string; src: string; ts: number };
+type Photo = { id: string; src: string; ts: number; uploaderId: string };
 
 const key = (roomId: string) => `room-photos:${roomId}`;
 
@@ -30,7 +33,6 @@ function fileToDataUrl(file: File): Promise<string> {
   });
 }
 
-// Downscale to keep localStorage small
 async function compress(file: File, max = 1280, quality = 0.8): Promise<string> {
   const dataUrl = await fileToDataUrl(file);
   const img = new Image();
@@ -46,14 +48,38 @@ async function compress(file: File, max = 1280, quality = 0.8): Promise<string> 
   return c.toDataURL("image/jpeg", quality);
 }
 
+// Deterministic seed photos so every room has a believable stack.
+// Uses picsum.photos with stable seeds (no API key).
+function seedPhotos(roomId: string): Photo[] {
+  const others = people.filter((p) => p.id !== "you");
+  // hash roomId → consistent picks
+  let h = 0;
+  for (let i = 0; i < roomId.length; i++) h = (h * 31 + roomId.charCodeAt(i)) >>> 0;
+  const count = 5 + (h % 3); // 5–7 photos
+  const seeds = Array.from({ length: count }, (_, i) => `${roomId}-${i}`);
+  return seeds.map((s, i) => {
+    const uploader = others[(h + i * 7) % others.length];
+    return {
+      id: `seed-${roomId}-${i}`,
+      src: `https://picsum.photos/seed/${encodeURIComponent(s)}/900/1200`,
+      ts: Date.now() - (i + 1) * 1000 * 60 * (5 + (h % 30)),
+      uploaderId: uploader.id,
+    };
+  });
+}
+
 export function RoomPhotos({ roomId }: { roomId: string }) {
-  const [photos, setPhotos] = useState<Photo[]>([]);
+  const [uploaded, setUploaded] = useState<Photo[]>([]);
   const [busy, setBusy] = useState(false);
-  const [viewer, setViewer] = useState<Photo | null>(null);
+  const [index, setIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const seeds = useMemo(() => seedPhotos(roomId), [roomId]);
+  const photos = useMemo(() => [...uploaded, ...seeds], [uploaded, seeds]);
+
   useEffect(() => {
-    setPhotos(load(roomId));
+    setUploaded(load(roomId));
+    setIndex(0);
   }, [roomId]);
 
   async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
@@ -64,23 +90,34 @@ export function RoomPhotos({ roomId }: { roomId: string }) {
       const added: Photo[] = [];
       for (const f of files) {
         const src = await compress(f);
-        added.push({ id: crypto.randomUUID(), src, ts: Date.now() });
+        added.push({ id: crypto.randomUUID(), src, ts: Date.now(), uploaderId: "you" });
       }
-      const next = [...added, ...photos];
-      setPhotos(next);
+      const next = [...added, ...uploaded];
+      setUploaded(next);
       save(roomId, next);
+      setIndex(0);
     } finally {
       setBusy(false);
       if (inputRef.current) inputRef.current.value = "";
     }
   }
 
-  function remove(id: string) {
-    const next = photos.filter((p) => p.id !== id);
-    setPhotos(next);
-    save(roomId, next);
-    setViewer(null);
-  }
+  const advance = () => setIndex((i) => (i + 1) % photos.length);
+  const back = () => setIndex((i) => (i - 1 + photos.length) % photos.length);
+
+  // Top card drag
+  const x = useMotionValue(0);
+  const rot = useTransform(x, [-200, 0, 200], [-12, 0, 12]);
+  const opacity = useTransform(x, [-220, -120, 0, 120, 220], [0, 1, 1, 1, 0]);
+
+  // Render the next 3 cards stacked (visual depth)
+  const stack = useMemo(() => {
+    const out: { photo: Photo; depth: number }[] = [];
+    for (let d = 0; d < Math.min(3, photos.length); d++) {
+      out.push({ photo: photos[(index + d) % photos.length], depth: d });
+    }
+    return out.reverse(); // back-most first so top card is last in DOM
+  }, [photos, index]);
 
   return (
     <div>
@@ -90,7 +127,7 @@ export function RoomPhotos({ roomId }: { roomId: string }) {
             Photos from this room
           </div>
           <div className="text-[10px] text-foreground/40 mt-0.5">
-            {photos.length} {photos.length === 1 ? "photo" : "photos"}
+            {photos.length} {photos.length === 1 ? "photo" : "photos"} · swipe to browse
           </div>
         </div>
         <button
@@ -111,52 +148,114 @@ export function RoomPhotos({ roomId }: { roomId: string }) {
         />
       </div>
 
-      {photos.length === 0 ? (
-        <button
-          onClick={() => inputRef.current?.click()}
-          className="w-full aspect-[2/1] rounded-2xl ring-1 ring-dashed ring-border text-foreground/40 text-xs flex flex-col items-center justify-center gap-1 hover:ring-foreground/40 hover:text-foreground/60 transition"
-        >
-          <span className="text-2xl leading-none">＋</span>
-          <span>Tap to add the first photo</span>
-        </button>
-      ) : (
-        <div className="grid grid-cols-3 gap-1.5">
-          {photos.map((p) => (
-            <button
-              key={p.id}
-              onClick={() => setViewer(p)}
-              className="aspect-square rounded-lg overflow-hidden bg-foreground/5"
+      <div
+        className="relative w-full mx-auto"
+        style={{ maxWidth: 360, height: 460 }}
+      >
+        {stack.map(({ photo, depth }) => {
+          const isTop = depth === 0;
+          const uploader = people.find((p) => p.id === photo.uploaderId);
+          return isTop ? (
+            <motion.div
+              key={photo.id}
+              className="absolute inset-0 rounded-3xl overflow-hidden ring-1 ring-border bg-foreground shadow-2xl cursor-grab active:cursor-grabbing"
+              style={{ x, rotate: rot, opacity, zIndex: 10 }}
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.6}
+              onDragEnd={(_, info) => {
+                if (info.offset.x < -100 || info.velocity.x < -400) {
+                  // swipe left → next
+                  x.set(0);
+                  advance();
+                } else if (info.offset.x > 100 || info.velocity.x > 400) {
+                  x.set(0);
+                  back();
+                } else {
+                  x.set(0);
+                }
+              }}
+              whileTap={{ scale: 0.98 }}
             >
-              <img src={p.src} alt="" className="w-full h-full object-cover" />
-            </button>
-          ))}
-        </div>
-      )}
+              <PhotoCard photo={photo} uploader={uploader} />
+            </motion.div>
+          ) : (
+            <motion.div
+              key={photo.id}
+              className="absolute inset-0 rounded-3xl overflow-hidden ring-1 ring-border bg-foreground shadow-xl"
+              initial={false}
+              animate={{
+                scale: 1 - depth * 0.05,
+                y: depth * 10,
+                opacity: 1 - depth * 0.25,
+              }}
+              transition={{ type: "spring", stiffness: 260, damping: 28 }}
+              style={{ zIndex: 10 - depth }}
+            >
+              <PhotoCard photo={photo} uploader={uploader} dim />
+            </motion.div>
+          );
+        })}
+      </div>
 
-      {viewer && (
-        <div
-          className="fixed inset-0 z-50 bg-black/90 flex flex-col"
-          onClick={() => setViewer(null)}
+      <div className="flex items-center justify-center gap-3 mt-4">
+        <button
+          onClick={back}
+          className="size-9 rounded-full ring-1 ring-border grid place-items-center hover:bg-foreground/5"
+          aria-label="Previous"
         >
-          <div className="flex-1 flex items-center justify-center p-4">
-            <img src={viewer.src} alt="" className="max-w-full max-h-full object-contain" />
-          </div>
-          <div className="p-5 flex items-center justify-between" onClick={(e) => e.stopPropagation()}>
-            <button
-              onClick={() => setViewer(null)}
-              className="text-white/70 text-xs font-bold uppercase tracking-widest"
-            >
-              Close
-            </button>
-            <button
-              onClick={() => remove(viewer.id)}
-              className="text-red-400 text-xs font-bold uppercase tracking-widest"
-            >
-              Delete
-            </button>
-          </div>
+          ‹
+        </button>
+        <div className="text-[10px] font-display italic text-foreground/40 tabular-nums">
+          {index + 1} / {photos.length}
         </div>
-      )}
+        <button
+          onClick={advance}
+          className="size-9 rounded-full ring-1 ring-border grid place-items-center hover:bg-foreground/5"
+          aria-label="Next"
+        >
+          ›
+        </button>
+      </div>
     </div>
   );
+}
+
+function PhotoCard({
+  photo,
+  uploader,
+  dim = false,
+}: {
+  photo: Photo;
+  uploader?: { id: string; color: string; initials: string; name: string };
+  dim?: boolean;
+}) {
+  return (
+    <div className="relative w-full h-full">
+      <img
+        src={photo.src}
+        alt=""
+        draggable={false}
+        className="w-full h-full object-cover select-none pointer-events-none"
+      />
+      {dim && <div className="absolute inset-0 bg-foreground/20" />}
+      <div className="absolute inset-x-0 bottom-0 p-4 pt-12 bg-gradient-to-t from-black/70 to-transparent text-white flex items-center gap-2">
+        {uploader && <Avatar person={uploader} size={28} ring />}
+        <div className="min-w-0">
+          <div className="text-xs font-bold truncate">{uploader?.name ?? "Anonymous"}</div>
+          <div className="text-[10px] font-display italic text-white/60">{timeAgo(photo.ts)}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function timeAgo(t: number) {
+  const s = Math.floor((Date.now() - t) / 1000);
+  if (s < 60) return "just now";
+  const m = Math.floor(s / 60);
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  return `${Math.floor(h / 24)}d ago`;
 }
