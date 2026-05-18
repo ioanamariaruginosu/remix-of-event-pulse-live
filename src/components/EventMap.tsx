@@ -183,12 +183,53 @@ export function EventMap({
         {Map}
       </div>
 
-      {isOrganizer && editing && (
-        <div className="mt-2 text-[10px] text-foreground/50 leading-snug">
-          Drag rooms to move · drag the bottom-right corner to resize · select a room then tap{" "}
-          <RotateCw className="size-3 inline -mt-0.5" /> to rotate · changes are live for attendees.
+      {isOrganizer && editing && selectedId && layouts[selectedId] && (
+        <div className="mt-2 flex items-center gap-2 p-2 rounded-lg ring-1 ring-border bg-foreground/[0.02]">
+          <RotateCw className="size-3 text-foreground/50 shrink-0" />
+          <span className="text-[10px] font-bold uppercase tracking-widest text-foreground/50 shrink-0">
+            Rotate
+          </span>
+          <input
+            type="range"
+            min={0}
+            max={359}
+            step={1}
+            value={Math.round(layouts[selectedId].rotation ?? 0)}
+            onChange={(e) => update(selectedId, { rotation: Number(e.target.value) })}
+            className="flex-1 accent-primary"
+            aria-label="Rotate selected room (degrees)"
+          />
+          <input
+            type="number"
+            min={0}
+            max={359}
+            value={Math.round(layouts[selectedId].rotation ?? 0)}
+            onChange={(e) =>
+              update(selectedId, {
+                rotation: ((Number(e.target.value) % 360) + 360) % 360,
+              })
+            }
+            className="w-14 px-1.5 py-0.5 text-xs text-right tabular-nums rounded ring-1 ring-border bg-background"
+            aria-label="Rotation degrees"
+          />
+          <span className="text-[10px] text-foreground/50">°</span>
+          <button
+            onClick={() => update(selectedId, { rotation: 0 })}
+            className="px-1.5 py-0.5 rounded ring-1 ring-border text-[9px] font-bold uppercase tracking-widest hover:bg-foreground/5"
+            aria-label="Reset rotation"
+          >
+            0°
+          </button>
         </div>
       )}
+
+      {isOrganizer && editing && (
+        <div className="mt-2 text-[10px] text-foreground/50 leading-snug">
+          Drag rooms to move · drag the bottom-right corner to resize · select a room to rotate by
+          any angle · changes are live for attendees.
+        </div>
+      )}
+
 
       {fullscreen && (
         <div className="fixed inset-0 z-[200] bg-background/95 backdrop-blur-sm flex flex-col">
