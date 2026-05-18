@@ -35,8 +35,8 @@ function Dashboard() {
               <div className="size-10 bg-primary rounded-lg grid place-items-center">
                 <div className="size-3 bg-white rounded-full" />
               </div>
-              <span className="font-extrabold tracking-tighter text-xl">
-                EURHACK<span className="text-primary">2026</span>
+              <span className="font-extrabold tracking-tighter text-xl lowercase">
+                synq<span className="text-primary">map</span>
               </span>
             </div>
           </div>
