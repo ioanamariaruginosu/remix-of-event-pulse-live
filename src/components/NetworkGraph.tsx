@@ -1,6 +1,8 @@
 import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { people as allPeople, edges as allEdges, type Person } from "@/data/event";
+import { useMembership } from "@/data/presence";
+
 
 type Props = {
   scale?: "event" | "room" | "personal";
