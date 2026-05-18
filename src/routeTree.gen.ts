@@ -19,6 +19,7 @@ import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as OrganizerSessionsRouteImport } from './routes/organizer.sessions'
 import { Route as OrganizerRoomsRouteImport } from './routes/organizer.rooms'
 import { Route as OrganizerLiveRouteImport } from './routes/organizer.live'
+import { Route as AppWrappedRouteImport } from './routes/app.wrapped'
 import { Route as AppRoomRouteImport } from './routes/app.room'
 import { Route as AppMapRouteImport } from './routes/app.map'
 import { Route as AppExchangeRouteImport } from './routes/app.exchange'
@@ -76,6 +77,11 @@ const OrganizerLiveRoute = OrganizerLiveRouteImport.update({
   path: '/live',
   getParentRoute: () => OrganizerRoute,
 } as any)
+const AppWrappedRoute = AppWrappedRouteImport.update({
+  id: '/wrapped',
+  path: '/wrapped',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppRoomRoute = AppRoomRouteImport.update({
   id: '/room',
   path: '/room',
@@ -119,6 +125,7 @@ export interface FileRoutesByFullPath {
   '/app/exchange': typeof AppExchangeRoute
   '/app/map': typeof AppMapRoute
   '/app/room': typeof AppRoomRoute
+  '/app/wrapped': typeof AppWrappedRoute
   '/organizer/live': typeof OrganizerLiveRoute
   '/organizer/rooms': typeof OrganizerRoomsRoute
   '/organizer/sessions': typeof OrganizerSessionsRoute
@@ -135,6 +142,7 @@ export interface FileRoutesByTo {
   '/app/exchange': typeof AppExchangeRoute
   '/app/map': typeof AppMapRoute
   '/app/room': typeof AppRoomRoute
+  '/app/wrapped': typeof AppWrappedRoute
   '/organizer/live': typeof OrganizerLiveRoute
   '/organizer/rooms': typeof OrganizerRoomsRoute
   '/organizer/sessions': typeof OrganizerSessionsRoute
@@ -154,6 +162,7 @@ export interface FileRoutesById {
   '/app/exchange': typeof AppExchangeRoute
   '/app/map': typeof AppMapRoute
   '/app/room': typeof AppRoomRoute
+  '/app/wrapped': typeof AppWrappedRoute
   '/organizer/live': typeof OrganizerLiveRoute
   '/organizer/rooms': typeof OrganizerRoomsRoute
   '/organizer/sessions': typeof OrganizerSessionsRoute
@@ -174,6 +183,7 @@ export interface FileRouteTypes {
     | '/app/exchange'
     | '/app/map'
     | '/app/room'
+    | '/app/wrapped'
     | '/organizer/live'
     | '/organizer/rooms'
     | '/organizer/sessions'
@@ -190,6 +200,7 @@ export interface FileRouteTypes {
     | '/app/exchange'
     | '/app/map'
     | '/app/room'
+    | '/app/wrapped'
     | '/organizer/live'
     | '/organizer/rooms'
     | '/organizer/sessions'
@@ -208,6 +219,7 @@ export interface FileRouteTypes {
     | '/app/exchange'
     | '/app/map'
     | '/app/room'
+    | '/app/wrapped'
     | '/organizer/live'
     | '/organizer/rooms'
     | '/organizer/sessions'
@@ -295,6 +307,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrganizerLiveRouteImport
       parentRoute: typeof OrganizerRoute
     }
+    '/app/wrapped': {
+      id: '/app/wrapped'
+      path: '/wrapped'
+      fullPath: '/app/wrapped'
+      preLoaderRoute: typeof AppWrappedRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/room': {
       id: '/app/room'
       path: '/room'
@@ -347,6 +366,7 @@ interface AppRouteChildren {
   AppExchangeRoute: typeof AppExchangeRoute
   AppMapRoute: typeof AppMapRoute
   AppRoomRoute: typeof AppRoomRoute
+  AppWrappedRoute: typeof AppWrappedRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
@@ -357,6 +377,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppExchangeRoute: AppExchangeRoute,
   AppMapRoute: AppMapRoute,
   AppRoomRoute: AppRoomRoute,
+  AppWrappedRoute: AppWrappedRoute,
   AppIndexRoute: AppIndexRoute,
 }
 

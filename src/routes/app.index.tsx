@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { motion } from "motion/react";
 import { NetworkGraph } from "@/components/NetworkGraph";
-import { people, suggestions, edges } from "@/data/event";
+import { people, suggestions, edges, pastEvents } from "@/data/event";
 
 export const Route = createFileRoute("/app/")({
   head: () => ({ meta: [{ title: "Your trail — synqmap" }] }),
@@ -45,9 +46,51 @@ function Personal() {
       </div>
 
       <div className="aspect-square bg-foreground rounded-2xl overflow-hidden relative">
-        <NetworkGraph scale="personal" centerId="you" height={320} showLabels />
-        <div className="absolute top-3 left-3 px-2 py-1 bg-background/90 backdrop-blur rounded-full text-[9px] font-mono font-bold uppercase tracking-widest">
+        <NetworkGraph scale="personal" centerId="you" height={320} showLabels interactive />
+        <div className="absolute top-3 left-3 px-2 py-1 bg-background/90 backdrop-blur rounded-full text-[9px] font-mono font-bold uppercase tracking-widest pointer-events-none">
           Your trail · {collected} cards
+        </div>
+      </div>
+
+      {/* Past events / Wrapped */}
+      <div>
+        <div className="flex items-end justify-between mb-3">
+          <div className="text-[10px] font-mono text-foreground/40 uppercase tracking-widest">Your event wrapped</div>
+          <span className="text-[9px] font-mono text-foreground/30 uppercase tracking-widest">{pastEvents.length} past</span>
+        </div>
+        <div className="flex gap-3 overflow-x-auto -mx-5 px-5 pb-2 snap-x snap-mandatory">
+          {pastEvents.map((ev, i) => (
+            <motion.div
+              key={ev.id}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.06, duration: 0.5 }}
+              className="snap-start shrink-0 w-[68%]"
+            >
+              <Link
+                to="/app/wrapped"
+                search={{ e: ev.id } as never}
+                className="block aspect-[3/4] rounded-2xl p-4 text-white relative overflow-hidden ring-1 ring-black/5 active:scale-[0.98] transition-transform"
+                style={{ background: ev.cover }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/10" />
+                <div className="relative h-full flex flex-col justify-between">
+                  <div className="flex items-center justify-between">
+                    <div className="text-[9px] font-mono uppercase tracking-widest text-white/80">{ev.date}</div>
+                    <div className="size-7 rounded-full bg-white/20 backdrop-blur grid place-items-center text-xs">▶</div>
+                  </div>
+                  <div>
+                    <div className="font-extrabold text-xl tracking-tight leading-tight">{ev.name}</div>
+                    <div className="text-[11px] text-white/80 mt-0.5">{ev.city}</div>
+                    <div className="flex gap-3 mt-3 text-[10px] font-mono uppercase tracking-widest text-white/80">
+                      <span><b className="text-base text-white not-italic font-extrabold">{ev.cards}</b> cards</span>
+                      <span><b className="text-base text-white not-italic font-extrabold">{ev.newConnections}</b> new</span>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            </motion.div>
+          ))}
         </div>
       </div>
 

@@ -202,3 +202,100 @@ export const sessionBrief = {
   whoSpokeUp: ["Maya Singh", "Eli Bauer", "Marcus Vento"],
   matchedFromTalk: ["p4", "p20"],
 };
+
+export type PastEvent = {
+  id: string;
+  name: string;
+  date: string;
+  city: string;
+  attendees: number;
+  cards: number;
+  rooms: string[];
+  topTopics: { label: string; count: number }[];
+  topPeople: string[]; // person ids
+  highlights: string[];
+  cover: string; // gradient
+  hours: number;
+  newConnections: number;
+  conversations: number;
+  longestChat: { person: string; minutes: number };
+};
+
+export const pastEvents: PastEvent[] = [
+  {
+    id: "pe1",
+    name: "Lisbon Web Summit",
+    date: "Nov 2025",
+    city: "Lisbon",
+    attendees: 71000,
+    cards: 34,
+    rooms: ["Pavilion 4", "AI Stage", "Founders Bar", "Beach Pavilion"],
+    topTopics: [
+      { label: "agents", count: 11 },
+      { label: "design", count: 8 },
+      { label: "infra", count: 6 },
+      { label: "vc", count: 4 },
+      { label: "spatial", count: 3 },
+    ],
+    topPeople: ["p2", "p5", "p10", "p4"],
+    highlights: [
+      "First met Maya at the AI Stage queue",
+      "Pitched the deck to 3 partners at Founders Bar",
+      "Closed Friday at the Beach Pavilion — 41 cards in your deck",
+    ],
+    cover: "linear-gradient(135deg,#7c3aed,#22d3ee)",
+    hours: 18,
+    newConnections: 28,
+    conversations: 52,
+    longestChat: { person: "Lena Smith", minutes: 47 },
+  },
+  {
+    id: "pe2",
+    name: "SF AI Engineer World's Fair",
+    date: "Jun 2025",
+    city: "San Francisco",
+    attendees: 4200,
+    cards: 19,
+    rooms: ["Main Hall", "Workshop Room B", "Rooftop"],
+    topTopics: [
+      { label: "evals", count: 9 },
+      { label: "llm", count: 7 },
+      { label: "devtools", count: 5 },
+      { label: "voice", count: 2 },
+    ],
+    topPeople: ["p6", "p14", "p10"],
+    highlights: [
+      "Workshop with Nico on whisper graphs",
+      "After-party rooftop — Olu intro'd you to 4 devtool founders",
+    ],
+    cover: "linear-gradient(135deg,#f472b6,#fbbf24)",
+    hours: 11,
+    newConnections: 15,
+    conversations: 22,
+    longestChat: { person: "Nico Park", minutes: 38 },
+  },
+  {
+    id: "pe3",
+    name: "Berlin Hardware Mixer",
+    date: "Feb 2025",
+    city: "Berlin",
+    attendees: 280,
+    cards: 9,
+    rooms: ["Workshop Floor", "Demo Garage"],
+    topTopics: [
+      { label: "hardware", count: 7 },
+      { label: "ble", count: 4 },
+      { label: "robotics", count: 3 },
+    ],
+    topPeople: ["p7", "p17", "p21"],
+    highlights: [
+      "Sarah showed you her e-ink badge prototype",
+      "Felix's robot demo went viral on the night feed",
+    ],
+    cover: "linear-gradient(135deg,#34d399,#60a5fa)",
+    hours: 5,
+    newConnections: 7,
+    conversations: 12,
+    longestChat: { person: "Sarah Chen", minutes: 24 },
+  },
+];
