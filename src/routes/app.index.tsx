@@ -3,6 +3,7 @@ import { NetworkGraph } from "@/components/NetworkGraph";
 import { people, suggestions, edges } from "@/data/event";
 import { Avatar } from "@/components/Avatar";
 import { useUserAvatar } from "@/data/avatars";
+import { useYou } from "@/data/profile";
 
 export const Route = createFileRoute("/app/")({
   head: () => ({ meta: [{ title: "Your trail — synqmap" }] }),
@@ -10,7 +11,7 @@ export const Route = createFileRoute("/app/")({
 });
 
 function Personal() {
-  const you = people[0];
+  const you = useYou(people[0]);
   const userAvatar = useUserAvatar();
   const match = people.find((p) => p.id === suggestions.closestMatch)!;
   const bridge = people.find((p) => p.id === suggestions.bridgePerson)!;
