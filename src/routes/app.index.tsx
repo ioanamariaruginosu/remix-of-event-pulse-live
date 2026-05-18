@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { NetworkGraph } from "@/components/NetworkGraph";
 import { people, suggestions, edges } from "@/data/event";
+import { Avatar } from "@/components/Avatar";
+import { useUserAvatar } from "@/data/avatars";
 
 export const Route = createFileRoute("/app/")({
   head: () => ({ meta: [{ title: "Your trail — synqmap" }] }),
