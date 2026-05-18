@@ -1,6 +1,8 @@
 import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { people as allPeople, edges as allEdges, type Person } from "@/data/event";
+import { useMembership } from "@/data/presence";
+
 
 type Props = {
   scale?: "event" | "room" | "personal";
@@ -71,10 +73,13 @@ export function NetworkGraph({
   const [selected, setSelected] = useState<string | null>(null);
   const [hovered, setHovered] = useState<string | null>(null);
 
+  const membership = useMembership();
+
   const { nodes, links, center } = useMemo(() => {
     let people: Person[] = allPeople;
     if (scale === "room" && roomId) {
-      people = allPeople.filter((p) => p.roomId === roomId);
+      // Use live presence — door tap-ins update this in real time
+      people = allPeople.filter((p) => membership.get(p.id) === roomId);
     } else if (scale === "personal" && centerId) {
       const directIds = new Set<string>([centerId]);
       allEdges.forEach((e) => {
@@ -88,7 +93,8 @@ export function NetworkGraph({
     const links = allEdges.filter((e) => ids.has(e.source) && ids.has(e.target));
     const center = centerId ? allPeople.find((p) => p.id === centerId) ?? null : null;
     return { nodes: people, links, center };
-  }, [scale, roomId, centerId]);
+  }, [scale, roomId, centerId, membership]);
+
 
   const W = 800;
   const H = height;
