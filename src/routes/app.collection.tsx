@@ -146,7 +146,7 @@ function DeckCard({
     <div
       className="relative w-full h-full bg-foreground text-white p-5 flex flex-col shadow-2xl ring-1 ring-white/10"
       style={{
-        backgroundImage: `radial-gradient(circle at 100% 0%, ${person.color}55 0%, transparent 55%), radial-gradient(circle at 0% 100%, var(--primary) 0%, transparent 60%)`,
+        backgroundImage: `radial-gradient(circle at 100% 0%, ${person.color}55 0%, transparent 55%), radial-gradient(circle at 0% 100%, #7c3aed 0%, transparent 60%)`,
       }}
     >
       {/* Header */}
