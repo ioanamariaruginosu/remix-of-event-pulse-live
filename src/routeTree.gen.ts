@@ -19,6 +19,7 @@ import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as OrganizerSessionsRouteImport } from './routes/organizer.sessions'
 import { Route as OrganizerRoomsRouteImport } from './routes/organizer.rooms'
 import { Route as OrganizerLiveRouteImport } from './routes/organizer.live'
+import { Route as OrganizerEventsRouteImport } from './routes/organizer.events'
 import { Route as AppWrappedRouteImport } from './routes/app.wrapped'
 import { Route as AppRoomRouteImport } from './routes/app.room'
 import { Route as AppPastRouteImport } from './routes/app.past'
@@ -78,6 +79,11 @@ const OrganizerLiveRoute = OrganizerLiveRouteImport.update({
   path: '/live',
   getParentRoute: () => OrganizerRoute,
 } as any)
+const OrganizerEventsRoute = OrganizerEventsRouteImport.update({
+  id: '/events',
+  path: '/events',
+  getParentRoute: () => OrganizerRoute,
+} as any)
 const AppWrappedRoute = AppWrappedRouteImport.update({
   id: '/wrapped',
   path: '/wrapped',
@@ -133,6 +139,7 @@ export interface FileRoutesByFullPath {
   '/app/past': typeof AppPastRoute
   '/app/room': typeof AppRoomRoute
   '/app/wrapped': typeof AppWrappedRoute
+  '/organizer/events': typeof OrganizerEventsRoute
   '/organizer/live': typeof OrganizerLiveRoute
   '/organizer/rooms': typeof OrganizerRoomsRoute
   '/organizer/sessions': typeof OrganizerSessionsRoute
@@ -151,6 +158,7 @@ export interface FileRoutesByTo {
   '/app/past': typeof AppPastRoute
   '/app/room': typeof AppRoomRoute
   '/app/wrapped': typeof AppWrappedRoute
+  '/organizer/events': typeof OrganizerEventsRoute
   '/organizer/live': typeof OrganizerLiveRoute
   '/organizer/rooms': typeof OrganizerRoomsRoute
   '/organizer/sessions': typeof OrganizerSessionsRoute
@@ -172,6 +180,7 @@ export interface FileRoutesById {
   '/app/past': typeof AppPastRoute
   '/app/room': typeof AppRoomRoute
   '/app/wrapped': typeof AppWrappedRoute
+  '/organizer/events': typeof OrganizerEventsRoute
   '/organizer/live': typeof OrganizerLiveRoute
   '/organizer/rooms': typeof OrganizerRoomsRoute
   '/organizer/sessions': typeof OrganizerSessionsRoute
@@ -194,6 +203,7 @@ export interface FileRouteTypes {
     | '/app/past'
     | '/app/room'
     | '/app/wrapped'
+    | '/organizer/events'
     | '/organizer/live'
     | '/organizer/rooms'
     | '/organizer/sessions'
@@ -212,6 +222,7 @@ export interface FileRouteTypes {
     | '/app/past'
     | '/app/room'
     | '/app/wrapped'
+    | '/organizer/events'
     | '/organizer/live'
     | '/organizer/rooms'
     | '/organizer/sessions'
@@ -232,6 +243,7 @@ export interface FileRouteTypes {
     | '/app/past'
     | '/app/room'
     | '/app/wrapped'
+    | '/organizer/events'
     | '/organizer/live'
     | '/organizer/rooms'
     | '/organizer/sessions'
@@ -317,6 +329,13 @@ declare module '@tanstack/react-router' {
       path: '/live'
       fullPath: '/organizer/live'
       preLoaderRoute: typeof OrganizerLiveRouteImport
+      parentRoute: typeof OrganizerRoute
+    }
+    '/organizer/events': {
+      id: '/organizer/events'
+      path: '/events'
+      fullPath: '/organizer/events'
+      preLoaderRoute: typeof OrganizerEventsRouteImport
       parentRoute: typeof OrganizerRoute
     }
     '/app/wrapped': {
@@ -405,6 +424,7 @@ const AppRouteChildren: AppRouteChildren = {
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
 interface OrganizerRouteChildren {
+  OrganizerEventsRoute: typeof OrganizerEventsRoute
   OrganizerLiveRoute: typeof OrganizerLiveRoute
   OrganizerRoomsRoute: typeof OrganizerRoomsRoute
   OrganizerSessionsRoute: typeof OrganizerSessionsRoute
@@ -412,6 +432,7 @@ interface OrganizerRouteChildren {
 }
 
 const OrganizerRouteChildren: OrganizerRouteChildren = {
+  OrganizerEventsRoute: OrganizerEventsRoute,
   OrganizerLiveRoute: OrganizerLiveRoute,
   OrganizerRoomsRoute: OrganizerRoomsRoute,
   OrganizerSessionsRoute: OrganizerSessionsRoute,
@@ -432,3 +453,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
