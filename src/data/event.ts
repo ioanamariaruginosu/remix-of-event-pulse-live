@@ -540,5 +540,11 @@ export const pastEvents: PastEvent[] = [
     newConnections: 7,
     conversations: 12,
     longestChat: { person: "Sarah Chen", minutes: 24 },
+    photos: [
+      { url: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=70&auto=format&fit=crop", caption: "E-ink badge prototype 👀", by: "Sarah C." },
+      { url: "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=800&q=70&auto=format&fit=crop", caption: "Felix's robot demo", by: "Felix R." },
+      { url: "https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?w=800&q=70&auto=format&fit=crop", caption: "Soldering corner all night", by: "you" },
+      { url: "https://images.unsplash.com/photo-1551033406-611cf9a28f67?w=800&q=70&auto=format&fit=crop", caption: "Demo Garage chaos", by: "Sarah C." },
+    ],
   },
 ];
