@@ -2,7 +2,6 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { pastEvents, people, edges, type PastEvent } from "@/data/event";
 import { Avatar } from "@/components/Avatar";
 import { EventMap } from "@/components/EventMap";
-import { VenueFloorPlan } from "@/components/VenueFloorPlan";
 
 
 export const Route = createFileRoute("/organizer/events/$eventId")({
@@ -179,8 +178,8 @@ function ArchiveEvent() {
           eventId={ev.id}
           role="organizer"
           title="Venue map · organizer controls"
-          defaultContent={<VenueFloorPlan />}
         />
+
 
         <div className="grid md:grid-cols-3 gap-3">
           {ev.rooms.map((r, i) => {

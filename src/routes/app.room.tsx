@@ -5,8 +5,9 @@ import { Avatar } from "@/components/Avatar";
 import { RoomPhotos } from "@/components/RoomPhotos";
 import { LiveChat } from "@/components/LiveChat";
 import { EventMap } from "@/components/EventMap";
-import { VenueFloorPlan } from "@/components/VenueFloorPlan";
 import { people, rooms, sessions } from "@/data/event";
+
+
 
 
 export const Route = createFileRoute("/app/room")({
@@ -49,15 +50,15 @@ function RoomView() {
           ))}
         </div>
       </div>
-
       <EventMap
         eventId="current"
         role="attendee"
         title="You are here · Floor 1"
-        defaultContent={
-          <VenueFloorPlan activeRoomId={roomId} onSelect={setRoomId} showLivePosition />
-        }
+        activeRoomId={roomId}
+        onSelectRoom={setRoomId}
+        showLivePosition
       />
+
 
 
 

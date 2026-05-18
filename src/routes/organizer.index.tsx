@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { event, rooms, sessions, people, edges } from "@/data/event";
 import { Avatar } from "@/components/Avatar";
 import { EventMap } from "@/components/EventMap";
-import { VenueFloorPlan } from "@/components/VenueFloorPlan";
 
 
 export const Route = createFileRoute("/organizer/")({
@@ -40,8 +39,8 @@ function Dashboard() {
           eventId="current"
           role="organizer"
           title="You are here · live for attendees"
-          defaultContent={<VenueFloorPlan />}
         />
+
       </section>
 
       <section className="space-y-4">
