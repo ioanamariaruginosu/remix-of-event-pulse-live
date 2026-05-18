@@ -5,6 +5,7 @@ import { NetworkGraph } from "@/components/NetworkGraph";
 import { Avatar } from "@/components/Avatar";
 import { RoomPhotos } from "@/components/RoomPhotos";
 import { LiveChat } from "@/components/LiveChat";
+import { EventMap } from "@/components/EventMap";
 import { people, rooms, sessions } from "@/data/event";
 
 export const Route = createFileRoute("/app/room")({
