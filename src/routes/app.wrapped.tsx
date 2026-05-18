@@ -254,6 +254,10 @@ function buildSlides(ev: typeof pastEvents[number], topPeople: ReturnType<typeof
       ),
     },
     {
+      bg: "linear-gradient(160deg,#0a0a1a,#2a0a3e)",
+      node: <PhotoCollageSlide photos={ev.photos} />,
+    },
+    {
       bg: "linear-gradient(135deg,#000,#7c3aed)",
       node: (
         <div className="flex-1 flex flex-col justify-center items-center text-center">
@@ -292,6 +296,56 @@ function Stat({ label, value }: { label: string; value: number }) {
     <div className="bg-white/5 backdrop-blur ring-1 ring-white/10 rounded-2xl p-3 text-left">
       <div className="text-[9px] font-display italic tracking-tight normal-case text-white/40">{label}</div>
       <div className="font-extrabold text-2xl tracking-tight">{value}</div>
+    </div>
+  );
+}
+
+function PhotoCollageSlide({ photos }: { photos: { url: string; caption: string; by: string }[] }) {
+  // Pre-computed deterministic tilts so it feels handheld but stable
+  const tilts = [-6, 4, -3, 7, -5, 3];
+  return (
+    <div className="flex-1 flex flex-col">
+      <div className="text-[10px] font-display italic tracking-tight normal-case text-white/60">From the crowd</div>
+      <h2 className="font-extrabold text-3xl tracking-tight mt-1 mb-4">
+        {photos.length} photos<br />
+        <span className="text-white/50 font-display italic text-lg">uploaded by attendees</span>
+      </h2>
+
+      <div className="flex-1 relative">
+        {photos.slice(0, 6).map((p, i) => {
+          const cols = 2;
+          const col = i % cols;
+          const row = Math.floor(i / cols);
+          return (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 20, rotate: 0, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, rotate: tilts[i % tilts.length], scale: 1 }}
+              transition={{ delay: i * 0.12, duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+              className="absolute bg-white p-2 pb-7 rounded-sm shadow-2xl"
+              style={{
+                left: `${col * 48 + (i % 2 === 0 ? 0 : 4)}%`,
+                top: `${row * 32}%`,
+                width: "46%",
+                zIndex: i,
+              }}
+            >
+              <div
+                className="w-full aspect-square bg-foreground/40 bg-cover bg-center rounded-sm"
+                style={{ backgroundImage: `url(${p.url})` }}
+              />
+              <div className="px-1 pt-1.5">
+                <div className="text-foreground text-[9px] font-bold leading-tight truncate">{p.caption}</div>
+                <div className="text-foreground/50 text-[8px] font-display italic mt-0.5">by {p.by}</div>
+              </div>
+            </motion.div>
+          );
+        })}
+      </div>
+
+      <div className="text-[10px] font-display italic tracking-tight normal-case text-white/40 text-center mt-2">
+        Tap to flip through →
+      </div>
     </div>
   );
 }
