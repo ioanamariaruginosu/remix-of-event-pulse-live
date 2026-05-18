@@ -262,7 +262,7 @@ function Landing() {
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-2">
             <div className="size-6 bg-primary rounded-md" />
-            <span className="font-bold text-white tracking-tighter">EURHACK <span className="text-white/40 font-normal">2026</span></span>
+            <span className="font-bold text-white tracking-tighter lowercase">synq<span className="text-white/40 font-normal">map</span></span>
           </div>
           <div className="flex gap-6 font-mono text-[10px] font-bold uppercase tracking-widest">
             <a className="hover:text-white transition-colors" href="#">Network Status</a>
