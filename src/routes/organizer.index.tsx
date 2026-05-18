@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { event, rooms, sessions, people, edges } from "@/data/event";
 import { Avatar } from "@/components/Avatar";
 import { EventMap } from "@/components/EventMap";
-import { VenueFloorPlan } from "@/components/VenueFloorPlan";
 
 
 export const Route = createFileRoute("/organizer/")({
