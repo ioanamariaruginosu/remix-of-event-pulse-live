@@ -218,7 +218,6 @@ export function RoomPhotos({ roomId }: { roomId: string }) {
             >
               <PhotoCard photo={photo} uploader={uploader} />
             </motion.div>
-            </motion.div>
           );
         })}
       </div>
