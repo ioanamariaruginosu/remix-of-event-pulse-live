@@ -83,7 +83,21 @@ export const getMyDeck = createServerFn({ method: "GET" })
       const profile = byId.get(otherId);
       if (!profile) continue;
       seen.add(otherId);
-      cards.push({ profile, reason: e.reason ?? "Cards exchanged", at: e.at });
+      cards.push({
+        profile: {
+          id: profile.id,
+          name: profile.name,
+          one_liner: profile.one_liner,
+          intent: profile.intent,
+          tags: profile.tags ?? [],
+          socials: (profile.socials ?? null) as DeckProfile["socials"],
+          color: profile.color,
+          avatar: (profile.avatar ?? null) as DeckProfile["avatar"],
+          initials: profile.initials,
+        },
+        reason: e.reason ?? "Cards exchanged",
+        at: e.at,
+      });
     }
     return { cards };
   });
