@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
  * the avatars stay identical forever.
  */
 
-const STORAGE_KEY = "synqmap:avatar-cache:v1";
+const STORAGE_KEY = "synqmap:avatar-cache:v2";
 const MAX_BYTES = 2_500_000; // ~2.5MB of base64 — plenty for landing-page set
 
 const memory = new Map<string, string>();
