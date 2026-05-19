@@ -80,83 +80,81 @@ function Collection() {
       </div>
 
       {/* Stacked, swipeable deck */}
-      {cards.length > 0 && (
-      <div className="relative w-full mx-auto" style={{ maxWidth: 360, height: 480 }}>
-        {stack.map(({ card, depth }) => {
+      {cards.length > 0 ? (
+        <>
+          <div className="relative w-full mx-auto" style={{ maxWidth: 360, height: 480 }}>
+            {stack.map(({ card, depth }) => {
           const isTop = depth === 0;
           const num = ((index + depth) % cards.length) + 1;
-          return isTop ? (
-            <motion.div
-              key={card.person.id}
-              className="absolute inset-0 rounded-3xl overflow-hidden cursor-grab active:cursor-grabbing"
-              style={{ x, rotate: rot, opacity, zIndex: 10 }}
-              drag="x"
-              dragConstraints={{ left: 0, right: 0 }}
-              dragElastic={0.6}
-              onDragEnd={(_, info) => {
-                if (info.offset.x < -100 || info.velocity.x < -400) {
-                  x.set(0);
-                  advance();
-                } else if (info.offset.x > 100 || info.velocity.x > 400) {
-                  x.set(0);
-                  back();
-                } else {
-                  x.set(0);
-                }
-              }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setDetail(card)}
-            >
-              <DeckCard card={card} num={num} total={cards.length} />
-            </motion.div>
-          ) : (
-            <motion.div
-              key={card.person.id}
-              className="absolute inset-0 rounded-3xl overflow-hidden"
-              initial={false}
-              animate={{
-                scale: 1 - depth * 0.05,
-                y: depth * 12,
-                x: depth % 2 === 0 ? depth * 6 : depth * -6,
-                rotate: depth % 2 === 0 ? depth * 3.5 : depth * -3.5,
-              }}
-              transition={{ type: "spring", stiffness: 260, damping: 28 }}
-              style={{ zIndex: 10 - depth }}
-            >
-              <DeckCard card={card} num={num} total={cards.length} dim />
-            </motion.div>
-          );
-        })}
-      </div>
-      )}
+              return isTop ? (
+                <motion.div
+                  key={card.person.id}
+                  className="absolute inset-0 rounded-3xl overflow-hidden cursor-grab active:cursor-grabbing"
+                  style={{ x, rotate: rot, opacity, zIndex: 10 }}
+                  drag="x"
+                  dragConstraints={{ left: 0, right: 0 }}
+                  dragElastic={0.6}
+                  onDragEnd={(_, info) => {
+                    if (info.offset.x < -100 || info.velocity.x < -400) {
+                      x.set(0);
+                      advance();
+                    } else if (info.offset.x > 100 || info.velocity.x > 400) {
+                      x.set(0);
+                      back();
+                    } else {
+                      x.set(0);
+                    }
+                  }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setDetail(card)}
+                >
+                  <DeckCard card={card} num={num} total={cards.length} />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key={card.person.id}
+                  className="absolute inset-0 rounded-3xl overflow-hidden"
+                  initial={false}
+                  animate={{
+                    scale: 1 - depth * 0.05,
+                    y: depth * 12,
+                    x: depth % 2 === 0 ? depth * 6 : depth * -6,
+                    rotate: depth % 2 === 0 ? depth * 3.5 : depth * -3.5,
+                  }}
+                  transition={{ type: "spring", stiffness: 260, damping: 28 }}
+                  style={{ zIndex: 10 - depth }}
+                >
+                  <DeckCard card={card} num={num} total={cards.length} dim />
+                </motion.div>
+              );
+            })}
+          </div>
 
-      {cards.length > 0 && (
-      <div className="flex items-center justify-center gap-3">
-        <button
-          onClick={back}
-          className="size-9 rounded-full ring-1 ring-border grid place-items-center hover:bg-foreground/5"
-          aria-label="Previous"
-        >
-          ‹
-        </button>
-        <div className="text-[10px] font-display italic text-foreground/40 tabular-nums">
-          {index + 1} / {cards.length}
-        </div>
-        <button
-          onClick={advance}
-          className="size-9 rounded-full ring-1 ring-border grid place-items-center hover:bg-foreground/5"
-          aria-label="Next"
-        >
-          ›
-        </button>
-      </div>
-      )}
+          <div className="flex items-center justify-center gap-3">
+            <button
+              onClick={back}
+              className="size-9 rounded-full ring-1 ring-border grid place-items-center hover:bg-foreground/5"
+              aria-label="Previous"
+            >
+              ‹
+            </button>
+            <div className="text-[10px] font-display italic text-foreground/40 tabular-nums">
+              {index + 1} / {cards.length}
+            </div>
+            <button
+              onClick={advance}
+              className="size-9 rounded-full ring-1 ring-border grid place-items-center hover:bg-foreground/5"
+              aria-label="Next"
+            >
+              ›
+            </button>
+          </div>
 
-      {cards.length > 0 && (
-        <div className="text-center text-[10px] text-foreground/40 font-display italic">
-          Tap the top card for full details
-        </div>
-      )}
+          <div className="text-center text-[10px] text-foreground/40 font-display italic">
+            Tap the top card for full details
+          </div>
+        </>
+      ) : null}
 
       <AnimatePresence>
         {detail && <DetailSheet card={detail} onClose={() => setDetail(null)} />}
