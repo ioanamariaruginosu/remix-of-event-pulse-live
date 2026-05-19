@@ -9,6 +9,8 @@ import { Avatar } from "@/components/Avatar";
 import { useUserAvatar } from "@/data/avatars";
 import { useYou } from "@/data/profile";
 import { getMatches, type MatchResult } from "@/lib/matches.functions";
+import { getMyDeck, type DeckProfile } from "@/lib/exchange.functions";
+import type { Person } from "@/data/event";
 
 export const Route = createFileRoute("/app/")({
   head: () => ({ meta: [{ title: "Your trail — synqmap" }] }),
@@ -16,13 +18,30 @@ export const Route = createFileRoute("/app/")({
 });
 
 function Personal() {
+  return <PersonalInner />;
+}
+
+function deckProfileToPerson(p: DeckProfile): Person {
+  return {
+    id: p.id,
+    name: p.name ?? "Anonymous",
+    initials: p.initials ?? "??",
+    oneLiner: p.one_liner ?? "",
+    intent: p.intent ?? "",
+    tags: p.tags ?? [],
+    socials: (p.socials ?? {}) as Person["socials"],
+    color: p.color ?? "#7c3aed",
+  };
+}
+
+function PersonalInner() {
   const you = useYou(people[0]);
   const userAvatar = useUserAvatar();
-  const collected = edges.filter((e) => e.source === "you" || e.target === "you").length;
   const xp = 1240;
   const nextLevel = 2000;
 
   const fetchMatches = useServerFn(getMatches);
+  const fetchDeck = useServerFn(getMyDeck);
   const [hasSession, setHasSession] = useState(false);
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setHasSession(!!data.session));
@@ -36,6 +55,22 @@ function Personal() {
     enabled: hasSession,
   });
   const matches: MatchResult[] = matchData?.matches ?? [];
+
+  const { data: deckData } = useQuery({
+    queryKey: ["deck"],
+    queryFn: () => fetchDeck(),
+    staleTime: 30_000,
+    enabled: hasSession,
+  });
+  const deckCards = deckData?.cards ?? [];
+  const extraPeople: Person[] = deckCards.map((c) => deckProfileToPerson(c.profile));
+  const extraEdges = deckCards.map((c) => ({
+    source: "you",
+    target: c.profile.id,
+    reason: c.reason,
+  }));
+  const staticCollected = edges.filter((e) => e.source === "you" || e.target === "you").length;
+  const collected = deckCards.length > 0 ? deckCards.length : staticCollected;
 
   return (
     <div className="px-5 pt-6 space-y-6">
@@ -86,7 +121,15 @@ function Personal() {
       </div>
 
       <div className="aspect-square bg-foreground rounded-2xl overflow-hidden relative">
-        <NetworkGraph scale="personal" centerId="you" height={320} showLabels interactive />
+        <NetworkGraph
+          scale="personal"
+          centerId="you"
+          height={320}
+          showLabels
+          interactive
+          extraPeople={extraPeople}
+          extraEdges={extraEdges}
+        />
         <div className="absolute top-3 left-3 px-2 py-1 bg-background/90 backdrop-blur rounded-full text-[9px] font-display italic font-bold uppercase tracking-widest pointer-events-none">
           Your trail · {collected} cards
         </div>

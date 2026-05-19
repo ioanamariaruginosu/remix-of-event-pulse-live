@@ -15,6 +15,8 @@ type Props = {
   variant?: "light" | "dark";
   interactive?: boolean;
   onSelect?: (id: string | null) => void;
+  extraPeople?: Person[];
+  extraEdges?: { source: string; target: string; reason: string }[];
 };
 
 function hash(s: string) {
@@ -70,6 +72,8 @@ export function NetworkGraph({
   variant = "dark",
   interactive = false,
   onSelect,
+  extraPeople,
+  extraEdges,
 }: Props) {
   const [selected, setSelected] = useState<string | null>(null);
   const [hovered, setHovered] = useState<string | null>(null);
@@ -84,24 +88,30 @@ export function NetworkGraph({
 
 
   const { nodes, links, center } = useMemo(() => {
-    let people: Person[] = allPeople;
+    const mergedPeople: Person[] = extraPeople && extraPeople.length
+      ? [...allPeople, ...extraPeople.filter((p) => !allPeople.some((ap) => ap.id === p.id))]
+      : allPeople;
+    const mergedEdges = extraEdges && extraEdges.length
+      ? [...allEdges, ...extraEdges]
+      : allEdges;
+    let people: Person[] = mergedPeople;
     if (scale === "room" && roomId) {
       // Use live presence — door tap-ins update this in real time
-      people = allPeople.filter((p) => membership.get(p.id) === roomId);
+      people = mergedPeople.filter((p) => membership.get(p.id) === roomId);
     } else if (scale === "personal" && centerId) {
       const directIds = new Set<string>([centerId]);
-      allEdges.forEach((e) => {
+      mergedEdges.forEach((e) => {
         if (e.source === centerId) directIds.add(e.target);
         if (e.target === centerId) directIds.add(e.source);
       });
-      people = allPeople.filter((p) => directIds.has(p.id));
+      people = mergedPeople.filter((p) => directIds.has(p.id));
     }
     const ids = new Set(people.map((p) => p.id));
     // Edges = mutual taps that exchanged identity cards
-    const links = allEdges.filter((e) => ids.has(e.source) && ids.has(e.target));
-    const center = centerId ? allPeople.find((p) => p.id === centerId) ?? null : null;
+    const links = mergedEdges.filter((e) => ids.has(e.source) && ids.has(e.target));
+    const center = centerId ? mergedPeople.find((p) => p.id === centerId) ?? null : null;
     return { nodes: people, links, center };
-  }, [scale, roomId, centerId, membership]);
+  }, [scale, roomId, centerId, membership, extraPeople, extraEdges]);
 
 
   const W = 800;
