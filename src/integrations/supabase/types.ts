@@ -266,6 +266,33 @@ export type Database = {
         }
         Relationships: []
       }
+      room_photos: {
+        Row: {
+          created_at: string
+          id: string
+          public_url: string
+          room_id: string
+          storage_path: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          public_url: string
+          room_id: string
+          storage_path: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          public_url?: string
+          room_id?: string
+          storage_path?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       rooms: {
         Row: {
           capacity: number
