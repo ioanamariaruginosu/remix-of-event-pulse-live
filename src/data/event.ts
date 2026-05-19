@@ -1211,10 +1211,10 @@ export const tickerEvents: string[] = [
 
 export const sessionBrief = {
   sessionId: "s1",
-  title: "The Mesh Decade: Local-first networks",
-  speaker: "Lena Smith",
+  title: "The Alpine Innovation Arc",
+  speaker: "Michael Hengartner",
   room: "Main Stage",
-  duration: "45 min",
+  duration: "27 min",
   livestream: {
     provider: "YouTube Live",
     url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
