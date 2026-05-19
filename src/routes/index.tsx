@@ -281,7 +281,7 @@ function Landing() {
               tag="Scale 03 // Ego"
               title="Personal Trail"
               copy="Your node, centered. Every card you collected and the bridge people who connect your clusters."
-              graph={<NetworkGraph scale="personal" centerId="you" height={300} showLabels />}
+              graph={<MiniPersonalGraph height={300} />}
             />
           </div>
         </section>
