@@ -1,15 +1,20 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
-import { useEffect } from "react";
 import { NetworkGraph } from "@/components/NetworkGraph";
 import { LiveNetworkGraph } from "@/components/LiveNetworkGraph";
 import { LiveTicker } from "@/components/LiveTicker";
 import { IdentityCard } from "@/components/IdentityCard";
 import { Logo } from "@/components/Logo";
 import { people, event, rooms } from "@/data/event";
-import { avatarUrl, defaultAvatarFor } from "@/data/avatars";
 import { CachedSvgAvatar } from "@/components/CachedSvgAvatar";
-import { preloadAvatars } from "@/lib/avatar-cache";
+import amberSparkAvatar from "@/assets/landing-avatars/amber-spark.svg";
+import emeraldGlowAvatar from "@/assets/landing-avatars/emerald-glow.svg";
+import indigoFlareAvatar from "@/assets/landing-avatars/indigo-flare.svg";
+import limeDriftAvatar from "@/assets/landing-avatars/lime-drift.svg";
+import orangeGridAvatar from "@/assets/landing-avatars/orange-grid.svg";
+import roseBeamAvatar from "@/assets/landing-avatars/rose-beam.svg";
+import skyLoopAvatar from "@/assets/landing-avatars/sky-loop.svg";
+import violetWaveAvatar from "@/assets/landing-avatars/violet-wave.svg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -30,29 +35,28 @@ export const Route = createFileRoute("/")({
   component: Landing,
 });
 
+const LANDING_AVATARS = {
+  adam: amberSparkAvatar,
+  yael: violetWaveAvatar,
+  clara: indigoFlareAvatar,
+  fenna: roseBeamAvatar,
+  karim: emeraldGlowAvatar,
+  you: orangeGridAvatar,
+  lotte: skyLoopAvatar,
+  kai: violetWaveAvatar,
+  viktor: indigoFlareAvatar,
+  wessel: limeDriftAvatar,
+  daniel: roseBeamAvatar,
+  kasper: roseBeamAvatar,
+  robin: violetWaveAvatar,
+  aylin: amberSparkAvatar,
+  noor: indigoFlareAvatar,
+  jonas: emeraldGlowAvatar,
+} as const;
+
 function Landing() {
   const you = people[0];
   const sample = people[1];
-
-  // Warm the avatar cache once so every node renders from memory and
-  // stays pixel-identical across reloads.
-  useEffect(() => {
-    const seeds: Array<{ id: string; color: string }> = [
-      { id: "a", color: "#fbbf24" }, { id: "b", color: "#a855f7" },
-      { id: "c", color: "#6366f1" }, { id: "d", color: "#ec4899" },
-      { id: "e", color: "#10b981" },
-      { id: "y", color: "#a855f7" }, { id: "b1", color: "#a855f7" },
-      { id: "b2", color: "#a855f7" }, { id: "b3", color: "#a855f7" },
-      { id: "d1", color: "#6366f1" }, { id: "d2", color: "#6366f1" },
-      { id: "d3", color: "#6366f1" }, { id: "c1", color: "#ec4899" },
-      { id: "c2", color: "#ec4899" }, { id: "h", color: "#fbbf24" },
-    ];
-    const urls = seeds.flatMap((s) => [
-      avatarUrl(defaultAvatarFor(s), 64, "png"),
-      avatarUrl(defaultAvatarFor(s), 56, "png"),
-    ]);
-    preloadAvatars(urls);
-  }, []);
 
   return (
     <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/20">
