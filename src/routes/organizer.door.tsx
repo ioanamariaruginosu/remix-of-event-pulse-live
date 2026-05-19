@@ -498,3 +498,18 @@ function timeAgo(t: number) {
   if (m < 60) return `${m}m`;
   return `${Math.floor(m / 60)}h`;
 }
+
+function parseScannedValue(value: string): string | null {
+  try {
+    if (value.startsWith("synqmap://card/")) {
+      return value.replace("synqmap://card/", "").trim();
+    }
+    const url = new URL(value);
+    if (url.pathname === "/app/exchange") {
+      return url.searchParams.get("scan")?.trim() ?? null;
+    }
+  } catch {
+    return null;
+  }
+  return null;
+}
