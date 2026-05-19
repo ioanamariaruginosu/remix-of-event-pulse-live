@@ -431,58 +431,139 @@ function AlgoStep({
   );
 }
 
-function Tower({
-  label,
+function AlgorithmDiagram() {
+  return (
+    <div className="rounded-[32px] bg-foreground text-white p-6 md:p-10 ring-1 ring-white/10 relative overflow-hidden">
+      <div className="absolute -top-20 -right-20 w-72 h-72 bg-primary/30 blur-[100px] rounded-full pointer-events-none" />
+      <div className="absolute -bottom-20 -left-20 w-72 h-72 bg-accent/30 blur-[100px] rounded-full pointer-events-none" />
+
+      <div className="relative flex flex-col items-center gap-5">
+        {/* Input */}
+        <DiagramNode
+          kicker="Input"
+          title="Your profile"
+          sub="name · bio · intent · tags"
+        />
+
+        <BranchConnector />
+
+        {/* Two towers in parallel */}
+        <div className="grid grid-cols-2 gap-3 md:gap-6 w-full max-w-2xl">
+          <DiagramNode
+            kicker="Tower A · 20%"
+            title="Keyword"
+            sub="Jaccard on tags + tokens"
+            pills={["tags", "tokens", "jaccard"]}
+          />
+          <DiagramNode
+            kicker="Tower B · 80%"
+            title="Embedding"
+            sub="cosine on 1536-dim vectors"
+            pills={["pgvector", "cosine", "1536-d"]}
+            accent
+          />
+        </div>
+
+        <MergeConnector />
+
+        {/* Fusion */}
+        <DiagramNode
+          kicker="Fuse"
+          title="RRF"
+          sub="Σ  1 / (k + rank)"
+          highlight
+        />
+
+        <Connector />
+
+        {/* Top K */}
+        <DiagramNode kicker="Rank" title="Top 3 matches" sub="ordered by fused score" />
+
+        <Connector />
+
+        {/* LLM reasoning */}
+        <div className="w-full max-w-2xl rounded-2xl bg-white/5 ring-1 ring-white/10 p-4 text-left">
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-[10px] uppercase tracking-widest text-accent font-bold">
+              Gemini Flash · JSON
+            </div>
+            <div className="text-[10px] uppercase tracking-widest text-white/40">why you should meet</div>
+          </div>
+          <div className="text-sm text-white/85 space-y-1 font-sans not-italic">
+            <div><span className="text-accent">›</span> Both shipping voice agents this quarter.</div>
+            <div><span className="text-accent">›</span> Overlapping eval stacks — swap notes.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DiagramNode({
+  kicker,
+  title,
   sub,
   pills,
   accent,
+  highlight,
 }: {
-  label: string;
-  sub: string;
-  pills: string[];
+  kicker: string;
+  title: string;
+  sub?: string;
+  pills?: string[];
   accent?: boolean;
+  highlight?: boolean;
 }) {
+  const base = highlight
+    ? "ring-primary/60 bg-primary/20"
+    : accent
+      ? "ring-accent/40 bg-accent/10"
+      : "ring-white/15 bg-white/5";
+  const kickerColor = highlight ? "text-primary" : accent ? "text-accent" : "text-white/50";
   return (
-    <div
-      className={`rounded-2xl p-4 ring-1 ${
-        accent ? "ring-accent/40 bg-accent/10" : "ring-white/15 bg-white/5"
-      }`}
-    >
-      <div className={`text-[10px] uppercase tracking-widest font-bold ${accent ? "text-accent" : "text-white/60"}`}>
-        {label}
+    <div className={`rounded-2xl px-5 py-3 ring-1 ${base} text-center min-w-[180px]`}>
+      <div className={`text-[10px] uppercase tracking-widest font-bold ${kickerColor}`}>
+        {kicker}
       </div>
-      <div className="text-white/50 text-[11px] mt-0.5">{sub}</div>
-      <div className="flex flex-wrap gap-1.5 mt-3 justify-center not-italic font-sans">
-        {pills.map((p) => (
-          <span
-            key={p}
-            className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/10 text-white/80"
-          >
-            {p}
-          </span>
-        ))}
+      <div className="text-white font-extrabold text-lg tracking-tight mt-0.5 not-italic font-sans">
+        {title}
       </div>
+      {sub && <div className="text-white/55 text-[11px] mt-0.5 not-italic font-sans">{sub}</div>}
+      {pills && (
+        <div className="flex flex-wrap gap-1.5 mt-2 justify-center not-italic font-sans">
+          {pills.map((p) => (
+            <span
+              key={p}
+              className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/10 text-white/80"
+            >
+              {p}
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
 
-function Arrow() {
+function Connector() {
+  return <div aria-hidden className="h-6 w-px bg-gradient-to-b from-white/40 to-white/10" />;
+}
+
+function BranchConnector() {
   return (
-    <div className="text-primary/80 text-2xl text-center select-none rotate-0 md:rotate-0">
-      →
-    </div>
+    <svg aria-hidden viewBox="0 0 200 40" className="w-48 h-8 text-white/30">
+      <path d="M100 0 V14 M30 40 V26 H170 V40" stroke="currentColor" strokeWidth="1.5" fill="none" />
+      <circle cx="100" cy="14" r="2" fill="currentColor" />
+    </svg>
   );
 }
 
-function Fuse() {
+function MergeConnector() {
   return (
-    <div className="rounded-2xl p-4 ring-1 ring-primary/40 bg-primary/15 text-center">
-      <div className="text-[10px] uppercase tracking-widest font-bold text-primary">RRF</div>
-      <div className="text-white/60 text-[11px] mt-0.5">reciprocal rank fusion</div>
-      <div className="text-white text-xl font-extrabold not-italic font-sans mt-2">
-        Σ 1/(k+rank)
-      </div>
-    </div>
+    <svg aria-hidden viewBox="0 0 200 40" className="w-48 h-8 text-white/30">
+      <path d="M30 0 V14 H170 V0 M100 40 V26" stroke="currentColor" strokeWidth="1.5" fill="none" />
+      <circle cx="100" cy="26" r="2" fill="currentColor" />
+    </svg>
   );
 }
 
