@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
 import { people } from "@/data/event";
 import { Avatar } from "@/components/Avatar";
 
@@ -137,9 +136,6 @@ export function LiveChat({ roomId }: { roomId: string }) {
     setDraft("");
   }
 
-  // Latest 3 messages get featured as floating bubbles
-  const featured = msgs.slice(-3);
-
   return (
     <div>
       <div className="flex items-end justify-between mb-3">
@@ -151,45 +147,6 @@ export function LiveChat({ roomId }: { roomId: string }) {
             <span className="size-1.5 bg-primary rounded-full animate-pulse" />
             {roomCrowd.length} people · drop a thought
           </div>
-        </div>
-      </div>
-
-      {/* Floating bubble stage — newest messages "pop" here for a few seconds */}
-      <div className="relative h-28 rounded-2xl bg-foreground/[0.03] ring-1 ring-border overflow-hidden mb-2">
-        <div className="absolute inset-0 p-3 flex flex-col justify-end gap-1.5">
-          <AnimatePresence initial={false}>
-            {featured.map((m) => {
-              const author = people.find((p) => p.id === m.authorId);
-              const mine = m.authorId === "you";
-              return (
-                <motion.div
-                  key={`pop-${m.id}`}
-                  layout
-                  initial={{ opacity: 0, x: 40, scale: 0.9 }}
-                  animate={{ opacity: 1, x: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                  transition={{ type: "spring", stiffness: 380, damping: 28 }}
-                  className={`flex items-center gap-2 max-w-[90%] ${
-                    mine ? "self-end flex-row-reverse" : ""
-                  }`}
-                >
-                  {author && <Avatar person={author} size={22} ring />}
-                  <div
-                    className={`px-3 py-1.5 rounded-2xl text-xs leading-snug shadow-sm ${
-                      mine
-                        ? "bg-primary text-white rounded-tr-sm"
-                        : "bg-background ring-1 ring-border rounded-tl-sm"
-                    }`}
-                  >
-                    <span className="font-bold mr-1.5">
-                      {author?.name.split(" ")[0] ?? "Anon"}
-                    </span>
-                    <span>{m.text}</span>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </AnimatePresence>
         </div>
       </div>
 
