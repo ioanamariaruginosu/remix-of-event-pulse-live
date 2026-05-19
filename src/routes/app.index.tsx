@@ -18,6 +18,23 @@ export const Route = createFileRoute("/app/")({
 });
 
 function Personal() {
+  return <PersonalInner />;
+}
+
+function deckProfileToPerson(p: DeckProfile): Person {
+  return {
+    id: p.id,
+    name: p.name ?? "Anonymous",
+    initials: p.initials ?? "??",
+    oneLiner: p.one_liner ?? "",
+    intent: p.intent ?? "",
+    tags: p.tags ?? [],
+    socials: (p.socials ?? {}) as Person["socials"],
+    color: p.color ?? "#7c3aed",
+  };
+}
+
+function PersonalInner() {
   const you = useYou(people[0]);
   const userAvatar = useUserAvatar();
   const xp = 1240;
