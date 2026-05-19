@@ -5,7 +5,8 @@ import { IdentityCard } from "@/components/IdentityCard";
 import { people, type Person } from "@/data/event";
 import { QRCodeSVG } from "qrcode.react";
 import QrScanner from "qr-scanner";
-import { addToDeck } from "@/lib/deck-store";
+import { supabase } from "@/integrations/supabase/client";
+import { exchangeCardWith, type DeckProfile } from "@/lib/exchange.functions";
 
 export const Route = createFileRoute("/app/exchange")({
   head: () => ({ meta: [{ title: "Tap to exchange — synqmap" }] }),
@@ -22,18 +23,29 @@ function Exchange() {
   const [scannerOpen, setScannerOpen] = useState(false);
   const [cameraReady, setCameraReady] = useState(false);
   const [matchedPerson, setMatchedPerson] = useState<Person | null>(null);
+  const [myUserId, setMyUserId] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const scannerRef = useRef<QrScanner | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const other = people[1];
   const me = people[0];
   const qrPayload = useMemo(() => {
-    if (typeof window === "undefined") return payloadForId(me?.id ?? "me");
-    return `${window.location.origin}/app/exchange?scan=${encodeURIComponent(me?.id ?? "me")}`;
-  }, [me?.id]);
+    if (typeof window === "undefined" || !myUserId) return "";
+    return `${window.location.origin}/app/exchange?scan=${encodeURIComponent(myUserId)}`;
+  }, [myUserId]);
 
   // Payload exchanged over NFC / encoded into QR.
-  const payload = payloadForId(me?.id ?? "me");
+  const payload = myUserId ? payloadForId(myUserId) : "";
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setMyUserId(data.session?.user.id ?? null);
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
+      setMyUserId(s?.user.id ?? null);
+    });
+    return () => sub.subscription.unsubscribe();
+  }, []);
 
   useEffect(() => {
     const supported = typeof window !== "undefined" && "NDEFReader" in window;
@@ -48,21 +60,37 @@ function Exchange() {
   };
 
   const completeWithPerson = (personId: string) => {
-    if (personId === me?.id) {
-      setQrScanStatus("That’s your own code. Ask the other person to show theirs.");
+    if (!myUserId) {
+      setQrScanStatus("Sign in first so we can save the card to your deck.");
       return;
     }
-
-    const found = people.find((person) => person.id === personId) ?? other;
-    setMatchedPerson(found);
-    addToDeck(
-      found.id,
-      `Exchanged at ${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} · they got your card too`,
-    );
+    if (personId === myUserId) {
+      setQrScanStatus("That's your own code. Ask the other person to show theirs.");
+      return;
+    }
+    if (!/^[0-9a-f-]{36}$/i.test(personId)) {
+      setQrScanStatus("That QR code isn't a synqmap card.");
+      return;
+    }
     setQrScanStatus(null);
     setScannerOpen(false);
     void stopScanner();
-    complete();
+    setStage("matching");
+    exchangeCardWith({
+      data: {
+        otherUserId: personId,
+        reason: `Exchanged at ${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`,
+      },
+    })
+      .then(({ other: profile }) => {
+        setMatchedPerson(profileToPerson(profile));
+        setStage("done");
+      })
+      .catch((err: unknown) => {
+        const msg = err instanceof Error ? err.message : "Could not save the exchange.";
+        setQrScanStatus(msg);
+        setStage("ready");
+      });
   };
 
   const stopScanner = async () => {
@@ -231,7 +259,13 @@ function Exchange() {
             ) : (
               <>
                 <div className="aspect-square bg-white rounded-3xl grid place-items-center p-6 ring-1 ring-border">
-                  <QRCodeSVG value={qrPayload} size={256} bgColor="#ffffff" fgColor="#0a0d1a" level="M" includeMargin={false} />
+                  {qrPayload ? (
+                    <QRCodeSVG value={qrPayload} size={256} bgColor="#ffffff" fgColor="#0a0d1a" level="M" includeMargin={false} />
+                  ) : (
+                    <div className="text-xs text-foreground/50 text-center px-6">
+                      Sign in to generate your personal QR card.
+                    </div>
+                  )}
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2">
                   <button
@@ -319,6 +353,19 @@ function Exchange() {
 
 function payloadForId(personId: string) {
   return `synqmap://card/${personId}`;
+}
+
+function profileToPerson(p: DeckProfile): Person {
+  return {
+    id: p.id,
+    name: p.name ?? "Anonymous",
+    initials: p.initials ?? "??",
+    oneLiner: p.one_liner ?? "",
+    intent: p.intent ?? "",
+    tags: p.tags ?? [],
+    socials: (p.socials ?? {}) as Person["socials"],
+    color: p.color ?? "#7c3aed",
+  };
 }
 
 function parseScannedValue(value: string) {
