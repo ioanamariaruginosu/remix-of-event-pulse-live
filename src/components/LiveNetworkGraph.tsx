@@ -238,7 +238,7 @@ export function LiveNetworkGraph({ height = 340, className = "" }: Props) {
             ))}
           </g>
 
-          {edges.map(([sa, sb], i) => {
+          {edges.map(([sa, sb]) => {
             const a = posById.get(sa);
             const b = posById.get(sb);
             if (!a || !b) return null;
@@ -252,7 +252,6 @@ export function LiveNetworkGraph({ height = 340, className = "" }: Props) {
                 opacity={0.55}
               />
             );
-            void i;
           })}
 
           {nodes.map((n) => {
