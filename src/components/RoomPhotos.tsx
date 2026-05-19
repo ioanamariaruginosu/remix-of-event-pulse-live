@@ -75,8 +75,45 @@ export function RoomPhotos({ roomId }: { roomId: string }) {
   const photos = useMemo(() => [...uploaded, ...seeds], [uploaded, seeds]);
 
   useEffect(() => {
-    setUploaded(load(roomId));
-    setIndex(0);
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("room_photos")
+        .select("id, public_url, created_at, user_id")
+        .eq("room_id", roomId)
+        .order("created_at", { ascending: false });
+      if (cancelled || !data) return;
+      setUploaded(
+        data.map((r) => ({
+          id: r.id,
+          src: r.public_url,
+          ts: new Date(r.created_at).getTime(),
+          uploaderId: r.user_id,
+        })),
+      );
+      setIndex(0);
+    })();
+
+    const channel = supabase
+      .channel(`room_photos:${roomId}`)
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "room_photos", filter: `room_id=eq.${roomId}` },
+        (payload) => {
+          const r = payload.new as { id: string; public_url: string; created_at: string; user_id: string };
+          setUploaded((prev) =>
+            prev.some((p) => p.id === r.id)
+              ? prev
+              : [{ id: r.id, src: r.public_url, ts: new Date(r.created_at).getTime(), uploaderId: r.user_id }, ...prev],
+          );
+        },
+      )
+      .subscribe();
+
+    return () => {
+      cancelled = true;
+      supabase.removeChannel(channel);
+    };
   }, [roomId]);
 
   async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
@@ -84,14 +121,43 @@ export function RoomPhotos({ roomId }: { roomId: string }) {
     if (!files.length) return;
     setBusy(true);
     try {
-      const added: Photo[] = [];
-      for (const f of files) {
-        const src = await compress(f);
-        added.push({ id: crypto.randomUUID(), src, ts: Date.now(), uploaderId: "you" });
+      const { data: userData } = await supabase.auth.getUser();
+      const user = userData.user;
+      if (!user) {
+        console.warn("Sign in to upload photos");
+        return;
       }
-      const next = [...added, ...uploaded];
-      setUploaded(next);
-      save(roomId, next);
+      for (const f of files) {
+        const blob = await compress(f);
+        const path = `${user.id}/${roomId}/${crypto.randomUUID()}.jpg`;
+        const { error: upErr } = await supabase.storage
+          .from("room-photos")
+          .upload(path, blob, { contentType: "image/jpeg", upsert: false });
+        if (upErr) {
+          console.error(upErr);
+          continue;
+        }
+        const { data: pub } = supabase.storage.from("room-photos").getPublicUrl(path);
+        const { data: row, error: insErr } = await supabase
+          .from("room_photos")
+          .insert({
+            room_id: roomId,
+            user_id: user.id,
+            storage_path: path,
+            public_url: pub.publicUrl,
+          })
+          .select("id, public_url, created_at, user_id")
+          .single();
+        if (insErr || !row) {
+          console.error(insErr);
+          continue;
+        }
+        setUploaded((prev) =>
+          prev.some((p) => p.id === row.id)
+            ? prev
+            : [{ id: row.id, src: row.public_url, ts: new Date(row.created_at).getTime(), uploaderId: row.user_id }, ...prev],
+        );
+      }
       setIndex(0);
     } finally {
       setBusy(false);
