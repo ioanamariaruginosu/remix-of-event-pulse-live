@@ -166,6 +166,58 @@ function Landing() {
           </div>
         </section>
 
+        {/* Rooms · EventLabs integration */}
+        <section id="rooms" className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          <div className="space-y-6">
+            <div className="inline-block px-4 py-1.5 bg-primary-soft text-primary font-display italic text-[10px] font-bold tracking-widest uppercase rounded-full ring-1 ring-primary/20">
+              Inside the Room
+            </div>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-balance">
+              Upload your experience.<br />
+              <span className="text-primary italic">Read the room</span> in real time.
+            </h2>
+            <p className="text-lg text-foreground/60 leading-relaxed text-pretty">
+              Every room becomes a living artifact. Drop in photos and notes from the
+              session, watch the live transcript scroll as the speaker talks, and walk
+              out with a shareable recap auto-generated for you.
+            </p>
+            <p className="text-sm text-foreground/50 leading-relaxed text-pretty">
+              Powered by our integrations with <strong className="text-foreground">RecapHub</strong> and
+              <strong className="text-foreground"> Translingo</strong> from
+              <span className="font-display italic"> EventLabs</span> — recordings turn
+              into clean summaries and live captions translate the room across languages,
+              all stitched back into your synqmap graph.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <RoomFeatureCard
+              tag="Upload"
+              title="Your experience"
+              body="Drop photos, notes, takeaways — they pin to the room you were standing in."
+              icon="📸"
+            />
+            <RoomFeatureCard
+              tag="Live"
+              title="Transcript"
+              body="Watch the speaker's words stream in as captions, searchable the second they're spoken."
+              icon="🎙️"
+              highlight
+            />
+            <RoomFeatureCard
+              tag="RecapHub"
+              title="Auto-summaries"
+              body="Each session compresses into a shareable recap — speakers, quotes, mindmap."
+              icon="📝"
+            />
+            <RoomFeatureCard
+              tag="Translingo"
+              title="Live translation"
+              body="Real-time voice translation so language never gates the conversation in the room."
+              icon="🌍"
+            />
+          </div>
+        </section>
+
         {/* Identity card + phone */}
         <section id="card" className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
           <div className="space-y-8 order-2 lg:order-1">
