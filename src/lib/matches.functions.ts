@@ -169,6 +169,21 @@ export const getMatches = createServerFn({ method: "POST" })
   .handler(async ({ data, context }): Promise<{ matches: MatchResult[] }> => {
     const { supabase, userId } = context;
 
+    // 0. Resolve target event. If the caller didn't pass one, default to the
+    //    user's most recent event registration so match_results rows are
+    //    always linked to the event they were computed for.
+    let eventId: string | null = data.event_id ?? null;
+    if (!eventId) {
+      const { data: myAtt } = await supabase
+        .from("event_attendees")
+        .select("event_id, created_at")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      eventId = myAtt?.event_id ?? null;
+    }
+
     // 1. Ensure my embedding is fresh.
     const { data: meRow } = await supabase
       .from("profiles")
@@ -190,11 +205,11 @@ export const getMatches = createServerFn({ method: "POST" })
 
     // 2. Candidate pool.
     let candidateIds: string[] | null = null;
-    if (data.event_id) {
+    if (eventId) {
       const { data: atts } = await supabase
         .from("event_attendees")
         .select("user_id")
-        .eq("event_id", data.event_id);
+        .eq("event_id", eventId);
       candidateIds = (atts ?? []).map((a) => a.user_id).filter((id) => id !== userId);
       if (!candidateIds.length) return { matches: [] };
     }
@@ -246,12 +261,12 @@ export const getMatches = createServerFn({ method: "POST" })
     // Cache to match_results (best-effort).
     if (matches.length) {
       const del = supabase.from("match_results").delete().eq("user_id", userId);
-      await (data.event_id ? del.eq("event_id", data.event_id) : del.is("event_id", null));
+      await (eventId ? del.eq("event_id", eventId) : del.is("event_id", null));
       await supabase.from("match_results").insert(
         matches.map((m) => ({
           user_id: userId,
           match_user_id: m.person.id,
-          event_id: data.event_id ?? null,
+          event_id: eventId,
           score: m.score,
           reasons: m.reasons,
         })),
