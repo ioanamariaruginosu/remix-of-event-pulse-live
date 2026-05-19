@@ -442,7 +442,7 @@ export function NetworkGraph({
                   style={{ filter: `drop-shadow(0 0 ${baseR * (0.5 + n.match)}px ${n.color}cc)` }}
                 />
                 <image
-                  href={avatarUrl(avatarFor(n), 128)}
+                  href={avatarUrl(avatarFor(n), 128, "png")}
                   x={p.x - baseR}
                   y={p.y - baseR}
                   width={baseR * 2}

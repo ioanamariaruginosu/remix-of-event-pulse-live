@@ -160,12 +160,12 @@ const palette = [
 const peopleSeed: Omit<Person, "color">[] = [
   {
     id: "you",
-    name: "You",
-    initials: "YO",
-    oneLiner: "",
-    intent: "",
-    tags: [],
-    socials: {},
+    name: "Maya Reyes",
+    initials: "MR",
+    oneLiner: "Product Designer · Figma → Code",
+    intent: "Looking for an ML engineer co-founder for a live-events tool",
+    tags: ["design", "founder", "ai", "events"],
+    socials: { linkedin: "mayareyes", x: "@mayabuilds", github: "mayareyes" },
     roomId: "track-a",
   },
   {
