@@ -11,6 +11,13 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/join")({
   head: () => ({ meta: [{ title: "Join — synqmap" }] }),
+  validateSearch: (search: Record<string, unknown>) => ({
+    step: typeof search.step === "number"
+      ? search.step
+      : typeof search.step === "string"
+        ? parseInt(search.step, 10) || 0
+        : 0,
+  }),
   component: Join,
 });
 
@@ -54,7 +61,8 @@ const stageOptions = ["Idea", "Pre-seed", "Seed", "Series A", "Series B+", "Prof
 const studyLevelOptions = ["BSc", "MSc", "PhD", "Postdoc", "Exchange"];
 
 function Join() {
-  const [step, setStep] = useState(0);
+  const { step: initialStep } = Route.useSearch();
+  const [step, setStep] = useState(Math.max(0, Math.min(initialStep ?? 0, steps.length - 1)));
   const navigate = useNavigate();
   const save = useServerFn(upsertMyProfile);
   const qc = useQueryClient();
