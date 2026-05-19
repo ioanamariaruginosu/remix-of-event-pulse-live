@@ -37,7 +37,7 @@ export type Person = {
 
 export const event = {
   name: "Eurhack 2026",
-  dates: "May 22–24, 2026 · Rotterdam",
+  dates: "May 18–19, 2026 · Rotterdam",
   attendees: 1242,
   online: 842,
 };
