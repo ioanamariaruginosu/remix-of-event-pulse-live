@@ -114,8 +114,15 @@ export function RoomQrScanner({ roomName, onCheckedIn }: Props) {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="flex-1 py-2 text-xs font-bold rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors"
+        className="w-full inline-flex items-center justify-center gap-2 py-2.5 text-xs font-bold rounded-lg bg-foreground text-background hover:bg-foreground/90 transition-colors"
       >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M3 7V5a2 2 0 0 1 2-2h2" />
+          <path d="M17 3h2a2 2 0 0 1 2 2v2" />
+          <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
+          <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
+          <rect x="7" y="7" width="10" height="10" rx="1" />
+        </svg>
         Scan attendee QR
       </button>
     );
