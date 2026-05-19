@@ -54,7 +54,7 @@ function buildAvatarDataUrl(url: string) {
   if (!parsed) return url;
   const collectionStyle = STYLE_MAP[parsed.style as keyof typeof STYLE_MAP];
   if (!collectionStyle) return url;
-  return createAvatar(collectionStyle, {
+  return createAvatar(collectionStyle as never, {
     seed: parsed.seed,
     backgroundColor: [parsed.backgroundColor],
     radius: parsed.radius,
