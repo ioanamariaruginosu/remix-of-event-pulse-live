@@ -732,7 +732,7 @@ function MiniEventGraph({ height = 300 }: { height?: number }) {
             <circle cx={n.x} cy={n.y} r={24} fill={n.color} opacity={0.22} />
             <circle cx={n.x} cy={n.y} r={18} fill={n.color} />
             <image
-              href={avatarUrl(defaultAvatarFor({ id: n.id, color: n.color }), 64)}
+              href={avatarUrl(defaultAvatarFor({ id: n.id, color: n.color }), 64, "png")}
               x={n.x - 17} y={n.y - 17} width={34} height={34}
               clipPath={`url(#mini-evt-clip-${n.id})`}
               preserveAspectRatio="xMidYMid slice"
@@ -820,7 +820,7 @@ function MiniRoomGraph({ height = 300 }: { height?: number }) {
             <circle cx={n.x} cy={n.y} r={20} fill={n.color} opacity={0.22} />
             <circle cx={n.x} cy={n.y} r={15} fill={n.color} />
             <image
-              href={avatarUrl(defaultAvatarFor({ id: n.id, color: n.color }), 56)}
+              href={avatarUrl(defaultAvatarFor({ id: n.id, color: n.color }), 56, "png")}
               x={n.x - 14} y={n.y - 14} width={28} height={28}
               clipPath={`url(#mini-room-clip-${n.id})`}
               preserveAspectRatio="xMidYMid slice"
