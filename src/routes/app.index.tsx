@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { NetworkGraph } from "@/components/NetworkGraph";
 import { people, suggestions, edges } from "@/data/event";
 import { Avatar } from "@/components/Avatar";
@@ -21,10 +23,17 @@ function Personal() {
   const nextLevel = 2000;
 
   const fetchMatches = useServerFn(getMatches);
+  const [hasSession, setHasSession] = useState(false);
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setHasSession(!!data.session));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setHasSession(!!s));
+    return () => sub.subscription.unsubscribe();
+  }, []);
   const { data: matchData, isLoading: matchesLoading } = useQuery({
     queryKey: ["matches", "personal"],
     queryFn: () => fetchMatches({ data: { limit: 3, refresh: false } }),
     staleTime: 60_000,
+    enabled: hasSession,
   });
   const matches: MatchResult[] = matchData?.matches ?? [];
 
