@@ -213,10 +213,11 @@ export function LiveNetworkGraph({ height = 340, className = "" }: Props) {
 
         <g transform={`translate(${view.tx} ${view.ty}) scale(${view.k})`}>
           <g opacity={0.35}>
-            <circle cx={150} cy={140} r={105} fill="#a855f7" opacity={0.08} />
-            <circle cx={420} cy={150} r={110} fill="#6366f1" opacity={0.08} />
-            <circle cx={125} cy={360} r={95}  fill="#ec4899" opacity={0.08} />
-            <circle cx={435} cy={380} r={105} fill="#10b981" opacity={0.08} />
+            <circle cx={260} cy={240} r={200} fill="#a855f7" opacity={0.07} />
+            <circle cx={840} cy={240} r={200} fill="#6366f1" opacity={0.07} />
+            <circle cx={240} cy={580} r={190} fill="#ec4899" opacity={0.07} />
+            <circle cx={860} cy={580} r={200} fill="#10b981" opacity={0.07} />
+            <circle cx={550} cy={410} r={150} fill="#fbbf24" opacity={0.06} />
           </g>
 
           {edges.map(([sa, sb], i) => {
