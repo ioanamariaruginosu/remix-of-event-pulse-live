@@ -6,6 +6,7 @@ import { LiveTicker } from "@/components/LiveTicker";
 import { IdentityCard } from "@/components/IdentityCard";
 import { Logo } from "@/components/Logo";
 import { people, event, rooms } from "@/data/event";
+import { avatarUrl, defaultAvatarFor } from "@/data/avatars";
 
 export const Route = createFileRoute("/")({
   head: () => ({
