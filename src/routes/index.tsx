@@ -284,30 +284,7 @@ function Landing() {
             />
           </div>
 
-          <div className="rounded-[32px] bg-foreground text-white p-8 md:p-10 ring-1 ring-white/10 relative overflow-hidden">
-            <div className="absolute -top-20 -right-20 w-72 h-72 bg-primary/30 blur-[100px] rounded-full pointer-events-none" />
-            <div className="absolute -bottom-20 -left-20 w-72 h-72 bg-accent/30 blur-[100px] rounded-full pointer-events-none" />
-            <div className="relative grid md:grid-cols-[1fr_auto_1fr_auto_1fr] gap-4 md:gap-2 items-center text-center font-display italic">
-              <Tower label="Tower A" sub="keyword · 20%" pills={["tags", "tokens", "jaccard"]} />
-              <Arrow />
-              <Fuse />
-              <Arrow />
-              <Tower label="Tower B" sub="embedding · 80%" pills={["1536-dim", "cosine", "pgvector"]} accent />
-            </div>
-            <div className="relative mt-6 grid md:grid-cols-[1fr_auto_1fr] items-center gap-3">
-              <div className="text-[10px] uppercase tracking-widest text-white/40 font-display italic text-center md:text-right">
-                RRF top-K
-              </div>
-              <div className="text-white/60 font-display italic text-2xl text-center">↓</div>
-              <div className="rounded-2xl bg-white/5 ring-1 ring-white/10 p-3 text-left">
-                <div className="text-[9px] uppercase tracking-widest text-white/40 font-bold">Gemini Flash · JSON</div>
-                <div className="text-sm text-white/80 mt-1">
-                  <span className="text-accent">›</span> Both shipping voice agents this quarter.<br />
-                  <span className="text-accent">›</span> Overlapping eval stacks → swap notes.
-                </div>
-              </div>
-            </div>
-          </div>
+          <AlgorithmDiagram />
         </section>
 
         <section id="vision" className="space-y-16">
