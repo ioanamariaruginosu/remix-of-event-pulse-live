@@ -139,6 +139,7 @@ function MeStudio() {
           ) as Record<string, string>,
           avatar: { style, seed, bg },
           gradient,
+          color: gradient.from,
         },
       });
       // Force matches to recompute against the new profile.
