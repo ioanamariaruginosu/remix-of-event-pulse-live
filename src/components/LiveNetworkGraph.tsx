@@ -1,8 +1,21 @@
 import { useRef, useState, useEffect, useMemo, type WheelEvent, type PointerEvent } from "react";
 import { people as mockPeople, edges as mockEdges } from "@/data/event";
-import { avatarUrl, defaultAvatarFor } from "@/data/avatars";
-import { CachedSvgAvatar } from "@/components/CachedSvgAvatar";
 import { getPublicNetwork, type PublicNode, type PublicEdge } from "@/lib/network.functions";
+import amberSpark from "@/assets/landing-avatars/amber-spark.svg";
+import violetWave from "@/assets/landing-avatars/violet-wave.svg";
+import indigoFlare from "@/assets/landing-avatars/indigo-flare.svg";
+import roseBeam from "@/assets/landing-avatars/rose-beam.svg";
+import emeraldGlow from "@/assets/landing-avatars/emerald-glow.svg";
+import orangeGrid from "@/assets/landing-avatars/orange-grid.svg";
+import skyLoop from "@/assets/landing-avatars/sky-loop.svg";
+import limeDrift from "@/assets/landing-avatars/lime-drift.svg";
+
+const LOCAL_AVATARS = [amberSpark, violetWave, indigoFlare, roseBeam, emeraldGlow, orangeGrid, skyLoop, limeDrift];
+function avatarForId(id: string): string {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+  return LOCAL_AVATARS[h % LOCAL_AVATARS.length];
+}
 
 type Props = {
   height?: number;
