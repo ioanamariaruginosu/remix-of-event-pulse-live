@@ -70,6 +70,7 @@ export function EventMap({
   title = "You are here",
   rooms = defaultRooms,
   activeRoomId,
+  liveRoomId,
   onSelectRoom,
   showLivePosition = false,
 }: {
@@ -78,6 +79,7 @@ export function EventMap({
   title?: string;
   rooms?: Room[];
   activeRoomId?: string;
+  liveRoomId?: string;
   onSelectRoom?: (id: string) => void;
   showLivePosition?: boolean;
 }) {
@@ -143,6 +145,7 @@ export function EventMap({
       }}
       onUpdate={update}
       activeRoomId={activeRoomId}
+      liveRoomId={liveRoomId}
       showLivePosition={showLivePosition && !editing}
     />
   );
@@ -318,6 +321,7 @@ export function EventMap({
                   }}
                   onUpdate={update}
                   activeRoomId={activeRoomId}
+                  liveRoomId={liveRoomId}
                   showLivePosition={showLivePosition && !editing}
                 />
               </div>
