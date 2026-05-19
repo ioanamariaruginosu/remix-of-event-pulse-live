@@ -6,7 +6,7 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import { motion } from "motion/react";
-import { Maximize2, X, RotateCw, Move, RotateCcw, MousePointer2 } from "lucide-react";
+import { Maximize2, X, RotateCw, Move, RotateCcw, MousePointer2, Locate } from "lucide-react";
 import { rooms as defaultRooms, type Room } from "@/data/event";
 
 export type EventMapRole = "organizer" | "attendee";
@@ -50,6 +50,19 @@ function loadLayouts(eventId: string): Record<string, Layout> {
 
 function clamp(v: number, lo: number, hi: number) {
   return Math.min(hi, Math.max(lo, v));
+}
+
+type Viewport = { tx: number; ty: number; scale: number; rot: number };
+const IDENTITY_VP: Viewport = { tx: 0, ty: 0, scale: 1, rot: 0 };
+
+// Screen (canvas-local) → world (untransformed canvas) coords.
+function screenToWorld(p: { x: number; y: number }, vp: Viewport) {
+  const r = (vp.rot * Math.PI) / 180;
+  const cos = Math.cos(r);
+  const sin = Math.sin(r);
+  const dx = (p.x - vp.tx) / vp.scale;
+  const dy = (p.y - vp.ty) / vp.scale;
+  return { x: cos * dx + sin * dy, y: -sin * dx + cos * dy };
 }
 
 export function EventMap({
