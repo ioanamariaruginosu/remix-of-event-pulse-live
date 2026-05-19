@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
@@ -67,6 +67,18 @@ function Join() {
   const save = useServerFn(upsertMyProfile);
   const qc = useQueryClient();
   const [saving, setSaving] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
+
+  // Participants must sign in / sign up before onboarding.
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      if (!data.session) {
+        navigate({ to: "/login" });
+      } else {
+        setAuthChecked(true);
+      }
+    });
+  }, [navigate]);
 
   // Identity
   const [fullName, setFullName] = useState("");
