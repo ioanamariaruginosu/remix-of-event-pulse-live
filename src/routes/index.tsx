@@ -1,15 +1,20 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
-import { useEffect } from "react";
 import { NetworkGraph } from "@/components/NetworkGraph";
 import { LiveNetworkGraph } from "@/components/LiveNetworkGraph";
 import { LiveTicker } from "@/components/LiveTicker";
 import { IdentityCard } from "@/components/IdentityCard";
 import { Logo } from "@/components/Logo";
 import { people, event, rooms } from "@/data/event";
-import { avatarUrl, defaultAvatarFor } from "@/data/avatars";
 import { CachedSvgAvatar } from "@/components/CachedSvgAvatar";
-import { preloadAvatars } from "@/lib/avatar-cache";
+import amberSparkAvatar from "@/assets/landing-avatars/amber-spark.svg";
+import emeraldGlowAvatar from "@/assets/landing-avatars/emerald-glow.svg";
+import indigoFlareAvatar from "@/assets/landing-avatars/indigo-flare.svg";
+import limeDriftAvatar from "@/assets/landing-avatars/lime-drift.svg";
+import orangeGridAvatar from "@/assets/landing-avatars/orange-grid.svg";
+import roseBeamAvatar from "@/assets/landing-avatars/rose-beam.svg";
+import skyLoopAvatar from "@/assets/landing-avatars/sky-loop.svg";
+import violetWaveAvatar from "@/assets/landing-avatars/violet-wave.svg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -30,29 +35,28 @@ export const Route = createFileRoute("/")({
   component: Landing,
 });
 
+const LANDING_AVATARS = {
+  adam: amberSparkAvatar,
+  yael: violetWaveAvatar,
+  clara: indigoFlareAvatar,
+  fenna: roseBeamAvatar,
+  karim: emeraldGlowAvatar,
+  you: orangeGridAvatar,
+  lotte: skyLoopAvatar,
+  kai: violetWaveAvatar,
+  viktor: indigoFlareAvatar,
+  wessel: limeDriftAvatar,
+  daniel: roseBeamAvatar,
+  kasper: roseBeamAvatar,
+  robin: violetWaveAvatar,
+  aylin: amberSparkAvatar,
+  noor: indigoFlareAvatar,
+  jonas: emeraldGlowAvatar,
+} as const;
+
 function Landing() {
   const you = people[0];
   const sample = people[1];
-
-  // Warm the avatar cache once so every node renders from memory and
-  // stays pixel-identical across reloads.
-  useEffect(() => {
-    const seeds: Array<{ id: string; color: string }> = [
-      { id: "a", color: "#fbbf24" }, { id: "b", color: "#a855f7" },
-      { id: "c", color: "#6366f1" }, { id: "d", color: "#ec4899" },
-      { id: "e", color: "#10b981" },
-      { id: "y", color: "#a855f7" }, { id: "b1", color: "#a855f7" },
-      { id: "b2", color: "#a855f7" }, { id: "b3", color: "#a855f7" },
-      { id: "d1", color: "#6366f1" }, { id: "d2", color: "#6366f1" },
-      { id: "d3", color: "#6366f1" }, { id: "c1", color: "#ec4899" },
-      { id: "c2", color: "#ec4899" }, { id: "h", color: "#fbbf24" },
-    ];
-    const urls = seeds.flatMap((s) => [
-      avatarUrl(defaultAvatarFor(s), 64, "png"),
-      avatarUrl(defaultAvatarFor(s), 56, "png"),
-    ]);
-    preloadAvatars(urls);
-  }, []);
 
   return (
     <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/20">
@@ -718,11 +722,11 @@ function MiniEventGraph({ height = 300 }: { height?: number }) {
   const W = 320;
   const H = 240;
   const nodes = [
-    { id: "a", initials: "AO", name: "Adam",  color: "#fbbf24", x: 160, y: 120 }, // hub
-    { id: "b", initials: "YW", name: "Yael",  color: "#a855f7", x:  60, y:  60 },
-    { id: "c", initials: "CR", name: "Clara", color: "#6366f1", x: 260, y:  60 },
-    { id: "d", initials: "FP", name: "Fenna", color: "#ec4899", x:  60, y: 190 },
-    { id: "e", initials: "KV", name: "Karim", color: "#10b981", x: 260, y: 190 },
+    { id: "a", initials: "AO", name: "Adam",  color: "#fbbf24", x: 160, y: 120, avatar: LANDING_AVATARS.adam },
+    { id: "b", initials: "YW", name: "Yael",  color: "#a855f7", x:  60, y:  60, avatar: LANDING_AVATARS.yael },
+    { id: "c", initials: "CR", name: "Clara", color: "#6366f1", x: 260, y:  60, avatar: LANDING_AVATARS.clara },
+    { id: "d", initials: "FP", name: "Fenna", color: "#ec4899", x:  60, y: 190, avatar: LANDING_AVATARS.fenna },
+    { id: "e", initials: "KV", name: "Karim", color: "#10b981", x: 260, y: 190, avatar: LANDING_AVATARS.karim },
   ];
   const edges: [string, string][] = [
     ["a", "b"], ["a", "c"], ["a", "d"], ["a", "e"], ["b", "c"], ["d", "e"],
@@ -755,7 +759,7 @@ function MiniEventGraph({ height = 300 }: { height?: number }) {
             <circle cx={n.x} cy={n.y} r={24} fill={n.color} opacity={0.22} />
             <circle cx={n.x} cy={n.y} r={18} fill={n.color} />
             <CachedSvgAvatar
-              url={avatarUrl(defaultAvatarFor({ id: n.id, color: n.color }), 64, "png")}
+              url={n.avatar}
               x={n.x - 17} y={n.y - 17} width={34} height={34}
               clipPath={`url(#mini-evt-clip-${n.id})`}
             />
@@ -778,19 +782,19 @@ function MiniRoomGraph({ height = 300 }: { height?: number }) {
   // intra-cluster edges read as "you should meet these people".
   const nodes = [
     // cluster: Business (purple)
-    { id: "y",  initials: "YOU", name: "You",    color: "#a855f7", x:  70, y:  90 },
-    { id: "b1", initials: "YW",  name: "Yael",   color: "#a855f7", x:  50, y: 150 },
-    { id: "b2", initials: "LS",  name: "Lotte",  color: "#a855f7", x: 110, y: 175 },
-    { id: "b3", initials: "KA",  name: "Kai",    color: "#a855f7", x: 115, y: 110 },
+    { id: "y",  initials: "YOU", name: "You",    color: "#a855f7", x:  70, y:  90, avatar: LANDING_AVATARS.you },
+    { id: "b1", initials: "YW",  name: "Yael",   color: "#a855f7", x:  50, y: 150, avatar: LANDING_AVATARS.yael },
+    { id: "b2", initials: "LS",  name: "Lotte",  color: "#a855f7", x: 110, y: 175, avatar: LANDING_AVATARS.lotte },
+    { id: "b3", initials: "KA",  name: "Kai",    color: "#a855f7", x: 115, y: 110, avatar: LANDING_AVATARS.kai },
     // cluster: Dev (indigo)
-    { id: "d1", initials: "CR",  name: "Clara",  color: "#6366f1", x: 235, y:  85 },
-    { id: "d2", initials: "VK",  name: "Viktor", color: "#6366f1", x: 275, y: 140 },
-    { id: "d3", initials: "WW",  name: "Wessel", color: "#6366f1", x: 215, y: 150 },
+    { id: "d1", initials: "CR",  name: "Clara",  color: "#6366f1", x: 235, y:  85, avatar: LANDING_AVATARS.clara },
+    { id: "d2", initials: "VK",  name: "Viktor", color: "#6366f1", x: 275, y: 140, avatar: LANDING_AVATARS.viktor },
+    { id: "d3", initials: "WW",  name: "Wessel", color: "#6366f1", x: 215, y: 150, avatar: LANDING_AVATARS.wessel },
     // cluster: Creative (pink)
-    { id: "c1", initials: "FP",  name: "Fenna",  color: "#ec4899", x: 175, y: 200 },
-    { id: "c2", initials: "DM",  name: "Daniel", color: "#ec4899", x: 235, y: 205 },
+    { id: "c1", initials: "FP",  name: "Fenna",  color: "#ec4899", x: 175, y: 200, avatar: LANDING_AVATARS.fenna },
+    { id: "c2", initials: "DM",  name: "Daniel", color: "#ec4899", x: 235, y: 205, avatar: LANDING_AVATARS.daniel },
     // hub bridge
-    { id: "h",  initials: "AO",  name: "Adam",   color: "#fbbf24", x: 165, y: 120 },
+    { id: "h",  initials: "AO",  name: "Adam",   color: "#fbbf24", x: 165, y: 120, avatar: LANDING_AVATARS.adam },
   ];
   // Strong edges WITHIN clusters; sparse bridges through hub between clusters.
   const strong: [string, string][] = [
@@ -842,7 +846,7 @@ function MiniRoomGraph({ height = 300 }: { height?: number }) {
             <circle cx={n.x} cy={n.y} r={20} fill={n.color} opacity={0.22} />
             <circle cx={n.x} cy={n.y} r={15} fill={n.color} />
             <CachedSvgAvatar
-              url={avatarUrl(defaultAvatarFor({ id: n.id, color: n.color }), 56, "png")}
+              url={n.avatar}
               x={n.x - 14} y={n.y - 14} width={28} height={28}
               clipPath={`url(#mini-room-clip-${n.id})`}
             />
@@ -868,12 +872,12 @@ function MiniPersonalGraph({ height = 300 }: { height?: number }) {
   const H = 240;
   // "you" at center, surrounded by collected cards. Color = interest cluster.
   const nodes = [
-    { id: "you",    name: "You",    color: "#fbbf24", x: 160, y: 120, r: 22 },
-    { id: "kasper", name: "Kasper", color: "#ec4899", x:  55, y:  85, r: 17 },
-    { id: "robin",  name: "Robin",  color: "#a855f7", x: 245, y:  70, r: 17 },
-    { id: "aylin",  name: "Aylin",  color: "#fbbf24", x: 270, y: 165, r: 17 },
-    { id: "noor",   name: "Noor",   color: "#6366f1", x: 165, y: 210, r: 17 },
-    { id: "jonas",  name: "Jonas",  color: "#10b981", x:  60, y: 190, r: 17 },
+    { id: "you",    name: "You",    color: "#fbbf24", x: 160, y: 120, r: 22, avatar: LANDING_AVATARS.you },
+    { id: "kasper", name: "Kasper", color: "#ec4899", x:  55, y:  85, r: 17, avatar: LANDING_AVATARS.kasper },
+    { id: "robin",  name: "Robin",  color: "#a855f7", x: 245, y:  70, r: 17, avatar: LANDING_AVATARS.robin },
+    { id: "aylin",  name: "Aylin",  color: "#fbbf24", x: 270, y: 165, r: 17, avatar: LANDING_AVATARS.aylin },
+    { id: "noor",   name: "Noor",   color: "#6366f1", x: 165, y: 210, r: 17, avatar: LANDING_AVATARS.noor },
+    { id: "jonas",  name: "Jonas",  color: "#10b981", x:  60, y: 190, r: 17, avatar: LANDING_AVATARS.jonas },
   ];
   // every edge goes through "you" — this is the ego graph
   const edges: [string, string][] = [
@@ -911,7 +915,7 @@ function MiniPersonalGraph({ height = 300 }: { height?: number }) {
             <circle cx={n.x} cy={n.y} r={n.r + 6} fill={n.color} opacity={0.22} />
             <circle cx={n.x} cy={n.y} r={n.r} fill={n.color} />
             <CachedSvgAvatar
-              url={avatarUrl(defaultAvatarFor({ id: n.id, color: n.color }), 64, "png")}
+              url={n.avatar}
               x={n.x - n.r} y={n.y - n.r} width={n.r * 2} height={n.r * 2}
               clipPath={`url(#mini-ego-clip-${n.id})`}
             />
