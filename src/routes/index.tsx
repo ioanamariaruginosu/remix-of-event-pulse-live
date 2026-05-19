@@ -618,7 +618,7 @@ function ScaleCard({
           : "bg-background ring-border hover:ring-primary/30"
       }`}
     >
-      <div className="aspect-square mb-6 bg-foreground rounded-2xl relative overflow-hidden">
+      <div className="aspect-square mb-6 rounded-2xl relative overflow-hidden bg-gradient-to-br from-[#2d1a52] via-[#4c2a87] to-[#7c3aed] ring-1 ring-primary/20">
         {graph}
       </div>
       <div className="font-display italic text-xs font-bold text-primary tracking-widest uppercase mb-2">{tag}</div>
