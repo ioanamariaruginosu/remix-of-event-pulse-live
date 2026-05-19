@@ -93,6 +93,7 @@ function RoomView() {
         role="attendee"
         title="You are here · Floor 1"
         activeRoomId={viewingRoomId}
+        liveRoomId={myMockRoom?.id}
         onSelectRoom={setViewingRoomId}
         showLivePosition
       />
