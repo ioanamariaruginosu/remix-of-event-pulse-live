@@ -15,6 +15,7 @@ import {
   useUserAvatar,
   type AvatarStyleId,
 } from "@/data/avatars";
+import { getCachedAvatar } from "@/lib/avatar-cache";
 import {
   DEFAULT_GRADIENT,
   GRADIENT_PRESETS,
@@ -99,7 +100,7 @@ function MeStudio() {
     [base, name, oneLiner, intent, tags, linkedin, x, github, email],
   );
 
-  const avatarUrlBig = avatarUrl({ style, seed, bg }, 240);
+  const avatarUrlBig = getCachedAvatar(avatarUrl({ style, seed, bg }, 240));
 
   function shuffle() {
     setSeed(Math.random().toString(36).slice(2, 10));
@@ -295,7 +296,7 @@ function MeStudio() {
             <div className="grid grid-cols-4 gap-2">
               {AVATAR_STYLES.map((s) => {
                 const active = s.id === style;
-                const previewUrl = avatarUrl({ style: s.id, seed, bg }, 96);
+                const previewUrl = getCachedAvatar(avatarUrl({ style: s.id, seed, bg }, 96));
                 return (
                   <button
                     key={s.id}
