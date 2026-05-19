@@ -5,7 +5,7 @@ import { Logo } from "@/components/Logo";
 
 const ORGANIZER_EMAIL = "organizer@example.com";
 
-export const Route = createFileRoute("/organizer/login")({
+export const Route = createFileRoute("/organizer_/login")({
   head: () => ({ meta: [{ title: "Organizer sign in — synqmap" }] }),
   component: OrganizerLogin,
 });

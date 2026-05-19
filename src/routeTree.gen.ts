@@ -17,9 +17,9 @@ import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as OrganizerIndexRouteImport } from './routes/organizer.index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as OrganizerLoginRouteImport } from './routes/organizer_.login'
 import { Route as OrganizerSessionsRouteImport } from './routes/organizer.sessions'
 import { Route as OrganizerRoomsRouteImport } from './routes/organizer.rooms'
-import { Route as OrganizerLoginRouteImport } from './routes/organizer.login'
 import { Route as OrganizerLiveRouteImport } from './routes/organizer.live'
 import { Route as OrganizerInvitationsRouteImport } from './routes/organizer.invitations'
 import { Route as OrganizerDoorRouteImport } from './routes/organizer.door'
@@ -76,6 +76,11 @@ const AppIndexRoute = AppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppRoute,
 } as any)
+const OrganizerLoginRoute = OrganizerLoginRouteImport.update({
+  id: '/organizer_/login',
+  path: '/organizer/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OrganizerSessionsRoute = OrganizerSessionsRouteImport.update({
   id: '/sessions',
   path: '/sessions',
@@ -84,11 +89,6 @@ const OrganizerSessionsRoute = OrganizerSessionsRouteImport.update({
 const OrganizerRoomsRoute = OrganizerRoomsRouteImport.update({
   id: '/rooms',
   path: '/rooms',
-  getParentRoute: () => OrganizerRoute,
-} as any)
-const OrganizerLoginRoute = OrganizerLoginRouteImport.update({
-  id: '/login',
-  path: '/login',
   getParentRoute: () => OrganizerRoute,
 } as any)
 const OrganizerLiveRoute = OrganizerLiveRouteImport.update({
@@ -186,9 +186,9 @@ export interface FileRoutesByFullPath {
   '/organizer/door': typeof OrganizerDoorRoute
   '/organizer/invitations': typeof OrganizerInvitationsRoute
   '/organizer/live': typeof OrganizerLiveRoute
-  '/organizer/login': typeof OrganizerLoginRoute
   '/organizer/rooms': typeof OrganizerRoomsRoute
   '/organizer/sessions': typeof OrganizerSessionsRoute
+  '/organizer/login': typeof OrganizerLoginRoute
   '/app/': typeof AppIndexRoute
   '/organizer/': typeof OrganizerIndexRoute
   '/organizer/events/$eventId': typeof OrganizerEventsEventIdRoute
@@ -212,9 +212,9 @@ export interface FileRoutesByTo {
   '/organizer/door': typeof OrganizerDoorRoute
   '/organizer/invitations': typeof OrganizerInvitationsRoute
   '/organizer/live': typeof OrganizerLiveRoute
-  '/organizer/login': typeof OrganizerLoginRoute
   '/organizer/rooms': typeof OrganizerRoomsRoute
   '/organizer/sessions': typeof OrganizerSessionsRoute
+  '/organizer/login': typeof OrganizerLoginRoute
   '/app': typeof AppIndexRoute
   '/organizer': typeof OrganizerIndexRoute
   '/organizer/events/$eventId': typeof OrganizerEventsEventIdRoute
@@ -241,9 +241,9 @@ export interface FileRoutesById {
   '/organizer/door': typeof OrganizerDoorRoute
   '/organizer/invitations': typeof OrganizerInvitationsRoute
   '/organizer/live': typeof OrganizerLiveRoute
-  '/organizer/login': typeof OrganizerLoginRoute
   '/organizer/rooms': typeof OrganizerRoomsRoute
   '/organizer/sessions': typeof OrganizerSessionsRoute
+  '/organizer_/login': typeof OrganizerLoginRoute
   '/app/': typeof AppIndexRoute
   '/organizer/': typeof OrganizerIndexRoute
   '/organizer/events/$eventId': typeof OrganizerEventsEventIdRoute
@@ -271,9 +271,9 @@ export interface FileRouteTypes {
     | '/organizer/door'
     | '/organizer/invitations'
     | '/organizer/live'
-    | '/organizer/login'
     | '/organizer/rooms'
     | '/organizer/sessions'
+    | '/organizer/login'
     | '/app/'
     | '/organizer/'
     | '/organizer/events/$eventId'
@@ -297,9 +297,9 @@ export interface FileRouteTypes {
     | '/organizer/door'
     | '/organizer/invitations'
     | '/organizer/live'
-    | '/organizer/login'
     | '/organizer/rooms'
     | '/organizer/sessions'
+    | '/organizer/login'
     | '/app'
     | '/organizer'
     | '/organizer/events/$eventId'
@@ -325,9 +325,9 @@ export interface FileRouteTypes {
     | '/organizer/door'
     | '/organizer/invitations'
     | '/organizer/live'
-    | '/organizer/login'
     | '/organizer/rooms'
     | '/organizer/sessions'
+    | '/organizer_/login'
     | '/app/'
     | '/organizer/'
     | '/organizer/events/$eventId'
@@ -342,6 +342,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   OrganizerRoute: typeof OrganizerRouteWithChildren
   VenueRoute: typeof VenueRoute
+  OrganizerLoginRoute: typeof OrganizerLoginRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -402,6 +403,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/organizer_/login': {
+      id: '/organizer_/login'
+      path: '/organizer/login'
+      fullPath: '/organizer/login'
+      preLoaderRoute: typeof OrganizerLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/organizer/sessions': {
       id: '/organizer/sessions'
       path: '/sessions'
@@ -414,13 +422,6 @@ declare module '@tanstack/react-router' {
       path: '/rooms'
       fullPath: '/organizer/rooms'
       preLoaderRoute: typeof OrganizerRoomsRouteImport
-      parentRoute: typeof OrganizerRoute
-    }
-    '/organizer/login': {
-      id: '/organizer/login'
-      path: '/login'
-      fullPath: '/organizer/login'
-      preLoaderRoute: typeof OrganizerLoginRouteImport
       parentRoute: typeof OrganizerRoute
     }
     '/organizer/live': {
@@ -563,7 +564,6 @@ interface OrganizerRouteChildren {
   OrganizerDoorRoute: typeof OrganizerDoorRoute
   OrganizerInvitationsRoute: typeof OrganizerInvitationsRoute
   OrganizerLiveRoute: typeof OrganizerLiveRoute
-  OrganizerLoginRoute: typeof OrganizerLoginRoute
   OrganizerRoomsRoute: typeof OrganizerRoomsRoute
   OrganizerSessionsRoute: typeof OrganizerSessionsRoute
   OrganizerIndexRoute: typeof OrganizerIndexRoute
@@ -576,7 +576,6 @@ const OrganizerRouteChildren: OrganizerRouteChildren = {
   OrganizerDoorRoute: OrganizerDoorRoute,
   OrganizerInvitationsRoute: OrganizerInvitationsRoute,
   OrganizerLiveRoute: OrganizerLiveRoute,
-  OrganizerLoginRoute: OrganizerLoginRoute,
   OrganizerRoomsRoute: OrganizerRoomsRoute,
   OrganizerSessionsRoute: OrganizerSessionsRoute,
   OrganizerIndexRoute: OrganizerIndexRoute,
@@ -596,7 +595,18 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   OrganizerRoute: OrganizerRouteWithChildren,
   VenueRoute: VenueRoute,
+  OrganizerLoginRoute: OrganizerLoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
