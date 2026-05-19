@@ -9,7 +9,6 @@ import {
 } from "@tanstack/react-router";
 
 import appCss from "../styles.css?url";
-import { DemoSwitcher } from "@/components/DemoSwitcher";
 import { BrandThemeApplier } from "@/data/theme";
 
 function NotFoundComponent() {
@@ -120,7 +119,6 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <Outlet />
-      <DemoSwitcher />
       <BrandThemeApplier />
     </QueryClientProvider>
   );
