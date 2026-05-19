@@ -1,6 +1,7 @@
 import { useRef, useState, useCallback, useEffect, useMemo, type WheelEvent, type PointerEvent } from "react";
 import { motion } from "motion/react";
 import { getPublicNetwork, type PublicNode, type PublicEdge } from "@/lib/network.functions";
+import { people as mockPeople, edges as mockEdges } from "@/data/event";
 
 type Props = {
   height?: number;
@@ -44,10 +45,10 @@ const FALLBACK_EDGES: [string, string][] = [
   ["ml", "lk"], ["ka", "fp"], ["ww", "kv"], ["fp", "el"],
 ];
 
-const W = 600;
-const H = 480;
+const W = 1100;
+const H = 800;
 const MIN_K = 0.5;
-const MAX_K = 3;
+const MAX_K = 4;
 
 // Map a profile to a cluster color based on its tags (track / discipline).
 const CLUSTER_COLORS: { match: RegExp; color: string }[] = [
@@ -77,11 +78,11 @@ function pickColor(node: PublicNode): string {
 // cluster, nodes are placed on a packed grid in a circle around the anchor.
 function layoutNodes(profiles: PublicNode[]): LayoutNode[] {
   const anchors: Record<string, { x: number; y: number }> = {
-    "#a855f7": { x: 150, y: 140 },
-    "#6366f1": { x: 450, y: 140 },
-    "#ec4899": { x: 140, y: 360 },
-    "#10b981": { x: 460, y: 360 },
-    "#fbbf24": { x: 300, y: 250 },
+    "#a855f7": { x: 260, y: 240 },
+    "#6366f1": { x: 840, y: 240 },
+    "#ec4899": { x: 240, y: 580 },
+    "#10b981": { x: 860, y: 580 },
+    "#fbbf24": { x: 550, y: 410 },
   };
   const groups = new Map<string, PublicNode[]>();
   for (const p of profiles) {
@@ -91,7 +92,7 @@ function layoutNodes(profiles: PublicNode[]): LayoutNode[] {
   }
   const out: LayoutNode[] = [];
   for (const [color, list] of groups.entries()) {
-    const anchor = anchors[color] ?? { x: 300, y: 240 };
+    const anchor = anchors[color] ?? { x: W / 2, y: H / 2 };
     const n = list.length;
     list.forEach((p, i) => {
       // ring-pack: distribute on growing concentric rings
@@ -99,7 +100,7 @@ function layoutNodes(profiles: PublicNode[]): LayoutNode[] {
       const perRing = Math.max(1, ring * 6);
       const idxInRing = i - ring * ring;
       const angle = (idxInRing / perRing) * Math.PI * 2 + (color.length % 7);
-      const radius = 14 + ring * 22;
+      const radius = 22 + ring * 34;
       out.push({
         id: p.id,
         name: p.name.split(" ").slice(0, 2).join(" "),
@@ -130,12 +131,26 @@ export function LiveNetworkGraph({ height = 340, className = "" }: Props) {
   }, []);
 
   const { nodes, edges } = useMemo(() => {
-    if (remote && remote.nodes.length > 0) {
-      const laid = layoutNodes(remote.nodes);
-      const tuples: [string, string][] = remote.edges.map((e) => [e.source, e.target]);
-      return { nodes: laid, edges: tuples };
-    }
-    return { nodes: FALLBACK_NODES, edges: FALLBACK_EDGES };
+    // Always include the 100 mock attendees from the seed list,
+    // and merge in any real in-app profiles on top.
+    const mockAsPublic: PublicNode[] = mockPeople
+      .filter((p) => p.id !== "you")
+      .map((p) => ({
+        id: `mock:${p.id}`,
+        name: p.name,
+        initials: p.initials,
+        color: p.color,
+        tags: p.tags,
+      }));
+    const remoteNodes = remote?.nodes ?? [];
+    const all = [...mockAsPublic, ...remoteNodes];
+    const laid = layoutNodes(all);
+
+    const mockEdgeTuples: [string, string][] = mockEdges
+      .filter((e) => e.source !== "you" && e.target !== "you")
+      .map((e) => [`mock:${e.source}`, `mock:${e.target}`]);
+    const remoteTuples: [string, string][] = (remote?.edges ?? []).map((e) => [e.source, e.target]);
+    return { nodes: laid, edges: [...mockEdgeTuples, ...remoteTuples] };
   }, [remote]);
 
   const degree = useMemo(() => {
@@ -301,7 +316,7 @@ export function LiveNetworkGraph({ height = 340, className = "" }: Props) {
 
       <div className="absolute top-3 left-3 px-2.5 py-1 bg-background/90 backdrop-blur rounded-full text-[9px] font-display italic font-bold uppercase tracking-widest flex items-center gap-1.5 ring-1 ring-border">
         <span className="size-1.5 bg-primary rounded-full animate-pulse" />
-        Live Network · {nodes.length} attendees · {edges.length} edges
+        Live · {nodes.length} attendees · {(remote?.nodes.length ?? 0)} in-app · {edges.length} edges
       </div>
 
       {/* Zoom controls */}
