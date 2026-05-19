@@ -194,26 +194,22 @@ function Landing() {
               tag="Upload"
               title="Your experience"
               body="Drop photos, notes, takeaways — they pin to the room you were standing in."
-              icon="📸"
             />
             <RoomFeatureCard
               tag="Live"
               title="Transcript"
               body="Watch the speaker's words stream in as captions, searchable the second they're spoken."
-              icon="🎙️"
               highlight
             />
             <RoomFeatureCard
               tag="RecapHub"
               title="Auto-summaries"
               body="Each session compresses into a shareable recap — speakers, quotes, mindmap."
-              icon="📝"
             />
             <RoomFeatureCard
               tag="Translingo"
               title="Live translation"
               body="Real-time voice translation so language never gates the conversation in the room."
-              icon="🌍"
             />
           </div>
         </section>
