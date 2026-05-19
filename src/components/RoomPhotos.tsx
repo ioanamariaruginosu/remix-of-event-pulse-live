@@ -165,7 +165,6 @@ export function RoomPhotos({ roomId }: { roomId: string }) {
           type="file"
           accept="image/*"
           multiple
-          capture="environment"
           onChange={onPick}
           className="hidden"
         />
