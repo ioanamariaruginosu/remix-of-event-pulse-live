@@ -443,6 +443,7 @@ export function NetworkGraph({
                 />
                 <image
                   href={avatarUrl(avatarFor(n), 128, "png")}
+                  xlinkHref={avatarUrl(avatarFor(n), 128, "png")}
                   x={p.x - baseR}
                   y={p.y - baseR}
                   width={baseR * 2}

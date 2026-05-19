@@ -15,6 +15,7 @@ export function CachedSvgAvatar({ url, x, y, width, height, clipPath }: Props) {
   return (
     <image
       href={href}
+      xlinkHref={href}
       x={x}
       y={y}
       width={width}
