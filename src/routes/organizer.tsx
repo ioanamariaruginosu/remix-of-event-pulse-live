@@ -45,7 +45,7 @@ function OrganizerLayout() {
       <div className="min-h-screen grid place-items-center px-6">
         <div className="max-w-sm text-center space-y-4">
           <h1 className="text-2xl font-extrabold">You're not an organizer yet</h1>
-          <p className="text-sm text-foreground/60">Request organizer access to manage events.</p>
+          <p className="text-sm text-foreground/60">Tap below to enable organizer tools.</p>
           <button
             onClick={async () => { await promote({}); window.location.reload(); }}
             className="inline-block px-5 py-3 bg-primary text-white rounded-xl font-bold"
