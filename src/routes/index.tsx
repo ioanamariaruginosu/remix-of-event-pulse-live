@@ -242,6 +242,74 @@ function Landing() {
 
         {/* Final CTA */}
         {/* Vision */}
+        {/* Matching algorithm */}
+        <section id="matching" className="space-y-12">
+          <div className="text-center max-w-3xl mx-auto space-y-4">
+            <div className="inline-block px-4 py-1.5 bg-primary-soft text-primary font-display italic text-[10px] font-bold tracking-widest uppercase rounded-full ring-1 ring-primary/20">
+              Under the hood
+            </div>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-balance">
+              How the matching <span className="text-primary italic">actually</span> works.
+            </h2>
+            <p className="text-lg text-foreground/60 text-pretty">
+              A hybrid two-tower retrieval stack. Keywords for sharp overlap, embeddings for semantic gravity, RRF to fuse them, and an LLM to put words to the "why."
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-4 gap-4 items-stretch relative">
+            <AlgoStep
+              n="01"
+              title="Embed"
+              copy="Your name + bio + intent + tags are embedded once on demand."
+              meta="openai/text-embedding-3-small · 1536-dim"
+            />
+            <AlgoStep
+              n="02"
+              title="Score"
+              copy="Every other profile gets two scores in parallel — keyword & semantic."
+              meta="Jaccard on tags+tokens · cosine on vectors"
+            />
+            <AlgoStep
+              n="03"
+              title="RRF fuse"
+              copy="Both ranked lists merge via Reciprocal Rank Fusion."
+              meta="20% keyword · 80% embedding"
+              highlight
+            />
+            <AlgoStep
+              n="04"
+              title="Reason"
+              copy="Top 3 are sent to Gemini Flash, which returns two short reasons per match."
+              meta="Cached in match_results"
+            />
+          </div>
+
+          <div className="rounded-[32px] bg-foreground text-white p-8 md:p-10 ring-1 ring-white/10 relative overflow-hidden">
+            <div className="absolute -top-20 -right-20 w-72 h-72 bg-primary/30 blur-[100px] rounded-full pointer-events-none" />
+            <div className="absolute -bottom-20 -left-20 w-72 h-72 bg-accent/30 blur-[100px] rounded-full pointer-events-none" />
+            <div className="relative grid md:grid-cols-[1fr_auto_1fr_auto_1fr] gap-4 md:gap-2 items-center text-center font-display italic">
+              <Tower label="Tower A" sub="keyword · 20%" pills={["tags", "tokens", "jaccard"]} />
+              <Arrow />
+              <Fuse />
+              <Arrow />
+              <Tower label="Tower B" sub="embedding · 80%" pills={["1536-dim", "cosine", "pgvector"]} accent />
+            </div>
+            <div className="relative mt-6 grid md:grid-cols-[1fr_auto_1fr] items-center gap-3">
+              <div className="text-[10px] uppercase tracking-widest text-white/40 font-display italic text-center md:text-right">
+                RRF top-K
+              </div>
+              <div className="text-white/60 font-display italic text-2xl text-center">↓</div>
+              <div className="rounded-2xl bg-white/5 ring-1 ring-white/10 p-3 text-left">
+                <div className="text-[9px] uppercase tracking-widest text-white/40 font-bold">Gemini Flash · JSON</div>
+                <div className="text-sm text-white/80 mt-1">
+                  <span className="text-accent">›</span> Both shipping voice agents this quarter.<br />
+                  <span className="text-accent">›</span> Overlapping eval stacks → swap notes.
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section id="vision" className="space-y-16">
           <div className="max-w-3xl mx-auto text-center space-y-6">
             <div className="inline-block px-4 py-1.5 bg-primary-soft text-primary font-display italic text-[10px] font-bold tracking-widest uppercase rounded-full ring-1 ring-primary/20">
