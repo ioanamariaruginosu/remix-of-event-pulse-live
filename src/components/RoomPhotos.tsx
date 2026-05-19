@@ -2,6 +2,11 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence, useMotionValue, useTransform } from "motion/react";
 import { people } from "@/data/event";
 import { Avatar } from "@/components/Avatar";
+import photoStageFramer from "@/assets/mock-photos/stage-framer.jpeg";
+import photoStageEurhack from "@/assets/mock-photos/stage-eurhack.jpeg";
+import photoTeamSelfie from "@/assets/mock-photos/team-selfie.jpeg";
+import photoPanel from "@/assets/mock-photos/panel.jpeg";
+import photoHackathonStage from "@/assets/mock-photos/hackathon-stage.jpeg";
 
 type Photo = { id: string; src: string; ts: number; uploaderId: string };
 
@@ -49,28 +54,13 @@ async function compress(file: File, max = 1280, quality = 0.8): Promise<string> 
 }
 
 // Deterministic seed photos so every room has a believable stack.
-// Uses picsum.photos with stable seeds (no API key).
-// Curated Unsplash photo IDs — real event/conference/meetup shots.
-// Served via Unsplash's image CDN (no API key needed for direct photo URLs).
-const UNSPLASH_EVENT_PHOTOS = [
-  "1492684223066-81342ee5ff30", // crowd at concert
-  "1505373877841-8d25f7d46678", // conference talk
-  "1540575467063-178a50c2df87", // people networking
-  "1511795409834-ef04bbd61622", // audience hands up
-  "1517048676732-d65bc937f952", // meeting around table
-  "1528605248644-14dd04022da1", // tech conference stage
-  "1475721027785-f74eccf877e2", // crowd lights
-  "1559223607-a43c990c692c",   // workshop laptops
-  "1556761175-5973dc0f32e7",   // group discussion
-  "1540304453527-62f979142a17", // standing meetup
-  "1515169067868-5387ec356754", // panel discussion
-  "1523580494863-6f3031224c94", // speaker on stage
-  "1531058020387-3be344556be6", // people cheering
-  "1551836022-deb4988cc6c0",   // crowd silhouettes
-  "1505236858219-8359eb29e329", // hands raised
-  "1522158637959-30385a09e0da", // coffee networking
-  "1517457373958-b7bdd4587205", // workshop close-up
-  "1540317580384-e5d43616b9aa", // dj/event lights
+// Real event photos from the EurHack NL hackathon.
+const EVENT_PHOTOS = [
+  photoStageFramer,
+  photoStageEurhack,
+  photoTeamSelfie,
+  photoPanel,
+  photoHackathonStage,
 ];
 
 function seedPhotos(roomId: string): Photo[] {
@@ -81,10 +71,10 @@ function seedPhotos(roomId: string): Photo[] {
   const count = 5 + (h % 3); // 5–7 photos
   return Array.from({ length: count }, (_, i) => {
     const uploader = others[(h + i * 7) % others.length];
-    const photoId = UNSPLASH_EVENT_PHOTOS[(h + i * 13) % UNSPLASH_EVENT_PHOTOS.length];
+    const src = EVENT_PHOTOS[(h + i * 13) % EVENT_PHOTOS.length];
     return {
       id: `seed-${roomId}-${i}`,
-      src: `https://images.unsplash.com/photo-${photoId}?w=900&h=1200&fit=crop&auto=format&q=80`,
+      src,
       ts: Date.now() - (i + 1) * 1000 * 60 * (5 + (h % 30)),
       uploaderId: uploader.id,
     };
