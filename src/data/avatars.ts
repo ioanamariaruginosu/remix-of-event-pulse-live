@@ -51,14 +51,14 @@ export function defaultAvatarFor(person: Pick<Person, "id" | "color">): AvatarCo
   };
 }
 
-export function avatarUrl(cfg: AvatarConfig, size?: number) {
+export function avatarUrl(cfg: AvatarConfig, size?: number, format: "svg" | "png" = "svg") {
   const params = new URLSearchParams({
     seed: cfg.seed,
     backgroundColor: cfg.bg,
     radius: "50",
   });
   if (size) params.set("size", String(size));
-  return `https://api.dicebear.com/9.x/${cfg.style}/svg?${params.toString()}`;
+  return `https://api.dicebear.com/9.x/${cfg.style}/${format}?${params.toString()}`;
 }
 
 /* --- Persisted user avatar store (localStorage) --- */
