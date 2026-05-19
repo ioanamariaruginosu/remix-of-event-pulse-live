@@ -11,6 +11,7 @@ import {
 import appCss from "../styles.css?url";
 import { BrandThemeApplier } from "@/data/theme";
 import { PWARegister } from "@/components/PWARegister";
+import { InstallPrompt } from "@/components/InstallPrompt";
 
 function NotFoundComponent() {
   return (
@@ -89,9 +90,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/b74fa837-4421-4042-9571-de1d47231240/id-preview-78955c1e--09887658-9667-4da0-8a83-f8f0019aac81.lovable.app-1779175060347.png" },
       { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/b74fa837-4421-4042-9571-de1d47231240/id-preview-78955c1e--09887658-9667-4da0-8a83-f8f0019aac81.lovable.app-1779175060347.png" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "theme-color", content: "#0a0d1a" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+      { name: "apple-mobile-web-app-title", content: "synqmap" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
+      { rel: "manifest", href: "/manifest.webmanifest" },
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
+      { rel: "icon", href: "/icon-192.png", type: "image/png", sizes: "192x192" },
       { rel: "preconnect", href: "https://api.fontshare.com" },
       { rel: "preconnect", href: "https://cdn.fontshare.com", crossOrigin: "anonymous" },
       {
@@ -129,6 +138,7 @@ function RootComponent() {
       <Outlet />
       <BrandThemeApplier />
       <PWARegister />
+      <InstallPrompt />
     </QueryClientProvider>
   );
 }
