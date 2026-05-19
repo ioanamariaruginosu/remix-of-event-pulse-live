@@ -1,9 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { IdentityCard } from "@/components/IdentityCard";
-import { people } from "@/data/event";
+import { people, type Person } from "@/data/event";
 import { QRCodeSVG } from "qrcode.react";
+import QrScanner from "qr-scanner";
 
 export const Route = createFileRoute("/app/exchange")({
   head: () => ({ meta: [{ title: "Tap to exchange — synqmap" }] }),
@@ -11,16 +12,27 @@ export const Route = createFileRoute("/app/exchange")({
 });
 
 function Exchange() {
+  const navigate = useNavigate();
   const [stage, setStage] = useState<"ready" | "matching" | "done">("ready");
   const [mode, setMode] = useState<"nfc" | "qr">("nfc");
   const [nfcSupported, setNfcSupported] = useState(false);
   const [nfcStatus, setNfcStatus] = useState<string | null>(null);
+  const [qrScanStatus, setQrScanStatus] = useState<string | null>(null);
+  const [scannerOpen, setScannerOpen] = useState(false);
+  const [cameraReady, setCameraReady] = useState(false);
+  const [matchedPerson, setMatchedPerson] = useState<Person | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const scannerRef = useRef<QrScanner | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
   const other = people[1];
   const me = people[0];
+  const qrPayload = useMemo(() => {
+    if (typeof window === "undefined") return payloadForId(me?.id ?? "me");
+    return `${window.location.origin}/app/exchange?scan=${encodeURIComponent(me?.id ?? "me")}`;
+  }, [me?.id]);
 
   // Payload exchanged over NFC / encoded into QR.
-  const payload = `synqmap://card/${me?.id ?? "me"}`;
+  const payload = payloadForId(me?.id ?? "me");
 
   useEffect(() => {
     const supported = typeof window !== "undefined" && "NDEFReader" in window;
@@ -32,6 +44,35 @@ function Exchange() {
   const complete = () => {
     setStage("matching");
     setTimeout(() => setStage("done"), 1200);
+  };
+
+  const completeWithPerson = (personId: string) => {
+    if (personId === me?.id) {
+      setQrScanStatus("That’s your own code. Ask the other person to show theirs.");
+      return;
+    }
+
+    const found = people.find((person) => person.id === personId) ?? other;
+    setMatchedPerson(found);
+    setQrScanStatus(null);
+    setScannerOpen(false);
+    void stopScanner();
+    complete();
+  };
+
+  const stopScanner = async () => {
+    const scanner = scannerRef.current;
+    scannerRef.current = null;
+    setCameraReady(false);
+    if (scanner) {
+      await scanner.stop();
+      scanner.destroy();
+    }
+  };
+
+  const openScanner = () => {
+    setQrScanStatus("Point the camera at their QR code.");
+    setScannerOpen(true);
   };
 
   const startNfc = async () => {
@@ -61,6 +102,60 @@ function Exchange() {
       setNfcStatus(msg);
     }
   };
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const search = new URLSearchParams(window.location.search);
+    const incoming = search.get("scan");
+    if (incoming) completeWithPerson(incoming);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (!scannerOpen) {
+      void stopScanner();
+      return;
+    }
+
+    const startQrScanner = async () => {
+      if (!videoRef.current || scannerRef.current) return;
+
+      try {
+        const scanner = new QrScanner(
+          videoRef.current,
+          (result) => {
+            const decoded = parseScannedValue(typeof result === "string" ? result : result.data);
+            if (!decoded) {
+              setQrScanStatus("That QR code isn’t a synqmap card.");
+              return;
+            }
+            completeWithPerson(decoded);
+          },
+          {
+            preferredCamera: "environment",
+            highlightScanRegion: true,
+            highlightCodeOutline: true,
+            returnDetailedScanResult: true,
+          },
+        );
+        scannerRef.current = scanner;
+        await scanner.start();
+        setCameraReady(true);
+      } catch (error) {
+        setQrScanStatus(
+          error instanceof Error
+            ? error.message
+            : "Camera access failed. Allow camera permission and try again.",
+        );
+      }
+    };
+
+    void startQrScanner();
+
+    return () => {
+      void stopScanner();
+    };
+  }, [scannerOpen]);
 
   return (
     <div className="px-5 pt-6 space-y-5 pb-10">
@@ -131,17 +226,52 @@ function Exchange() {
             ) : (
               <>
                 <div className="aspect-square bg-white rounded-3xl grid place-items-center p-6 ring-1 ring-border">
-                  <QRCodeSVG value={payload} size={256} bgColor="#ffffff" fgColor="#0a0d1a" level="M" includeMargin={false} />
+                  <QRCodeSVG value={qrPayload} size={256} bgColor="#ffffff" fgColor="#0a0d1a" level="M" includeMargin={false} />
                 </div>
-                <button
-                  onClick={complete}
-                  className="w-full py-4 bg-primary text-white rounded-xl font-bold"
-                >
-                  Mark as scanned
-                </button>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <button
+                    onClick={() => void openScanner()}
+                    className="w-full py-4 bg-primary text-white rounded-xl font-bold"
+                  >
+                    Scan in app
+                  </button>
+                  <button
+                    onClick={() => navigate({ to: "/app/card" })}
+                    className="w-full py-4 ring-1 ring-border rounded-xl font-bold text-sm hover:bg-foreground/5"
+                  >
+                    Show my code
+                  </button>
+                </div>
                 <p className="text-xs text-foreground/50 text-center">
-                  iOS doesn't support Web NFC. Have the other person scan this QR with their camera to grab your card.
+                  Open the camera inside synqmap and scan the other person’s code right here on iPhone or Android.
                 </p>
+                {scannerOpen && (
+                  <div className="space-y-3 rounded-3xl bg-foreground p-3 text-white">
+                    <div className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-black/60 ring-1 ring-white/10">
+                      <video ref={videoRef} className="h-full w-full object-cover" playsInline muted />
+                      <div className="pointer-events-none absolute inset-0 grid place-items-center p-6">
+                        <div className="h-56 w-full max-w-56 rounded-[28px] border-2 border-white/80 shadow-[0_0_0_999px_rgba(0,0,0,0.28)]" />
+                      </div>
+                      {!cameraReady && (
+                        <div className="absolute inset-0 grid place-items-center bg-black/45 text-center px-6">
+                          <div>
+                            <div className="mx-auto mb-3 size-10 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                            <p className="text-sm font-semibold">Starting camera…</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-xs text-white/70">{qrScanStatus ?? "Center the QR inside the frame."}</p>
+                      <button
+                        onClick={() => setScannerOpen(false)}
+                        className="shrink-0 rounded-full px-3 py-1.5 text-xs font-bold ring-1 ring-white/15 hover:bg-white/10"
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                )}
               </>
             )}
           </motion.div>
@@ -163,7 +293,7 @@ function Exchange() {
               <div className="font-bold text-sm">You both care about evals and live in Rotterdam.</div>
             </div>
             <div className="flex justify-center scale-90 origin-top">
-              <IdentityCard person={other} serial="042" />
+              <IdentityCard person={matchedPerson ?? other} serial="042" />
             </div>
             <button
               onClick={() => setStage("ready")}
@@ -176,4 +306,25 @@ function Exchange() {
       </AnimatePresence>
     </div>
   );
+}
+
+function payloadForId(personId: string) {
+  return `synqmap://card/${personId}`;
+}
+
+function parseScannedValue(value: string) {
+  try {
+    if (value.startsWith("synqmap://card/")) {
+      return value.replace("synqmap://card/", "").trim();
+    }
+
+    const url = new URL(value);
+    if (url.pathname === "/app/exchange") {
+      return url.searchParams.get("scan")?.trim() ?? null;
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
 }
