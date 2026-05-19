@@ -167,6 +167,13 @@ function EventCard({ row, accent, compact }: { row: EventRow; accent?: boolean; 
               >
                 Analytics ↗
               </Link>
+            ) : row.status === "live" ? (
+              <Link
+                to="/organizer"
+                className="px-3 py-1.5 text-xs font-bold bg-foreground text-white rounded-lg hover:bg-primary transition-colors"
+              >
+                Open ↗
+              </Link>
             ) : (
               <Link
                 to="/organizer/events/$eventId"
