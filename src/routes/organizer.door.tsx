@@ -11,6 +11,8 @@ import {
   useRoomCount,
 } from "@/data/presence";
 import { NetworkGraph } from "@/components/NetworkGraph";
+import QrScanner from "qr-scanner";
+import { checkInAttendee } from "@/lib/door.functions";
 
 export const Route = createFileRoute("/organizer/door")({
   head: () => ({ meta: [{ title: "Organizer · Door check-in — synqmap" }] }),
@@ -26,6 +28,13 @@ function Door() {
   const [lastTapped, setLastTapped] = useState<string | null>(null);
   const [signal, setSignal] = useState(0); // 0..1 — animated "field strength"
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const [scannerOpen, setScannerOpen] = useState(false);
+  const [cameraReady, setCameraReady] = useState(false);
+  const [scanMessage, setScanMessage] = useState<string | null>(null);
+  const [scannedName, setScannedName] = useState<string | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const scannerRef = useRef<QrScanner | null>(null);
+  const lastScanRef = useRef<{ id: string; at: number } | null>(null);
 
   const room = rooms.find((r) => r.id === roomId)!;
   const count = useRoomCount(roomId);
@@ -89,6 +98,85 @@ function Door() {
     const next = queue[Math.floor(Math.random() * Math.min(queue.length, 8))];
     if (next) runScan(next.id);
   };
+
+  const stopScanner = async () => {
+    const s = scannerRef.current;
+    scannerRef.current = null;
+    setCameraReady(false);
+    if (s) {
+      await s.stop();
+      s.destroy();
+    }
+  };
+
+  const handleDecoded = async (raw: string) => {
+    const id = parseScannedValue(raw);
+    if (!id) {
+      setScanMessage("That QR isn't a synqmap card.");
+      return;
+    }
+    // Debounce repeat decodes of the same QR.
+    const now = Date.now();
+    if (lastScanRef.current && lastScanRef.current.id === id && now - lastScanRef.current.at < 3000) {
+      return;
+    }
+    lastScanRef.current = { id, at: now };
+
+    // Local visual feedback if this id matches a mock attendee (demo).
+    const mock = people.find((p) => p.id === id);
+    if (mock && phase === "idle") runScan(mock.id);
+
+    setScanMessage("Checking in…");
+    try {
+      const { attendee } = await checkInAttendee({
+        data: { attendeeUserId: id, roomLabel: room.name },
+      });
+      setScannedName(attendee.name);
+      setScanMessage(`${attendee.name} → ${room.name} ✓`);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Check-in failed.";
+      setScanMessage(msg);
+    }
+  };
+
+  useEffect(() => {
+    if (!scannerOpen) {
+      void stopScanner();
+      return;
+    }
+    const start = async () => {
+      if (!videoRef.current || scannerRef.current) return;
+      try {
+        const scanner = new QrScanner(
+          videoRef.current,
+          (result) => {
+            void handleDecoded(typeof result === "string" ? result : result.data);
+          },
+          {
+            preferredCamera: "environment",
+            highlightScanRegion: true,
+            highlightCodeOutline: true,
+            returnDetailedScanResult: true,
+          },
+        );
+        scannerRef.current = scanner;
+        await scanner.start();
+        setCameraReady(true);
+        setScanMessage("Point at an attendee's QR.");
+      } catch (err) {
+        setScanMessage(
+          err instanceof Error
+            ? err.message
+            : "Camera unavailable. Allow camera permission and retry.",
+        );
+      }
+    };
+    void start();
+    return () => {
+      void stopScanner();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scannerOpen]);
 
   const phaseCopy: Record<Phase, { hint: string; status: string; statusColor: string }> = {
     idle: { hint: "Hold phone near reader", status: "Scanning", statusColor: "text-white/40" },
@@ -280,19 +368,49 @@ function Door() {
           {/* Hint + simulate */}
           <div className="flex items-center justify-between gap-3 relative">
             <div className="text-[11px] font-display italic text-white/60">
-              {copy.hint}
+              {scanMessage ?? copy.hint}
               {active && phase === "reading" && (
                 <span className="ml-2 text-white/30">· uid 04:{active.id.slice(-2).toUpperCase()}:A3:F1</span>
               )}
             </div>
-            <button
-              onClick={simulateScan}
-              disabled={phase !== "idle"}
-              className="px-4 py-2 bg-accent text-foreground rounded-xl font-bold text-xs hover:scale-[1.02] transition-transform disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              Simulate tap ↺
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setScannerOpen((v) => !v)}
+                className="px-4 py-2 bg-accent text-foreground rounded-xl font-bold text-xs hover:scale-[1.02] transition-transform"
+              >
+                {scannerOpen ? "Close camera" : "Open camera"}
+              </button>
+              <button
+                onClick={simulateScan}
+                disabled={phase !== "idle"}
+                className="px-3 py-2 ring-1 ring-white/15 text-white/70 rounded-xl font-bold text-xs hover:bg-white/5 disabled:opacity-30"
+              >
+                Demo tap
+              </button>
+            </div>
           </div>
+
+          {scannerOpen && (
+            <div className="relative mt-4 aspect-[3/4] sm:aspect-video overflow-hidden rounded-2xl bg-black/60 ring-1 ring-white/10">
+              <video ref={videoRef} className="h-full w-full object-cover" playsInline muted />
+              <div className="pointer-events-none absolute inset-0 grid place-items-center p-6">
+                <div className="h-56 w-56 rounded-[28px] border-2 border-white/80 shadow-[0_0_0_999px_rgba(0,0,0,0.35)]" />
+              </div>
+              {!cameraReady && (
+                <div className="absolute inset-0 grid place-items-center bg-black/45 text-center px-6">
+                  <div>
+                    <div className="mx-auto mb-3 size-10 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                    <p className="text-sm font-semibold">Starting camera…</p>
+                  </div>
+                </div>
+              )}
+              {scannedName && (
+                <div className="absolute bottom-3 left-3 right-3 rounded-xl bg-emerald-400/90 px-3 py-2 text-foreground text-xs font-bold text-center">
+                  {scannedName} signed into {room.name}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
 
