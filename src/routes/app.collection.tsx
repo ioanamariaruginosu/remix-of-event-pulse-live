@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence, useMotionValue, useTransform } from "motion/react";
 import { type Person } from "@/data/event";
 import { Avatar } from "@/components/Avatar";
+import { IdentityCard } from "@/components/IdentityCard";
 import { useServerFn } from "@tanstack/react-start";
 import { getMyDeck, type DeckProfile } from "@/lib/exchange.functions";
 import { supabase } from "@/integrations/supabase/client";
@@ -180,16 +181,19 @@ function DeckCard({
   dim?: boolean;
 }) {
   const { person, reason, gradient } = card;
-  const bg = gradient
-    ? `linear-gradient(135deg, ${gradient.from} 0%, ${gradient.via} 50%, ${gradient.to} 100%)`
-    : `radial-gradient(circle at 100% 0%, ${person.color}55 0%, transparent 55%), radial-gradient(circle at 0% 100%, #7c3aed 0%, transparent 60%)`;
+  const effectiveGradient: ProfileGradient =
+    gradient ?? {
+      from: person.color,
+      via: person.color,
+      to: "#0f172a",
+    };
+  const bg = `linear-gradient(135deg, ${effectiveGradient.from} 0%, ${effectiveGradient.via} 50%, ${effectiveGradient.to} 100%)`;
   return (
     <div
-      className="relative w-full h-full bg-foreground text-white p-5 flex flex-col shadow-2xl ring-1 ring-white/10"
+      className="relative w-full h-full bg-foreground text-white p-5 flex flex-col items-center gap-4 shadow-2xl ring-1 ring-white/10"
       style={{ backgroundImage: bg }}
     >
-      {/* Header */}
-      <div className="flex items-start justify-between">
+      <div className="w-full flex items-start justify-between">
         <div className="text-[9px] font-display italic uppercase tracking-widest text-white/50">
           Eurhack · Day 1
         </div>
@@ -198,44 +202,17 @@ function DeckCard({
         </div>
       </div>
 
-      {/* Big avatar */}
-      <div className="flex-1 flex items-center justify-center">
-        <div className="relative">
-          <div
-            className="absolute inset-0 rounded-full blur-2xl opacity-60"
-            style={{ background: person.color }}
-          />
-          <Avatar
-            person={person}
-            size={160}
-            className="relative ring-4 ring-white/20 shadow-2xl"
-          />
-        </div>
+      {/* Mirror exactly what the user configured */}
+      <div className="scale-[0.78] -my-6">
+        <IdentityCard person={person} gradient={effectiveGradient} serial={String(num).padStart(3, "0")} />
       </div>
 
-      {/* Name + one-liner */}
-      <div className="space-y-2">
-        <div className="font-extrabold text-2xl tracking-tight leading-tight">{person.name}</div>
-        <div className="text-xs text-white/70 leading-snug">{person.oneLiner}</div>
-
-        <div
-          className="text-[10px] font-display italic px-3 py-2 rounded-lg"
-          style={{ background: `${person.color}22`, color: "white" }}
-        >
-          <span className="text-white/50 uppercase tracking-widest text-[9px] font-bold mr-1.5">Why</span>
-          {reason}
-        </div>
-
-        <div className="flex gap-1.5 flex-wrap">
-          {person.tags.map((t) => (
-            <span
-              key={t}
-              className="px-2 py-0.5 bg-white/10 text-[9px] font-bold uppercase tracking-wider rounded-full"
-            >
-              {t}
-            </span>
-          ))}
-        </div>
+      <div
+        className="w-full text-[10px] font-display italic px-3 py-2 rounded-lg backdrop-blur-sm"
+        style={{ background: "rgba(0,0,0,0.35)", color: "white" }}
+      >
+        <span className="text-white/50 uppercase tracking-widest text-[9px] font-bold mr-1.5">Why</span>
+        {reason}
       </div>
 
       {dim && <div className="absolute inset-0 bg-foreground/30 pointer-events-none" />}
