@@ -14,16 +14,395 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      cards_exchanged: {
+        Row: {
+          at: string
+          event_id: string | null
+          from_user: string
+          id: string
+          reason: string | null
+          to_user: string
+        }
+        Insert: {
+          at?: string
+          event_id?: string | null
+          from_user: string
+          id?: string
+          reason?: string | null
+          to_user: string
+        }
+        Update: {
+          at?: string
+          event_id?: string | null
+          from_user?: string
+          id?: string
+          reason?: string | null
+          to_user?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cards_exchanged_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_attendees: {
+        Row: {
+          created_at: string
+          event_id: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_attendees_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events: {
+        Row: {
+          city: string | null
+          cover_gradient: string | null
+          created_at: string
+          dates: string | null
+          description: string | null
+          id: string
+          is_live: boolean
+          name: string
+          owner_id: string
+        }
+        Insert: {
+          city?: string | null
+          cover_gradient?: string | null
+          created_at?: string
+          dates?: string | null
+          description?: string | null
+          id?: string
+          is_live?: boolean
+          name: string
+          owner_id: string
+        }
+        Update: {
+          city?: string | null
+          cover_gradient?: string | null
+          created_at?: string
+          dates?: string | null
+          description?: string | null
+          id?: string
+          is_live?: boolean
+          name?: string
+          owner_id?: string
+        }
+        Relationships: []
+      }
+      invitations: {
+        Row: {
+          created_at: string
+          email: string
+          event_id: string
+          id: string
+          status: string
+          token: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          event_id: string
+          id?: string
+          status?: string
+          token?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          event_id?: string
+          id?: string
+          status?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invitations_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      presence: {
+        Row: {
+          event_id: string
+          room_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          event_id: string
+          room_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          event_id?: string
+          room_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "presence_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "presence_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          color: string
+          created_at: string
+          gradient: Json | null
+          id: string
+          initials: string | null
+          intent: string | null
+          name: string | null
+          one_liner: string | null
+          socials: Json
+          tags: string[]
+          updated_at: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          gradient?: Json | null
+          id: string
+          initials?: string | null
+          intent?: string | null
+          name?: string | null
+          one_liner?: string | null
+          socials?: Json
+          tags?: string[]
+          updated_at?: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          gradient?: Json | null
+          id?: string
+          initials?: string | null
+          intent?: string | null
+          name?: string | null
+          one_liner?: string | null
+          socials?: Json
+          tags?: string[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      rooms: {
+        Row: {
+          capacity: number
+          created_at: string
+          event_id: string
+          id: string
+          kind: string
+          name: string
+        }
+        Insert: {
+          capacity?: number
+          created_at?: string
+          event_id: string
+          id?: string
+          kind?: string
+          name: string
+        }
+        Update: {
+          capacity?: number
+          created_at?: string
+          event_id?: string
+          id?: string
+          kind?: string
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rooms_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sessions: {
+        Row: {
+          abstract: string | null
+          created_at: string
+          ends_at: string | null
+          event_id: string
+          id: string
+          room_id: string | null
+          speaker: string | null
+          speaker_role: string | null
+          starts_at: string | null
+          time_label: string | null
+          title: string
+          topics: string[]
+          transcript: Json | null
+        }
+        Insert: {
+          abstract?: string | null
+          created_at?: string
+          ends_at?: string | null
+          event_id: string
+          id?: string
+          room_id?: string | null
+          speaker?: string | null
+          speaker_role?: string | null
+          starts_at?: string | null
+          time_label?: string | null
+          title: string
+          topics?: string[]
+          transcript?: Json | null
+        }
+        Update: {
+          abstract?: string | null
+          created_at?: string
+          ends_at?: string | null
+          event_id?: string
+          id?: string
+          room_id?: string | null
+          speaker?: string | null
+          speaker_role?: string | null
+          starts_at?: string | null
+          time_label?: string | null
+          title?: string
+          topics?: string[]
+          transcript?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sessions_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sessions_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      taps: {
+        Row: {
+          at: string
+          event_id: string
+          id: string
+          organizer_id: string
+          person_id: string
+          room_id: string
+        }
+        Insert: {
+          at?: string
+          event_id: string
+          id?: string
+          organizer_id: string
+          person_id: string
+          room_id: string
+        }
+        Update: {
+          at?: string
+          event_id?: string
+          id?: string
+          organizer_id?: string
+          person_id?: string
+          room_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "taps_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "taps_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "organizer" | "attendee"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +529,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["organizer", "attendee"],
+    },
   },
 } as const
