@@ -271,7 +271,7 @@ function Landing() {
               tag="Scale 01 // Macro"
               title="Event Graph"
               copy="The venue-wall spectacle. Every person, topic, and edge pulsing in real time."
-              graph={<NetworkGraph scale="event" height={300} />}
+              graph={<MiniEventGraph height={300} />}
             />
             <ScaleCard
               tag="Scale 02 // Local"
@@ -671,6 +671,54 @@ function PillarCard({
       <div className={`mt-auto text-[10px] font-display italic ${highlight ? "text-background/40" : "text-foreground/40"}`}>
         {source}
       </div>
+    </div>
+  );
+}
+
+function MiniEventGraph({ height = 300 }: { height?: number }) {
+  const W = 320;
+  const H = 240;
+  const nodes = [
+    { id: "a", initials: "AO", name: "Adam",  color: "#fbbf24", x: 160, y: 120 }, // hub
+    { id: "b", initials: "YW", name: "Yael",  color: "#a855f7", x:  60, y:  60 },
+    { id: "c", initials: "CR", name: "Clara", color: "#6366f1", x: 260, y:  60 },
+    { id: "d", initials: "FP", name: "Fenna", color: "#ec4899", x:  60, y: 190 },
+    { id: "e", initials: "KV", name: "Karim", color: "#10b981", x: 260, y: 190 },
+  ];
+  const edges: [string, string][] = [
+    ["a", "b"], ["a", "c"], ["a", "d"], ["a", "e"], ["b", "c"], ["d", "e"],
+  ];
+  const pos = new Map(nodes.map((n) => [n.id, n]));
+  return (
+    <div className="relative w-full" style={{ height }}>
+      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" style={{ width: "100%", height: "100%", display: "block" }}>
+        <defs>
+          <radialGradient id="mini-bg" cx="50%" cy="50%" r="55%">
+            <stop offset="0%" stopColor="#a78bfa" stopOpacity="0.22" />
+            <stop offset="100%" stopColor="#a78bfa" stopOpacity="0" />
+          </radialGradient>
+        </defs>
+        <rect x="0" y="0" width={W} height={H} fill="url(#mini-bg)" />
+        {edges.map(([s, t]) => {
+          const a = pos.get(s)!;
+          const b = pos.get(t)!;
+          return (
+            <line key={`${s}-${t}`} x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke="rgba(255,255,255,0.5)" strokeWidth={1.5} strokeLinecap="round" />
+          );
+        })}
+        {nodes.map((n) => (
+          <g key={n.id}>
+            <circle cx={n.x} cy={n.y} r={24} fill={n.color} opacity={0.22} />
+            <circle cx={n.x} cy={n.y} r={18} fill={n.color} stroke="white" strokeOpacity={0.95} strokeWidth={1.5} />
+            <text x={n.x} y={n.y + 4} textAnchor="middle" fontSize={11} fontWeight={800} fill="white" style={{ letterSpacing: "0.4px" }}>
+              {n.initials}
+            </text>
+            <text x={n.x} y={n.y + 34} textAnchor="middle" fontSize={10} fill="rgba(255,255,255,0.78)">
+              {n.name}
+            </text>
+          </g>
+        ))}
+      </svg>
     </div>
   );
 }
