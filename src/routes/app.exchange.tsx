@@ -70,43 +70,9 @@ function Exchange() {
     }
   };
 
-  const openScanner = async () => {
-    if (!videoRef.current) {
-      setQrScanStatus("Camera view is still loading. Try again.");
-      return;
-    }
-
-    try {
-      setScannerOpen(true);
-      setQrScanStatus("Point the camera at their QR code.");
-      const scanner = new QrScanner(
-        videoRef.current,
-        (result) => {
-          const decoded = parseScannedValue(typeof result === "string" ? result : result.data);
-          if (!decoded) {
-            setQrScanStatus("That QR code isn’t a synqmap card.");
-            return;
-          }
-          completeWithPerson(decoded);
-        },
-        {
-          preferredCamera: "environment",
-          highlightScanRegion: true,
-          highlightCodeOutline: true,
-          returnDetailedScanResult: true,
-        },
-      );
-      scannerRef.current = scanner;
-      await scanner.start();
-      setCameraReady(true);
-    } catch (error) {
-      setScannerOpen(true);
-      setQrScanStatus(
-        error instanceof Error
-          ? error.message
-          : "Camera access failed. Allow camera permission and try again.",
-      );
-    }
+  const openScanner = () => {
+    setQrScanStatus("Point the camera at their QR code.");
+    setScannerOpen(true);
   };
 
   const startNfc = async () => {
@@ -148,7 +114,44 @@ function Exchange() {
   useEffect(() => {
     if (!scannerOpen) {
       void stopScanner();
+      return;
     }
+
+    const startQrScanner = async () => {
+      if (!videoRef.current || scannerRef.current) return;
+
+      try {
+        const scanner = new QrScanner(
+          videoRef.current,
+          (result) => {
+            const decoded = parseScannedValue(typeof result === "string" ? result : result.data);
+            if (!decoded) {
+              setQrScanStatus("That QR code isn’t a synqmap card.");
+              return;
+            }
+            completeWithPerson(decoded);
+          },
+          {
+            preferredCamera: "environment",
+            highlightScanRegion: true,
+            highlightCodeOutline: true,
+            returnDetailedScanResult: true,
+          },
+        );
+        scannerRef.current = scanner;
+        await scanner.start();
+        setCameraReady(true);
+      } catch (error) {
+        setQrScanStatus(
+          error instanceof Error
+            ? error.message
+            : "Camera access failed. Allow camera permission and try again.",
+        );
+      }
+    };
+
+    void startQrScanner();
+
     return () => {
       void stopScanner();
     };
@@ -223,7 +226,7 @@ function Exchange() {
             ) : (
               <>
                 <div className="aspect-square bg-white rounded-3xl grid place-items-center p-6 ring-1 ring-border">
-                  <QRCodeSVG value={payload} size={256} bgColor="#ffffff" fgColor="#0a0d1a" level="M" includeMargin={false} />
+                  <QRCodeSVG value={qrPayload} size={256} bgColor="#ffffff" fgColor="#0a0d1a" level="M" includeMargin={false} />
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2">
                   <button
