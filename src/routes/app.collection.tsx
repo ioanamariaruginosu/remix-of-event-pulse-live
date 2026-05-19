@@ -406,3 +406,16 @@ function socialHref(k: string, v: string) {
     default: return "#";
   }
 }
+
+function profileToPerson(p: DeckProfile): Person {
+  return {
+    id: p.id,
+    name: p.name ?? "Anonymous",
+    initials: p.initials ?? "??",
+    oneLiner: p.one_liner ?? "",
+    intent: p.intent ?? "",
+    tags: p.tags ?? [],
+    socials: (p.socials ?? {}) as Person["socials"],
+    color: p.color ?? "#7c3aed",
+  };
+}
