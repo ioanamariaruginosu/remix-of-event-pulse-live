@@ -47,7 +47,19 @@ export const exchangeCardWith = createServerFn({ method: "POST" })
       if (error) throw new Error(error.message);
     }
 
-    return { other };
+    return {
+      other: {
+        id: other.id,
+        name: other.name,
+        one_liner: other.one_liner,
+        intent: other.intent,
+        tags: other.tags ?? [],
+        socials: (other.socials ?? null) as DeckProfile["socials"],
+        color: other.color,
+        avatar: (other.avatar ?? null) as DeckProfile["avatar"],
+        initials: other.initials,
+      } satisfies DeckProfile,
+    };
   });
 
 export const getMyDeck = createServerFn({ method: "GET" })
