@@ -294,13 +294,14 @@ export function LiveNetworkGraph({ height = 340, className = "" }: Props) {
                   strokeOpacity={0.95}
                   strokeWidth={1.5 / view.k}
                 />
-                <CachedSvgAvatar
-                  url={avatarUrl(defaultAvatarFor({ id: n.id, color: n.color }), Math.max(64, Math.round(r * 4)), "png")}
+                <image
+                  href={avatarForId(n.id)}
                   x={n.x - r}
                   y={n.y - r}
                   width={r * 2}
                   height={r * 2}
                   clipPath={`url(#lng-clip-${n.id})`}
+                  preserveAspectRatio="xMidYMid slice"
                 />
                 {showLabel && (
                   <text
