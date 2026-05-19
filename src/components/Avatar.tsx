@@ -1,5 +1,6 @@
 import { useAvatarFor, avatarUrl, defaultAvatarFor, type AvatarConfig } from "@/data/avatars";
 import type { Person } from "@/data/event";
+import { useCachedAvatar } from "@/lib/avatar-cache";
 
 type Props = {
   person?: Pick<Person, "id" | "color" | "initials"> & {
@@ -23,9 +24,10 @@ export function Avatar({ person, config, size = 40, className = "", ring = false
   // Priority: explicit config > person's saved avatar > live (you-override or default).
   const cfg = config ?? personAvatar ?? live;
   const url = avatarUrl(cfg, size * 2);
+  const src = useCachedAvatar(url);
   return (
     <img
-      src={url}
+      src={src}
       alt={person?.id ?? cfg.seed}
       width={size}
       height={size}

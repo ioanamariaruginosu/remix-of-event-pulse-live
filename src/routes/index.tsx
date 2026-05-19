@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
+import { useEffect } from "react";
 import { NetworkGraph } from "@/components/NetworkGraph";
 import { LiveNetworkGraph } from "@/components/LiveNetworkGraph";
 import { LiveTicker } from "@/components/LiveTicker";
@@ -7,6 +8,8 @@ import { IdentityCard } from "@/components/IdentityCard";
 import { Logo } from "@/components/Logo";
 import { people, event, rooms } from "@/data/event";
 import { avatarUrl, defaultAvatarFor } from "@/data/avatars";
+import { CachedSvgAvatar } from "@/components/CachedSvgAvatar";
+import { preloadAvatars } from "@/lib/avatar-cache";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -30,6 +33,26 @@ export const Route = createFileRoute("/")({
 function Landing() {
   const you = people[0];
   const sample = people[1];
+
+  // Warm the avatar cache once so every node renders from memory and
+  // stays pixel-identical across reloads.
+  useEffect(() => {
+    const seeds: Array<{ id: string; color: string }> = [
+      { id: "a", color: "#fbbf24" }, { id: "b", color: "#a855f7" },
+      { id: "c", color: "#6366f1" }, { id: "d", color: "#ec4899" },
+      { id: "e", color: "#10b981" },
+      { id: "y", color: "#a855f7" }, { id: "b1", color: "#a855f7" },
+      { id: "b2", color: "#a855f7" }, { id: "b3", color: "#a855f7" },
+      { id: "d1", color: "#6366f1" }, { id: "d2", color: "#6366f1" },
+      { id: "d3", color: "#6366f1" }, { id: "c1", color: "#ec4899" },
+      { id: "c2", color: "#ec4899" }, { id: "h", color: "#fbbf24" },
+    ];
+    const urls = seeds.flatMap((s) => [
+      avatarUrl(defaultAvatarFor(s), 64, "png"),
+      avatarUrl(defaultAvatarFor(s), 56, "png"),
+    ]);
+    preloadAvatars(urls);
+  }, []);
 
   return (
     <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/20">
@@ -731,11 +754,10 @@ function MiniEventGraph({ height = 300 }: { height?: number }) {
           <g key={n.id}>
             <circle cx={n.x} cy={n.y} r={24} fill={n.color} opacity={0.22} />
             <circle cx={n.x} cy={n.y} r={18} fill={n.color} />
-            <image
-              href={avatarUrl(defaultAvatarFor({ id: n.id, color: n.color }), 64, "png")}
+            <CachedSvgAvatar
+              url={avatarUrl(defaultAvatarFor({ id: n.id, color: n.color }), 64, "png")}
               x={n.x - 17} y={n.y - 17} width={34} height={34}
               clipPath={`url(#mini-evt-clip-${n.id})`}
-              preserveAspectRatio="xMidYMid slice"
             />
             <circle cx={n.x} cy={n.y} r={18} fill="none" stroke="white" strokeOpacity={0.95} strokeWidth={1.5} />
             <text x={n.x} y={n.y + 34} textAnchor="middle" fontSize={10} fill="rgba(255,255,255,0.78)">
@@ -819,11 +841,10 @@ function MiniRoomGraph({ height = 300 }: { height?: number }) {
           <g key={n.id}>
             <circle cx={n.x} cy={n.y} r={20} fill={n.color} opacity={0.22} />
             <circle cx={n.x} cy={n.y} r={15} fill={n.color} />
-            <image
-              href={avatarUrl(defaultAvatarFor({ id: n.id, color: n.color }), 56, "png")}
+            <CachedSvgAvatar
+              url={avatarUrl(defaultAvatarFor({ id: n.id, color: n.color }), 56, "png")}
               x={n.x - 14} y={n.y - 14} width={28} height={28}
               clipPath={`url(#mini-room-clip-${n.id})`}
-              preserveAspectRatio="xMidYMid slice"
             />
             <circle cx={n.x} cy={n.y} r={15} fill="none" stroke="white" strokeOpacity={0.95} strokeWidth={1.5} />
           </g>
@@ -889,11 +910,10 @@ function MiniPersonalGraph({ height = 300 }: { height?: number }) {
           <g key={n.id}>
             <circle cx={n.x} cy={n.y} r={n.r + 6} fill={n.color} opacity={0.22} />
             <circle cx={n.x} cy={n.y} r={n.r} fill={n.color} />
-            <image
-              href={avatarUrl(defaultAvatarFor({ id: n.id, color: n.color }), 64, "png")}
+            <CachedSvgAvatar
+              url={avatarUrl(defaultAvatarFor({ id: n.id, color: n.color }), 64, "png")}
               x={n.x - n.r} y={n.y - n.r} width={n.r * 2} height={n.r * 2}
               clipPath={`url(#mini-ego-clip-${n.id})`}
-              preserveAspectRatio="xMidYMid slice"
             />
             <circle cx={n.x} cy={n.y} r={n.r} fill="none"
               stroke={n.id === "you" ? "white" : "rgba(255,255,255,0.85)"}
