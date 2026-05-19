@@ -292,47 +292,15 @@ function Landing() {
         {/* Final CTA */}
         {/* Vision */}
         {/* Matching algorithm */}
-        <section id="matching" className="space-y-12">
-          <div className="text-center max-w-3xl mx-auto space-y-4">
+        <section id="matching" className="space-y-10">
+          <div className="text-center max-w-2xl mx-auto space-y-3">
             <div className="inline-block px-4 py-1.5 bg-primary-soft text-primary font-display italic text-[10px] font-bold tracking-widest uppercase rounded-full ring-1 ring-primary/20">
               Under the hood
             </div>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-balance">
-              How the matching <span className="text-primary italic">actually</span> works.
+              How matching <span className="text-primary italic">actually</span> works.
             </h2>
-            <p className="text-lg text-foreground/60 text-pretty">
-              A hybrid two-tower retrieval stack. Keywords for sharp overlap, embeddings for semantic gravity, RRF to fuse them, and an LLM to put words to the "why."
-            </p>
           </div>
-
-          <div className="grid lg:grid-cols-4 gap-4 items-stretch relative">
-            <AlgoStep
-              n="01"
-              title="Embed"
-              copy="Your name + bio + intent + tags are embedded once on demand."
-              meta="openai/text-embedding-3-small · 1536-dim"
-            />
-            <AlgoStep
-              n="02"
-              title="Score"
-              copy="Every other profile gets two scores in parallel — keyword & semantic."
-              meta="Jaccard on tags+tokens · cosine on vectors"
-            />
-            <AlgoStep
-              n="03"
-              title="RRF fuse"
-              copy="Both ranked lists merge via Reciprocal Rank Fusion."
-              meta="20% keyword · 80% embedding"
-              highlight
-            />
-            <AlgoStep
-              n="04"
-              title="Reason"
-              copy="Top 3 are sent to Gemini Flash, which returns two short reasons per match."
-              meta="Cached in match_results"
-            />
-          </div>
-
           <AlgorithmDiagram />
         </section>
 
