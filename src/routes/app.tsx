@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { people } from "@/data/event";
 import { Avatar } from "@/components/Avatar";
 import { useYou, setUserProfile } from "@/data/profile";
+import { setUserAvatar } from "@/data/avatars";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/app")({
@@ -30,7 +31,7 @@ function AppLayout() {
     const load = async (uid: string) => {
       const { data } = await supabase
         .from("profiles")
-        .select("name, one_liner, intent, tags, socials")
+        .select("name, one_liner, intent, tags, socials, avatar")
         .eq("id", uid)
         .maybeSingle();
       if (cancelled || !data) return;
@@ -47,6 +48,10 @@ function AppLayout() {
           email: s.Email ?? s.email,
         },
       });
+      const av = data.avatar as { style?: string; seed?: string; bg?: string } | null;
+      if (av && av.style && av.seed && av.bg) {
+        setUserAvatar({ style: av.style as never, seed: av.seed, bg: av.bg });
+      }
     };
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) load(data.session.user.id);

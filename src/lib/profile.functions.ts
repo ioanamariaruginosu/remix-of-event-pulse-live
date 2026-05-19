@@ -10,6 +10,13 @@ const ProfileInput = z.object({
   tags: z.array(z.string().min(1).max(40)).max(20).optional(),
   socials: z.record(z.string(), z.string().max(300)).optional(),
   color: z.string().max(20).optional(),
+  avatar: z
+    .object({
+      style: z.string().min(1).max(40),
+      seed: z.string().min(1).max(80),
+      bg: z.string().min(1).max(20),
+    })
+    .optional(),
 });
 
 export const upsertMyProfile = createServerFn({ method: "POST" })

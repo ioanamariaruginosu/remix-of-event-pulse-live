@@ -217,6 +217,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          avatar: Json | null
           color: string
           created_at: string
           embedding: string | null
@@ -232,6 +233,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          avatar?: Json | null
           color?: string
           created_at?: string
           embedding?: string | null
@@ -247,6 +249,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          avatar?: Json | null
           color?: string
           created_at?: string
           embedding?: string | null

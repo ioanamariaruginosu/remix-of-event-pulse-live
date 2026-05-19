@@ -129,7 +129,13 @@ function MatchCard({
   reasons,
 }: {
   tag: string;
-  person: { id: string; name: string; color: string; initials: string };
+  person: {
+    id: string;
+    name: string;
+    color: string;
+    initials: string;
+    avatar?: { style: string; seed: string; bg: string } | null;
+  };
   reasons: string[];
 }) {
   return (
