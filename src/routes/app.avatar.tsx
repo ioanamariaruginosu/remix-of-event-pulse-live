@@ -136,6 +136,7 @@ function MeStudio() {
           socials: Object.fromEntries(
             Object.entries(socials).filter(([, v]) => Boolean(v)),
           ) as Record<string, string>,
+          avatar: { style, seed, bg },
         },
       });
       // Force matches to recompute against the new profile.
