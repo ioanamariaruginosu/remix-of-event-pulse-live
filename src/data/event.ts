@@ -1303,11 +1303,11 @@ export const pastEvents: PastEvent[] = [
     conversations: 52,
     longestChat: { person: "Lena Smith", minutes: 47 },
     photos: [
-      { url: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=70&auto=format&fit=crop", caption: "Day 1 — AI Stage queue 🤖", by: "Maya S." },
-      { url: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=800&q=70&auto=format&fit=crop", caption: "Pavilion 4 was electric", by: "Lena S." },
-      { url: "https://images.unsplash.com/photo-1531058020387-3be344556be6?w=800&q=70&auto=format&fit=crop", caption: "Founders Bar at midnight", by: "Olu A." },
-      { url: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&q=70&auto=format&fit=crop", caption: "Closing party — Beach Pavilion", by: "Nico P." },
-      { url: "https://images.unsplash.com/photo-1559223607-a43c990c692c?w=800&q=70&auto=format&fit=crop", caption: "Sunset over the Tagus", by: "you" },
+      { url: mockPhotoStageFramer, caption: "Day 1 — AI Stage queue 🤖", by: "Maya S." },
+      { url: mockPhotoStageEurhack, caption: "Pavilion 4 was electric", by: "Lena S." },
+      { url: mockPhotoHackathonStage, caption: "Founders Bar at midnight", by: "Olu A." },
+      { url: mockPhotoPanel, caption: "Closing party — Beach Pavilion", by: "Nico P." },
+      { url: mockPhotoTeamSelfie, caption: "Sunset over the Tagus", by: "you" },
     ],
   },
   {
@@ -1332,10 +1332,10 @@ export const pastEvents: PastEvent[] = [
     conversations: 22,
     longestChat: { person: "Nico Park", minutes: 38 },
     photos: [
-      { url: "https://images.unsplash.com/photo-1591115765373-5207764f72e7?w=800&q=70&auto=format&fit=crop", caption: "Main Hall opening keynote", by: "Nico P." },
-      { url: "https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=800&q=70&auto=format&fit=crop", caption: "Workshop Room B — whisper graphs 🎙️", by: "you" },
-      { url: "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=800&q=70&auto=format&fit=crop", caption: "Rooftop afterparty", by: "Olu A." },
-      { url: "https://images.unsplash.com/photo-1511578314322-379afb476865?w=800&q=70&auto=format&fit=crop", caption: "Devtools founders dinner", by: "Maya S." },
+      { url: mockPhotoHackathonStage, caption: "Main Hall opening keynote", by: "Nico P." },
+      { url: mockPhotoStageEurhack, caption: "Workshop Room B — whisper graphs 🎙️", by: "you" },
+      { url: mockPhotoPanel, caption: "Rooftop afterparty", by: "Olu A." },
+      { url: mockPhotoTeamSelfie, caption: "Devtools founders dinner", by: "Maya S." },
     ],
   },
   {
@@ -1359,10 +1359,10 @@ export const pastEvents: PastEvent[] = [
     conversations: 12,
     longestChat: { person: "Sarah Chen", minutes: 24 },
     photos: [
-      { url: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=70&auto=format&fit=crop", caption: "E-ink badge prototype 👀", by: "Sarah C." },
-      { url: "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=800&q=70&auto=format&fit=crop", caption: "Felix's robot demo", by: "Felix R." },
-      { url: "https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?w=800&q=70&auto=format&fit=crop", caption: "Soldering corner all night", by: "you" },
-      { url: "https://images.unsplash.com/photo-1551033406-611cf9a28f67?w=800&q=70&auto=format&fit=crop", caption: "Demo Garage chaos", by: "Sarah C." },
+      { url: mockPhotoTeamSelfie, caption: "E-ink badge prototype 👀", by: "Sarah C." },
+      { url: mockPhotoStageFramer, caption: "Felix's robot demo", by: "Felix R." },
+      { url: mockPhotoPanel, caption: "Soldering corner all night", by: "you" },
+      { url: mockPhotoHackathonStage, caption: "Demo Garage chaos", by: "Sarah C." },
     ],
   },
 ];
