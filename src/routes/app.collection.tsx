@@ -1,9 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence, useMotionValue, useTransform } from "motion/react";
-import { people, edges, type Person } from "@/data/event";
+import { type Person } from "@/data/event";
 import { Avatar } from "@/components/Avatar";
-import { getStoredDeck, subscribeDeck } from "@/lib/deck-store";
+import { useServerFn } from "@tanstack/react-start";
+import { getMyDeck, type DeckProfile } from "@/lib/exchange.functions";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/app/collection")({
   head: () => ({ meta: [{ title: "Your deck — synqmap" }] }),
@@ -13,37 +15,42 @@ export const Route = createFileRoute("/app/collection")({
 type Card = { person: Person; reason: string };
 
 function Collection() {
-  const [stored, setStored] = useState(() => getStoredDeck());
-  useEffect(() => subscribeDeck(() => setStored(getStoredDeck())), []);
+  const fetchDeck = useServerFn(getMyDeck);
+  const [cards, setCards] = useState<Card[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const cards = useMemo<Card[]>(() => {
-    const seeded = edges
-      .filter((e) => e.source === "you" || e.target === "you")
-      .map((e) => {
-        const otherId = e.source === "you" ? e.target : e.source;
-        return { person: people.find((p) => p.id === otherId)!, reason: e.reason };
-      });
-    const scanned = stored
-      .map((s) => {
-        const person = people.find((p) => p.id === s.personId);
-        return person ? { person, reason: s.reason } : null;
-      })
-      .filter((c): c is Card => !!c);
-    // Newest scans first, dedupe by person id.
-    const merged = [...scanned, ...seeded];
-    const seen = new Set<string>();
-    return merged.filter((c) => {
-      if (seen.has(c.person.id)) return false;
-      seen.add(c.person.id);
-      return true;
-    });
-  }, [stored]);
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (!data.session) {
+        if (!cancelled) setLoading(false);
+        return;
+      }
+      try {
+        const { cards: serverCards } = await fetchDeck();
+        if (cancelled) return;
+        setCards(
+          serverCards.map((c) => ({
+            person: profileToPerson(c.profile),
+            reason: c.reason,
+          })),
+        );
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, [fetchDeck]);
 
   const [index, setIndex] = useState(0);
   const [detail, setDetail] = useState<Card | null>(null);
 
-  const advance = () => setIndex((i) => (i + 1) % cards.length);
-  const back = () => setIndex((i) => (i - 1 + cards.length) % cards.length);
+  const advance = () => setIndex((i) => (cards.length ? (i + 1) % cards.length : 0));
+  const back = () => setIndex((i) => (cards.length ? (i - 1 + cards.length) % cards.length : 0));
 
   // Top card drag
   const x = useMotionValue(0);
