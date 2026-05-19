@@ -94,9 +94,9 @@ export type DeckProfile = {
   one_liner: string | null;
   intent: string | null;
   tags: string[];
-  socials: unknown;
+  socials: Record<string, string | null> | null;
   color: string;
-  avatar: unknown;
+  avatar: { style?: string; seed?: string; bg?: string } | null;
   initials: string | null;
 };
 
