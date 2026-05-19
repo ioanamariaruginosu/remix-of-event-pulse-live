@@ -722,3 +722,88 @@ function MiniEventGraph({ height = 300 }: { height?: number }) {
     </div>
   );
 }
+
+function MiniRoomGraph({ height = 300 }: { height?: number }) {
+  const W = 320;
+  const H = 240;
+  const roomName = "Track A · AI for Business";
+  // 10 nodes across 3 clusters — each cluster sits in its own region so
+  // intra-cluster edges read as "you should meet these people".
+  const nodes = [
+    // cluster: Business (purple)
+    { id: "y",  initials: "YOU", name: "You",    color: "#a855f7", x:  70, y:  90 },
+    { id: "b1", initials: "YW",  name: "Yael",   color: "#a855f7", x:  50, y: 150 },
+    { id: "b2", initials: "LS",  name: "Lotte",  color: "#a855f7", x: 110, y: 175 },
+    { id: "b3", initials: "KA",  name: "Kai",    color: "#a855f7", x: 115, y: 110 },
+    // cluster: Dev (indigo)
+    { id: "d1", initials: "CR",  name: "Clara",  color: "#6366f1", x: 235, y:  85 },
+    { id: "d2", initials: "VK",  name: "Viktor", color: "#6366f1", x: 275, y: 140 },
+    { id: "d3", initials: "WW",  name: "Wessel", color: "#6366f1", x: 215, y: 150 },
+    // cluster: Creative (pink)
+    { id: "c1", initials: "FP",  name: "Fenna",  color: "#ec4899", x: 175, y: 200 },
+    { id: "c2", initials: "DM",  name: "Daniel", color: "#ec4899", x: 235, y: 205 },
+    // hub bridge
+    { id: "h",  initials: "AO",  name: "Adam",   color: "#fbbf24", x: 165, y: 120 },
+  ];
+  // Strong edges WITHIN clusters; sparse bridges through hub between clusters.
+  const strong: [string, string][] = [
+    ["y", "b1"], ["y", "b3"], ["b1", "b2"], ["b2", "b3"], ["b3", "b1"], // business
+    ["d1", "d2"], ["d2", "d3"], ["d1", "d3"],                            // dev
+    ["c1", "c2"],                                                         // creative
+  ];
+  const weak: [string, string][] = [
+    ["h", "b3"], ["h", "d3"], ["h", "c1"], ["d3", "c2"],
+  ];
+  const pos = new Map(nodes.map((n) => [n.id, n]));
+  return (
+    <div className="relative w-full" style={{ height }}>
+      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" style={{ width: "100%", height: "100%", display: "block" }}>
+        <defs>
+          <radialGradient id="mini-room-bg" cx="50%" cy="50%" r="60%">
+            <stop offset="0%" stopColor="#a78bfa" stopOpacity="0.22" />
+            <stop offset="100%" stopColor="#a78bfa" stopOpacity="0" />
+          </radialGradient>
+        </defs>
+        <rect x="0" y="0" width={W} height={H} fill="url(#mini-room-bg)" />
+
+        {/* weak / cross-cluster edges */}
+        {weak.map(([s, t]) => {
+          const a = pos.get(s)!;
+          const b = pos.get(t)!;
+          return (
+            <line key={`w-${s}-${t}`} x1={a.x} y1={a.y} x2={b.x} y2={b.y}
+              stroke="rgba(255,255,255,0.22)" strokeWidth={1} strokeDasharray="2 3" strokeLinecap="round" />
+          );
+        })}
+        {/* strong / same-cluster edges */}
+        {strong.map(([s, t]) => {
+          const a = pos.get(s)!;
+          const b = pos.get(t)!;
+          return (
+            <line key={`s-${s}-${t}`} x1={a.x} y1={a.y} x2={b.x} y2={b.y}
+              stroke={a.color} strokeOpacity={0.7} strokeWidth={1.6} strokeLinecap="round" />
+          );
+        })}
+
+        {nodes.map((n) => (
+          <g key={n.id}>
+            <circle cx={n.x} cy={n.y} r={20} fill={n.color} opacity={0.22} />
+            <circle cx={n.x} cy={n.y} r={15} fill={n.color} stroke="white" strokeOpacity={0.95} strokeWidth={1.5} />
+            <text x={n.x} y={n.y + 4} textAnchor="middle" fontSize={9.5} fontWeight={800} fill="white" style={{ letterSpacing: "0.4px" }}>
+              {n.initials}
+            </text>
+          </g>
+        ))}
+      </svg>
+
+      {/* Room label badge */}
+      <div className="absolute top-2 left-2 px-2.5 py-1 bg-background/90 backdrop-blur rounded-full text-[9px] font-display italic font-bold uppercase tracking-widest flex items-center gap-1.5 ring-1 ring-border">
+        <span className="size-1.5 bg-primary rounded-full animate-pulse" />
+        {roomName}
+      </div>
+      <div className="absolute bottom-2 right-2 px-2 py-0.5 bg-black/30 rounded-full text-[9px] font-display italic text-white/80 ring-1 ring-white/10">
+        {nodes.length} in room
+      </div>
+    </div>
+  );
+}
