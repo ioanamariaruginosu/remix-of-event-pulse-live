@@ -277,7 +277,7 @@ function Landing() {
               tag="Scale 02 // Local"
               title="Room Context"
               copy="When you walk into a room your phone shows just that slice — who's here, what's being asked, who you should meet."
-              graph={<NetworkGraph scale="room" roomId="track-a" height={300} showLabels />}
+              graph={<MiniRoomGraph height={300} />}
               highlight
             />
             <ScaleCard
