@@ -6,6 +6,7 @@ import { LiveTicker } from "@/components/LiveTicker";
 import { IdentityCard } from "@/components/IdentityCard";
 import { Logo } from "@/components/Logo";
 import { people, event, rooms } from "@/data/event";
+import { avatarUrl, defaultAvatarFor } from "@/data/avatars";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -712,6 +713,11 @@ function MiniEventGraph({ height = 300 }: { height?: number }) {
             <stop offset="0%" stopColor="#a78bfa" stopOpacity="0.22" />
             <stop offset="100%" stopColor="#a78bfa" stopOpacity="0" />
           </radialGradient>
+          {nodes.map((n) => (
+            <clipPath key={`clip-${n.id}`} id={`mini-evt-clip-${n.id}`}>
+              <circle cx={n.x} cy={n.y} r={17} />
+            </clipPath>
+          ))}
         </defs>
         <rect x="0" y="0" width={W} height={H} fill="url(#mini-bg)" />
         {edges.map(([s, t]) => {
@@ -724,10 +730,14 @@ function MiniEventGraph({ height = 300 }: { height?: number }) {
         {nodes.map((n) => (
           <g key={n.id}>
             <circle cx={n.x} cy={n.y} r={24} fill={n.color} opacity={0.22} />
-            <circle cx={n.x} cy={n.y} r={18} fill={n.color} stroke="white" strokeOpacity={0.95} strokeWidth={1.5} />
-            <text x={n.x} y={n.y + 4} textAnchor="middle" fontSize={11} fontWeight={800} fill="white" style={{ letterSpacing: "0.4px" }}>
-              {n.initials}
-            </text>
+            <circle cx={n.x} cy={n.y} r={18} fill={n.color} />
+            <image
+              href={avatarUrl(defaultAvatarFor({ id: n.id, color: n.color }), 64)}
+              x={n.x - 17} y={n.y - 17} width={34} height={34}
+              clipPath={`url(#mini-evt-clip-${n.id})`}
+              preserveAspectRatio="xMidYMid slice"
+            />
+            <circle cx={n.x} cy={n.y} r={18} fill="none" stroke="white" strokeOpacity={0.95} strokeWidth={1.5} />
             <text x={n.x} y={n.y + 34} textAnchor="middle" fontSize={10} fill="rgba(255,255,255,0.78)">
               {n.name}
             </text>
@@ -778,16 +788,21 @@ function MiniRoomGraph({ height = 300 }: { height?: number }) {
             <stop offset="0%" stopColor="#a78bfa" stopOpacity="0.22" />
             <stop offset="100%" stopColor="#a78bfa" stopOpacity="0" />
           </radialGradient>
+          {nodes.map((n) => (
+            <clipPath key={`clip-${n.id}`} id={`mini-room-clip-${n.id}`}>
+              <circle cx={n.x} cy={n.y} r={14} />
+            </clipPath>
+          ))}
         </defs>
         <rect x="0" y="0" width={W} height={H} fill="url(#mini-room-bg)" />
 
-        {/* weak / cross-cluster edges */}
+        {/* faint cross-cluster bridges via hub (solid, no dashes) */}
         {weak.map(([s, t]) => {
           const a = pos.get(s)!;
           const b = pos.get(t)!;
           return (
             <line key={`w-${s}-${t}`} x1={a.x} y1={a.y} x2={b.x} y2={b.y}
-              stroke="rgba(255,255,255,0.22)" strokeWidth={1} strokeDasharray="2 3" strokeLinecap="round" />
+              stroke="rgba(255,255,255,0.18)" strokeWidth={1} strokeLinecap="round" />
           );
         })}
         {/* strong / same-cluster edges */}
@@ -803,10 +818,14 @@ function MiniRoomGraph({ height = 300 }: { height?: number }) {
         {nodes.map((n) => (
           <g key={n.id}>
             <circle cx={n.x} cy={n.y} r={20} fill={n.color} opacity={0.22} />
-            <circle cx={n.x} cy={n.y} r={15} fill={n.color} stroke="white" strokeOpacity={0.95} strokeWidth={1.5} />
-            <text x={n.x} y={n.y + 4} textAnchor="middle" fontSize={9.5} fontWeight={800} fill="white" style={{ letterSpacing: "0.4px" }}>
-              {n.initials}
-            </text>
+            <circle cx={n.x} cy={n.y} r={15} fill={n.color} />
+            <image
+              href={avatarUrl(defaultAvatarFor({ id: n.id, color: n.color }), 56)}
+              x={n.x - 14} y={n.y - 14} width={28} height={28}
+              clipPath={`url(#mini-room-clip-${n.id})`}
+              preserveAspectRatio="xMidYMid slice"
+            />
+            <circle cx={n.x} cy={n.y} r={15} fill="none" stroke="white" strokeOpacity={0.95} strokeWidth={1.5} />
           </g>
         ))}
       </svg>
