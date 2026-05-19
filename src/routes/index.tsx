@@ -161,8 +161,8 @@ function Landing() {
               ))}
             </div>
           </div>
-          <div className="aspect-[5/4] rounded-[32px] overflow-hidden ring-1 ring-primary/20 relative bg-gradient-to-br from-[#2d1a52] via-[#4c2a87] to-[#7c3aed]">
-            <LiveNetworkGraph height={420} />
+          <div className="aspect-[4/3] max-h-[360px] rounded-[24px] overflow-hidden ring-1 ring-primary/20 relative bg-gradient-to-br from-[#2d1a52] via-[#4c2a87] to-[#7c3aed]">
+            <LiveNetworkGraph height={320} />
           </div>
         </section>
 
