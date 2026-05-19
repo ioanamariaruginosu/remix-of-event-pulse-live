@@ -128,7 +128,9 @@ function Collection() {
           );
         })}
       </div>
+      )}
 
+      {cards.length > 0 && (
       <div className="flex items-center justify-center gap-3">
         <button
           onClick={back}
@@ -148,10 +150,13 @@ function Collection() {
           ›
         </button>
       </div>
+      )}
 
-      <div className="text-center text-[10px] text-foreground/40 font-display italic">
-        Tap the top card for full details
-      </div>
+      {cards.length > 0 && (
+        <div className="text-center text-[10px] text-foreground/40 font-display italic">
+          Tap the top card for full details
+        </div>
+      )}
 
       <AnimatePresence>
         {detail && <DetailSheet card={detail} onClose={() => setDetail(null)} />}
