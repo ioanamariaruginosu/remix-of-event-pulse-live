@@ -242,7 +242,8 @@ export const getMatches = createServerFn({ method: "POST" })
 
     // Cache to match_results (best-effort).
     if (matches.length) {
-      await supabase.from("match_results").delete().eq("user_id", userId).is("event_id", data.event_id ?? null);
+      const del = supabase.from("match_results").delete().eq("user_id", userId);
+      await (data.event_id ? del.eq("event_id", data.event_id) : del.is("event_id", null));
       await supabase.from("match_results").insert(
         matches.map((m) => ({
           user_id: userId,
