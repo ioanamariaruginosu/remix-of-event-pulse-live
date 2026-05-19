@@ -25,7 +25,6 @@ function CardPage() {
       </div>
       <Link
         to="/app/exchange"
-        search={{}}
         className="block w-full py-3 bg-primary text-primary-foreground rounded-xl font-bold text-center"
       >
         Open my QR code
