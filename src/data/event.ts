@@ -1,3 +1,9 @@
+import mockPhotoStageFramer from "@/assets/mock-photos/stage-framer.jpeg";
+import mockPhotoStageEurhack from "@/assets/mock-photos/stage-eurhack.jpeg";
+import mockPhotoTeamSelfie from "@/assets/mock-photos/team-selfie.jpeg";
+import mockPhotoPanel from "@/assets/mock-photos/panel.jpeg";
+import mockPhotoHackathonStage from "@/assets/mock-photos/hackathon-stage.jpeg";
+
 export type Room = {
   id: string;
   name: string;
