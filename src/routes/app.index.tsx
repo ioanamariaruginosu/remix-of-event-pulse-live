@@ -108,9 +108,8 @@ function Personal() {
             <MatchCard
               key={m.person.id}
               tag={i === 0 ? "Closest match" : i === 1 ? "Bridge person" : "Worth a hello"}
-              person={m.person.name}
+              person={m.person}
               reasons={m.reasons.length ? m.reasons : [m.person.one_liner ?? "Profile overlaps with yours."]}
-              color={m.person.color}
             />
           ))}
           <Link to="/app/room" className="block p-3 rounded-xl bg-primary-soft ring-1 ring-primary/20">
@@ -124,13 +123,21 @@ function Personal() {
   );
 }
 
-function MatchCard({ tag, person, reasons, color }: { tag: string; person: string; reasons: string[]; color: string }) {
+function MatchCard({
+  tag,
+  person,
+  reasons,
+}: {
+  tag: string;
+  person: { id: string; name: string; color: string; initials: string };
+  reasons: string[];
+}) {
   return (
     <div className="p-3 rounded-xl ring-1 ring-border flex gap-3 items-start">
-      <div className="size-9 rounded-full shrink-0 mt-0.5" style={{ background: color }} />
+      <Avatar person={person} size={36} className="shrink-0 mt-0.5" />
       <div className="flex-1 min-w-0">
         <div className="text-[9px] font-display italic text-primary font-bold uppercase tracking-widest">{tag}</div>
-        <div className="font-bold text-sm">{person}</div>
+        <div className="font-bold text-sm">{person.name}</div>
         <ul className="text-xs text-foreground/60 mt-0.5 space-y-0.5">
           {reasons.map((r, i) => (
             <li key={i}>· {r}</li>
