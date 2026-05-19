@@ -41,5 +41,5 @@ export function Avatar({ person, config, size = 40, className = "", ring = false
 
 /** Static helper for places that can't use the hook (e.g. SVG <image>). */
 export function staticAvatarUrl(person: Pick<Person, "id" | "color">, size = 64) {
-  return avatarUrl(defaultAvatarFor(person), size);
+  return useCachedAvatar(avatarUrl(defaultAvatarFor(person), size));
 }
