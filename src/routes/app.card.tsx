@@ -23,9 +23,15 @@ function CardPage() {
       <div className="flex justify-center pt-4">
         <IdentityCard person={you} serial="001" gradient={gradient} />
       </div>
-      <button className="w-full py-3 bg-primary text-white rounded-xl font-bold">Share QR fallback</button>
+      <Link
+        to="/app/exchange"
+        search={{}}
+        className="block w-full py-3 bg-primary text-primary-foreground rounded-xl font-bold text-center"
+      >
+        Open my QR code
+      </Link>
       <div className="text-xs text-foreground/50 text-center">
-        Tap phones with someone to exchange. Both vibrate when the handshake completes.
+        Use NFC on supported Android phones, or open your QR and let the other person scan it in the app.
       </div>
     </div>
   );
