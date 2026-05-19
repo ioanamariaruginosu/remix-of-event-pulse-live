@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
+import { useEffect } from "react";
 import { NetworkGraph } from "@/components/NetworkGraph";
 import { LiveNetworkGraph } from "@/components/LiveNetworkGraph";
 import { LiveTicker } from "@/components/LiveTicker";
@@ -7,6 +8,8 @@ import { IdentityCard } from "@/components/IdentityCard";
 import { Logo } from "@/components/Logo";
 import { people, event, rooms } from "@/data/event";
 import { avatarUrl, defaultAvatarFor } from "@/data/avatars";
+import { CachedSvgAvatar } from "@/components/CachedSvgAvatar";
+import { preloadAvatars } from "@/lib/avatar-cache";
 
 export const Route = createFileRoute("/")({
   head: () => ({
