@@ -106,7 +106,7 @@ function Landing() {
             className="flex flex-col sm:flex-row justify-center gap-4"
           >
             <Link
-              to="/organizer"
+              to="/organizer/login"
               className="group relative px-6 sm:px-8 py-4 sm:py-5 bg-primary text-white rounded-2xl font-bold text-lg overflow-hidden transition-transform hover:-translate-y-1 active:scale-95"
             >
               <span className="relative z-10">I'm organizing an event</span>
@@ -294,7 +294,7 @@ function Landing() {
           <div className="relative z-10 space-y-8">
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-balance">Ready to connect at speed?</h2>
             <div className="flex flex-wrap justify-center gap-4">
-              <Link to="/organizer" className="px-8 py-4 bg-white text-primary rounded-2xl font-bold hover:bg-accent transition-colors">
+              <Link to="/organizer/login" className="px-8 py-4 bg-white text-primary rounded-2xl font-bold hover:bg-accent transition-colors">
                 Organize Your Hub
               </Link>
               <Link to="/venue" className="px-8 py-4 bg-foreground text-white rounded-2xl font-bold ring-1 ring-white/20 hover:bg-foreground/80 transition-colors">
