@@ -271,7 +271,7 @@ function Landing() {
               tag="Scale 01 // Macro"
               title="Event Graph"
               copy="The venue-wall spectacle. Every person, topic, and edge pulsing in real time."
-              graph={<NetworkGraph scale="event" height={300} />}
+              graph={<MiniEventGraph height={300} />}
             />
             <ScaleCard
               tag="Scale 02 // Local"
