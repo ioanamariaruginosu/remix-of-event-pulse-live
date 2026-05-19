@@ -1,5 +1,4 @@
-import { useRef, useState, useCallback, useEffect, useMemo, type WheelEvent, type PointerEvent } from "react";
-import { motion } from "motion/react";
+import { useRef, useState, useEffect, useMemo, type WheelEvent, type PointerEvent } from "react";
 import { getPublicNetwork, type PublicNode, type PublicEdge } from "@/lib/network.functions";
 import { people as mockPeople, edges as mockEdges } from "@/data/event";
 
@@ -17,10 +16,19 @@ type LayoutNode = {
   y: number;
 };
 
-const W = 1100;
-const H = 800;
-const MIN_K = 0.5;
+const W = 2000;
+const H = 1400;
+const MIN_K = 0.4;
 const MAX_K = 4;
+
+// Cluster anchors — pushed far apart so 100+ nodes have room to breathe.
+const ANCHORS: Record<string, { x: number; y: number }> = {
+  "#a855f7": { x:  430, y:  380 },
+  "#6366f1": { x: 1570, y:  380 },
+  "#ec4899": { x:  430, y: 1020 },
+  "#10b981": { x: 1570, y: 1020 },
+  "#fbbf24": { x: 1000, y:  700 },
+};
 
 // Map a profile to a cluster color based on its tags (track / discipline).
 const CLUSTER_COLORS: { match: RegExp; color: string }[] = [
@@ -49,13 +57,6 @@ function pickColor(node: PublicNode): string {
 // Lay out nodes by color cluster: each cluster has its own anchor; within a
 // cluster, nodes are placed on a packed grid in a circle around the anchor.
 function layoutNodes(profiles: PublicNode[]): LayoutNode[] {
-  const anchors: Record<string, { x: number; y: number }> = {
-    "#a855f7": { x: 260, y: 240 },
-    "#6366f1": { x: 840, y: 240 },
-    "#ec4899": { x: 240, y: 580 },
-    "#10b981": { x: 860, y: 580 },
-    "#fbbf24": { x: 550, y: 410 },
-  };
   const groups = new Map<string, PublicNode[]>();
   for (const p of profiles) {
     const c = pickColor(p);
@@ -64,15 +65,15 @@ function layoutNodes(profiles: PublicNode[]): LayoutNode[] {
   }
   const out: LayoutNode[] = [];
   for (const [color, list] of groups.entries()) {
-    const anchor = anchors[color] ?? { x: W / 2, y: H / 2 };
-    const n = list.length;
+    const anchor = ANCHORS[color] ?? { x: W / 2, y: H / 2 };
     list.forEach((p, i) => {
-      // ring-pack: distribute on growing concentric rings
-      const ring = Math.floor(Math.sqrt(i));
+      // Concentric rings with generous spacing so nodes never overlap.
+      const ring = Math.floor((-1 + Math.sqrt(1 + (8 * i) / 6)) / 2);
+      const ringStart = ring === 0 ? 0 : 1 + 6 * (ring * (ring - 1)) / 2 + ring;
       const perRing = Math.max(1, ring * 6);
-      const idxInRing = i - ring * ring;
+      const idxInRing = Math.max(0, i - ringStart);
       const angle = (idxInRing / perRing) * Math.PI * 2 + (color.length % 7);
-      const radius = 22 + ring * 34;
+      const radius = ring === 0 ? 0 : 90 + ring * 85;
       out.push({
         id: p.id,
         name: p.name.split(" ").slice(0, 2).join(" "),
@@ -81,7 +82,6 @@ function layoutNodes(profiles: PublicNode[]): LayoutNode[] {
         x: anchor.x + Math.cos(angle) * radius,
         y: anchor.y + Math.sin(angle) * radius,
       });
-      void n;
     });
   }
   return out;
@@ -89,10 +89,26 @@ function layoutNodes(profiles: PublicNode[]): LayoutNode[] {
 
 export function LiveNetworkGraph({ height = 340, className = "" }: Props) {
   const svgRef = useRef<SVGSVGElement | null>(null);
+  const groupRef = useRef<SVGGElement | null>(null);
   const [view, setView] = useState({ k: 1, tx: 0, ty: 0 });
+  const viewRef = useRef(view);
+  const rafRef = useRef<number | null>(null);
   const dragRef = useRef<{ x: number; y: number; tx: number; ty: number } | null>(null);
   const [dragging, setDragging] = useState(false);
   const [remote, setRemote] = useState<{ nodes: PublicNode[]; edges: PublicEdge[] } | null>(null);
+
+  // Imperatively apply view to the <g> for buttery-smooth pan/zoom.
+  const applyView = (v: { k: number; tx: number; ty: number }) => {
+    viewRef.current = v;
+    const g = groupRef.current;
+    if (g) g.setAttribute("transform", `translate(${v.tx} ${v.ty}) scale(${v.k})`);
+  };
+  // Commit view to React state (used after interaction settles, so anything
+  // depending on view.k — like stroke widths — gets the final value).
+  const commitView = () => {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(() => setView(viewRef.current));
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -135,28 +151,29 @@ export function LiveNetworkGraph({ height = 340, className = "" }: Props) {
   }, [edges]);
   const posById = useMemo(() => new Map(nodes.map((n) => [n.id, n])), [nodes]);
 
-  const onWheel = useCallback((e: WheelEvent<SVGSVGElement>) => {
-    e.preventDefault();
+  const onWheel = (e: WheelEvent<SVGSVGElement>) => {
     const svg = svgRef.current;
     if (!svg) return;
+    e.preventDefault();
     const rect = svg.getBoundingClientRect();
-    // mouse in viewBox coords
     const mx = ((e.clientX - rect.left) / rect.width) * W;
     const my = ((e.clientY - rect.top) / rect.height) * H;
-    setView((v) => {
-      const factor = e.deltaY < 0 ? 1.12 : 1 / 1.12;
-      const nk = Math.min(MAX_K, Math.max(MIN_K, v.k * factor));
-      const real = nk / v.k;
-      // keep point under cursor stationary
-      const ntx = mx - (mx - v.tx) * real;
-      const nty = my - (my - v.ty) * real;
-      return { k: nk, tx: ntx, ty: nty };
+    const v = viewRef.current;
+    const factor = e.deltaY < 0 ? 1.1 : 1 / 1.1;
+    const nk = Math.min(MAX_K, Math.max(MIN_K, v.k * factor));
+    const real = nk / v.k;
+    applyView({
+      k: nk,
+      tx: mx - (mx - v.tx) * real,
+      ty: my - (my - v.ty) * real,
     });
-  }, []);
+    commitView();
+  };
 
   const onPointerDown = (e: PointerEvent<SVGSVGElement>) => {
     (e.target as Element).setPointerCapture?.(e.pointerId);
-    dragRef.current = { x: e.clientX, y: e.clientY, tx: view.tx, ty: view.ty };
+    const v = viewRef.current;
+    dragRef.current = { x: e.clientX, y: e.clientY, tx: v.tx, ty: v.ty };
     setDragging(true);
   };
   const onPointerMove = (e: PointerEvent<SVGSVGElement>) => {
@@ -164,21 +181,24 @@ export function LiveNetworkGraph({ height = 340, className = "" }: Props) {
     const rect = svgRef.current.getBoundingClientRect();
     const dx = ((e.clientX - dragRef.current.x) / rect.width) * W;
     const dy = ((e.clientY - dragRef.current.y) / rect.height) * H;
-    setView((v) => ({ ...v, tx: dragRef.current!.tx + dx, ty: dragRef.current!.ty + dy }));
+    const v = viewRef.current;
+    applyView({ k: v.k, tx: dragRef.current.tx + dx, ty: dragRef.current.ty + dy });
   };
   const onPointerUp = () => {
     dragRef.current = null;
     setDragging(false);
+    commitView();
   };
 
-  const reset = () => setView({ k: 1, tx: 0, ty: 0 });
-  const zoom = (dir: 1 | -1) =>
-    setView((v) => {
-      const nk = Math.min(MAX_K, Math.max(MIN_K, v.k * (dir === 1 ? 1.2 : 1 / 1.2)));
-      const cx = W / 2, cy = H / 2;
-      const real = nk / v.k;
-      return { k: nk, tx: cx - (cx - v.tx) * real, ty: cy - (cy - v.ty) * real };
-    });
+  const reset = () => { applyView({ k: 1, tx: 0, ty: 0 }); commitView(); };
+  const zoom = (dir: 1 | -1) => {
+    const v = viewRef.current;
+    const nk = Math.min(MAX_K, Math.max(MIN_K, v.k * (dir === 1 ? 1.2 : 1 / 1.2)));
+    const cx = W / 2, cy = H / 2;
+    const real = nk / v.k;
+    applyView({ k: nk, tx: cx - (cx - v.tx) * real, ty: cy - (cy - v.ty) * real });
+    commitView();
+  };
 
   return (
     <div className={`relative w-full h-full ${className}`} style={{ minHeight: height }}>
@@ -211,45 +231,36 @@ export function LiveNetworkGraph({ height = 340, className = "" }: Props) {
         </defs>
         <rect x="0" y="0" width={W} height={H} fill="url(#lng-bg)" />
 
-        <g transform={`translate(${view.tx} ${view.ty}) scale(${view.k})`}>
+        <g ref={groupRef} transform={`translate(${view.tx} ${view.ty}) scale(${view.k})`}>
           <g opacity={0.35}>
-            <circle cx={260} cy={240} r={200} fill="#a855f7" opacity={0.07} />
-            <circle cx={840} cy={240} r={200} fill="#6366f1" opacity={0.07} />
-            <circle cx={240} cy={580} r={190} fill="#ec4899" opacity={0.07} />
-            <circle cx={860} cy={580} r={200} fill="#10b981" opacity={0.07} />
-            <circle cx={550} cy={410} r={150} fill="#fbbf24" opacity={0.06} />
+            {Object.entries(ANCHORS).map(([c, a]) => (
+              <circle key={c} cx={a.x} cy={a.y} r={360} fill={c} opacity={0.06} />
+            ))}
           </g>
 
-          {edges.map(([sa, sb], i) => {
+          {edges.map(([sa, sb]) => {
             const a = posById.get(sa);
             const b = posById.get(sb);
             if (!a || !b) return null;
             return (
-              <motion.line
+              <line
                 key={`${sa}-${sb}`}
                 x1={a.x} y1={a.y} x2={b.x} y2={b.y}
                 stroke="url(#edge-grad)"
-                strokeWidth={1.4 / view.k}
+                strokeWidth={1.6 / view.k}
                 strokeLinecap="round"
-                initial={{ pathLength: 0, opacity: 0 }}
-                animate={{ pathLength: 1, opacity: 0.55 }}
-                transition={{ duration: 0.6, delay: Math.min(0.2 + i * 0.005, 1.2), ease: [0.16, 1, 0.3, 1] }}
+                opacity={0.55}
               />
             );
           })}
 
-          {nodes.map((n, i) => {
+          {nodes.map((n) => {
             const deg = degree.get(n.id) ?? 0;
-            const baseR = nodes.length > 30 ? 6 : 13;
-            const r = baseR + Math.min(deg, 7) * 1.1;
-            const showLabel = nodes.length <= 25 || deg >= 4;
+            const baseR = nodes.length > 60 ? 14 : nodes.length > 25 ? 18 : 22;
+            const r = baseR + Math.min(deg, 8) * 1.3;
+            const showLabel = nodes.length <= 60 || deg >= 4;
             return (
-              <motion.g
-                key={n.id}
-                initial={{ opacity: 0, scale: 0.4 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.4, delay: Math.min(i * 0.008, 1.5), ease: [0.16, 1, 0.3, 1] }}
-              >
+              <g key={n.id}>
                 <circle cx={n.x} cy={n.y} r={r + 4} fill={n.color} opacity={0.22} />
                 <circle
                   cx={n.x} cy={n.y} r={r}
@@ -258,30 +269,28 @@ export function LiveNetworkGraph({ height = 340, className = "" }: Props) {
                   strokeOpacity={0.95}
                   strokeWidth={1.5 / view.k}
                 />
-                {nodes.length <= 40 && (
-                  <text
-                    x={n.x} y={n.y + 4}
-                    textAnchor="middle"
-                    fontSize={Math.max(8, 11 - Math.floor(nodes.length / 20))}
-                    fontWeight={800}
-                    fill="white"
-                    style={{ pointerEvents: "none", letterSpacing: "0.4px" }}
-                  >
-                    {n.initials}
-                  </text>
-                )}
+                <text
+                  x={n.x} y={n.y + 4}
+                  textAnchor="middle"
+                  fontSize={Math.max(10, Math.round(r * 0.7))}
+                  fontWeight={800}
+                  fill="white"
+                  style={{ pointerEvents: "none", letterSpacing: "0.4px" }}
+                >
+                  {n.initials}
+                </text>
                 {showLabel && (
                   <text
-                    x={n.x} y={n.y + r + 10}
+                    x={n.x} y={n.y + r + 14}
                     textAnchor="middle"
-                    fontSize={9}
+                    fontSize={11}
                     fill="rgba(255,255,255,0.78)"
                     style={{ pointerEvents: "none" }}
                   >
                     {n.name}
                   </text>
                 )}
-              </motion.g>
+              </g>
             );
           })}
         </g>
