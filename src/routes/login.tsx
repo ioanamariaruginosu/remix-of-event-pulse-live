@@ -26,14 +26,24 @@ function LoginPage() {
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { data: { name }, emailRedirectTo: `${window.location.origin}/app` },
+          options: { data: { name }, emailRedirectTo: `${window.location.origin}/join?step=1` },
         });
         if (error) throw error;
-        navigate({ to: "/app" });
+        navigate({ to: "/join", search: { step: 1 } });
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error, data } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        navigate({ to: "/app" });
+        const uid = data.user?.id;
+        let hasProfile = false;
+        if (uid) {
+          const { data: prof } = await supabase
+            .from("profiles")
+            .select("name")
+            .eq("id", uid)
+            .maybeSingle();
+          hasProfile = !!prof?.name;
+        }
+        navigate(hasProfile ? { to: "/app" } : { to: "/join", search: { step: 1 } });
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
