@@ -9,14 +9,16 @@ export const Route = createFileRoute("/organizer/sessions")({
 function Schedule() {
   return (
     <div className="p-8 lg:p-12 space-y-8 max-w-6xl">
-      <div className="flex items-end justify-between">
-        <div>
+      <div className="flex items-end justify-between gap-3">
+        <div className="min-w-0">
           <div className="font-display italic text-[10px] uppercase tracking-widest text-foreground/40 mb-2">Day 1 · May 22</div>
           <h1 className="text-4xl font-extrabold tracking-tight">Schedule</h1>
           <p className="text-foreground/60 mt-2 max-w-xl">Each session lives inside a room and feeds topic nodes into the live graph.</p>
         </div>
-        <button className="px-5 py-3 bg-primary text-white rounded-xl font-bold text-sm hover:bg-primary/90 transition-colors">
-          + New session
+        <button className="shrink-0 inline-flex items-center gap-1 px-3 py-2 sm:px-5 sm:py-3 bg-primary text-white rounded-lg sm:rounded-xl font-bold text-xs sm:text-sm hover:bg-primary/90 transition-colors whitespace-nowrap">
+          <span className="text-base leading-none sm:hidden">+</span>
+          <span className="hidden sm:inline">+ New session</span>
+          <span className="sm:hidden">New</span>
         </button>
       </div>
 
