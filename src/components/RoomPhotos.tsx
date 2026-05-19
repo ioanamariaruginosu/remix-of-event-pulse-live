@@ -32,20 +32,12 @@ async function compress(file: File, max = 1280, quality = 0.8): Promise<Blob> {
   c.width = w;
   c.height = h;
   c.getContext("2d")!.drawImage(img, 0, 0, w, h);
-  return await new Promise<Blob>((res) =>
-    c.toBlob((b) => res(b!), "image/jpeg", quality),
-  );
+  return await new Promise<Blob>((res) => c.toBlob((b) => res(b!), "image/jpeg", quality));
 }
 
 // Deterministic seed photos so every room has a believable stack.
 // Real event photos from the EurHack NL hackathon.
-const EVENT_PHOTOS = [
-  photoStageFramer,
-  photoStageEurhack,
-  photoTeamSelfie,
-  photoPanel,
-  photoHackathonStage,
-];
+const EVENT_PHOTOS = [photoStageFramer, photoStageEurhack, photoTeamSelfie, photoPanel, photoHackathonStage];
 
 function seedPhotos(roomId: string): Photo[] {
   const others = people.filter((p) => p.id !== "you");
@@ -155,7 +147,10 @@ export function RoomPhotos({ roomId }: { roomId: string }) {
         setUploaded((prev) =>
           prev.some((p) => p.id === row.id)
             ? prev
-            : [{ id: row.id, src: row.public_url, ts: new Date(row.created_at).getTime(), uploaderId: row.user_id }, ...prev],
+            : [
+                { id: row.id, src: row.public_url, ts: new Date(row.created_at).getTime(), uploaderId: row.user_id },
+                ...prev,
+              ],
         );
       }
       setIndex(0);
@@ -200,20 +195,10 @@ export function RoomPhotos({ roomId }: { roomId: string }) {
         >
           {busy ? "Uploading…" : "+ Upload"}
         </button>
-        <input
-          ref={inputRef}
-          type="file"
-          accept="image/*"
-          multiple
-          onChange={onPick}
-          className="hidden"
-        />
+        <input ref={inputRef} type="file" accept="image/*" multiple onChange={onPick} className="hidden" />
       </div>
 
-      <div
-        className="relative w-full mx-auto"
-        style={{ maxWidth: 360, height: 460 }}
-      >
+      <div className="relative w-full mx-auto" style={{ maxWidth: 360, height: 460 }}>
         {stack.map(({ photo, depth }) => {
           const isTop = depth === 0;
           const uploader = people.find((p) => p.id === photo.uploaderId);

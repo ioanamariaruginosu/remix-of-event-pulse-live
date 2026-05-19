@@ -121,11 +121,15 @@ function Exchange() {
     }
     try {
       setNfcStatus("Hold phones together…");
-      const NDEFReader = (window as unknown as { NDEFReader: new () => {
-        scan: (opts?: { signal?: AbortSignal }) => Promise<void>;
-        write: (msg: unknown, opts?: { signal?: AbortSignal }) => Promise<void>;
-        addEventListener: (ev: string, cb: (e: unknown) => void) => void;
-      } }).NDEFReader;
+      const NDEFReader = (
+        window as unknown as {
+          NDEFReader: new () => {
+            scan: (opts?: { signal?: AbortSignal }) => Promise<void>;
+            write: (msg: unknown, opts?: { signal?: AbortSignal }) => Promise<void>;
+            addEventListener: (ev: string, cb: (e: unknown) => void) => void;
+          };
+        }
+      ).NDEFReader;
       const reader = new NDEFReader();
       const ctrl = new AbortController();
       abortRef.current = ctrl;
@@ -147,7 +151,7 @@ function Exchange() {
     const search = new URLSearchParams(window.location.search);
     const incoming = search.get("scan");
     if (incoming) completeWithPerson(incoming);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -182,9 +186,7 @@ function Exchange() {
         setCameraReady(true);
       } catch (error) {
         setQrScanStatus(
-          error instanceof Error
-            ? error.message
-            : "Camera access failed. Allow camera permission and try again.",
+          error instanceof Error ? error.message : "Camera access failed. Allow camera permission and try again.",
         );
       }
     };
@@ -199,7 +201,9 @@ function Exchange() {
   return (
     <div className="px-5 pt-6 space-y-5 pb-10">
       <div>
-        <div className="text-[10px] font-display italic text-primary font-bold uppercase tracking-widest">BLE active</div>
+        <div className="text-[10px] font-display italic text-primary font-bold uppercase tracking-widest">
+          BLE active
+        </div>
         <h1 className="font-extrabold text-2xl tracking-tight">Tap to exchange</h1>
       </div>
 
@@ -266,7 +270,14 @@ function Exchange() {
               <>
                 <div className="aspect-square bg-white rounded-3xl grid place-items-center p-6 ring-1 ring-border">
                   {qrPayload ? (
-                    <QRCodeSVG value={qrPayload} size={256} bgColor="#ffffff" fgColor="#0a0d1a" level="M" includeMargin={false} />
+                    <QRCodeSVG
+                      value={qrPayload}
+                      size={256}
+                      bgColor="#ffffff"
+                      fgColor="#0a0d1a"
+                      level="M"
+                      includeMargin={false}
+                    />
                   ) : (
                     <div className="text-xs text-foreground/50 text-center px-6">
                       Sign in to generate your personal QR card.
@@ -284,14 +295,17 @@ function Exchange() {
                     onClick={() => navigate({ to: "/app/card" })}
                     className="w-full py-4 ring-1 ring-border rounded-xl font-bold text-sm hover:bg-foreground/5"
                   >
-                    Show my code
+                    Show my card
                   </button>
                 </div>
                 <p className="text-xs text-foreground/50 text-center">
                   Open the camera inside synqmap and scan the other person’s code right here on iPhone or Android.
                 </p>
                 {scannerOpen && (
-                  <div ref={scannerSectionRef} className="space-y-3 rounded-3xl bg-foreground p-3 text-white scroll-mt-20">
+                  <div
+                    ref={scannerSectionRef}
+                    className="space-y-3 rounded-3xl bg-foreground p-3 text-white scroll-mt-20"
+                  >
                     <div className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-black/60 ring-1 ring-white/10">
                       <video ref={videoRef} className="h-full w-full object-cover" playsInline muted />
                       <div className="pointer-events-none absolute inset-0 grid place-items-center p-6">
@@ -323,10 +337,18 @@ function Exchange() {
         )}
 
         {stage === "matching" && (
-          <motion.div key="matching" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="aspect-square grid place-items-center">
+          <motion.div
+            key="matching"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="aspect-square grid place-items-center"
+          >
             <div className="text-center space-y-4">
               <div className="size-20 mx-auto rounded-full border-4 border-primary/30 border-t-primary animate-spin" />
-              <div className="font-display italic text-xs uppercase tracking-widest text-foreground/60">Exchanging…</div>
+              <div className="font-display italic text-xs uppercase tracking-widest text-foreground/60">
+                Exchanging…
+              </div>
             </div>
           </motion.div>
         )}
@@ -334,7 +356,9 @@ function Exchange() {
         {stage === "done" && (
           <motion.div key="done" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
             <div className="p-4 rounded-2xl bg-primary-soft ring-1 ring-primary/20">
-              <div className="text-[9px] font-display italic text-primary font-bold uppercase tracking-widest mb-1">Cards swapped · +50 XP</div>
+              <div className="text-[9px] font-display italic text-primary font-bold uppercase tracking-widest mb-1">
+                Cards swapped · +50 XP
+              </div>
               <div className="font-bold text-sm">
                 {matchedPerson
                   ? `${matchedPerson.name}'s card is in your deck — and yours just landed in theirs.`
