@@ -2,8 +2,6 @@ import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-r
 import { useState } from "react";
 import { Logo } from "@/components/Logo";
 import { useAuth } from "@/hooks/use-auth";
-import { useServerFn } from "@tanstack/react-start";
-import { grantOrganizerRole } from "@/lib/profile.functions";
 
 export const Route = createFileRoute("/organizer")({
   component: OrganizerLayout,
@@ -24,7 +22,6 @@ function OrganizerLayout() {
   const [open, setOpen] = useState(false);
   const active = nav.find((n) => (n.exact ? path === n.to : path.startsWith(n.to) && n.to !== "/organizer")) ?? nav[0];
   const { loading, isAuthenticated, isOrganizer } = useAuth();
-  const promote = useServerFn(grantOrganizerRole);
 
   if (loading) {
     return <div className="min-h-screen grid place-items-center text-sm text-foreground/60">Loading…</div>;
@@ -44,14 +41,9 @@ function OrganizerLayout() {
     return (
       <div className="min-h-screen grid place-items-center px-6">
         <div className="max-w-sm text-center space-y-4">
-          <h1 className="text-2xl font-extrabold">You're not an organizer yet</h1>
-          <p className="text-sm text-foreground/60">Tap below to enable organizer tools.</p>
-          <button
-            onClick={async () => { await promote({}); window.location.reload(); }}
-            className="inline-block px-5 py-3 bg-primary text-white rounded-xl font-bold"
-          >
-            Become an organizer
-          </button>
+          <h1 className="text-2xl font-extrabold">Organizer access required</h1>
+          <p className="text-sm text-foreground/60">This area is restricted. Sign in with an organizer account.</p>
+          <Link to="/login" className="inline-block px-5 py-3 bg-primary text-white rounded-xl font-bold">Sign in</Link>
         </div>
       </div>
     );
