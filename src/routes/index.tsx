@@ -34,6 +34,26 @@ function Landing() {
   const you = people[0];
   const sample = people[1];
 
+  // Warm the avatar cache once so every node renders from memory and
+  // stays pixel-identical across reloads.
+  useEffect(() => {
+    const seeds: Array<{ id: string; color: string }> = [
+      { id: "a", color: "#fbbf24" }, { id: "b", color: "#a855f7" },
+      { id: "c", color: "#6366f1" }, { id: "d", color: "#ec4899" },
+      { id: "e", color: "#10b981" },
+      { id: "y", color: "#a855f7" }, { id: "b1", color: "#a855f7" },
+      { id: "b2", color: "#a855f7" }, { id: "b3", color: "#a855f7" },
+      { id: "d1", color: "#6366f1" }, { id: "d2", color: "#6366f1" },
+      { id: "d3", color: "#6366f1" }, { id: "c1", color: "#ec4899" },
+      { id: "c2", color: "#ec4899" }, { id: "h", color: "#fbbf24" },
+    ];
+    const urls = seeds.flatMap((s) => [
+      avatarUrl(defaultAvatarFor(s), 64, "png"),
+      avatarUrl(defaultAvatarFor(s), 56, "png"),
+    ]);
+    preloadAvatars(urls);
+  }, []);
+
   return (
     <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/20">
       {/* Nav */}
