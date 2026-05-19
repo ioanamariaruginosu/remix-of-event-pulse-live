@@ -1,82 +1,50 @@
-# Plan: Eurhack-style live event networking prototype
+## Goal
+Replace the in-memory mock stores with a real backend on **Lovable Cloud** (Postgres + Auth + RLS), wiring up the screens that matter most. Less-critical surfaces (Wrapped, Past events, ticker copy) stay hardcoded for now.
 
-Frontend-only, all data hardcoded in TS fixtures. No backend, no BLE, no AI — everything is faked but feels alive (simulated ticks, scripted "events arriving"). Vibe target: eventlabs.ai — dark, high-contrast, glowing graph aesthetics, generous type, subtle motion, gamified HUD feel.
+## Phase 1 — Foundation
+- Enable Lovable Cloud.
+- Add **Auth** (email + password). One screen: `/join` becomes a real sign-in/sign-up; `/organizer` requires a row in `user_roles` with role `organizer`.
+- `user_roles` table + `has_role()` security-definer function (per security best practice).
+- `profiles` table auto-populated by trigger on `auth.users` insert (name, one-liner, intent, tags, socials, gradient).
 
-## Scope (what ships)
+## Phase 2 — Core event domain
+Tables (all RLS-protected):
+- `events` (name, dates, city, owner)
+- `rooms` (event_id, name, kind, capacity)
+- `sessions` (event_id, room_id, title, speaker, speaker_role, time, abstract, topics[])
+- `event_attendees` (event_id, user_id, status) — registration
+- `invitations` (event_id, email, token, status)
 
-Three personas, one shared graph dataset, hardcoded.
+Wires up:
+- Organizer: create event, add rooms, add sessions, send invitations.
+- Attendee: list of registered events, sessions feed per event.
 
-### 1. Marketing / entry surface
+## Phase 3 — Live presence & cards
+- `presence` (event_id, user_id, room_id, updated_at) — replaces `presence.ts`.
+- `taps` (event_id, person_id, room_id, organizer_id, at) — organizer door tap-in log.
+- `cards_exchanged` (event_id, from_user, to_user, reason, at) — replaces graph edges.
+- Realtime subscriptions for the live organizer dashboard + attendee map/room screens.
 
-- `/` — landing page in EventLabs spirit: bold display type, animated hero graph, "Organizer" and "Join event" entry points, sections explaining rooms-vs-sessions, identity cards, the three graph scales.
+## Phase 4 — Seed data
+Load the **8 uploaded session transcripts** into a default event ("START Summit") with rooms + sessions + speakers. The mock attendees PDF stays hardcoded as demo accounts we insert via a one-time seed.
 
-### 2. Organizer (CMS-style, fake data)
-
-- `/organizer` — event dashboard: event name (Eurhack 2026), dates, branding swatch, KPIs.
-- `/organizer/rooms` — list/edit rooms (Main Stage, Track A, Coffee Bar, Lounge), tag as session room vs social space, mock QR.
-- `/organizer/sessions` — schedule grid by room × time, speaker + abstract.
-- `/organizer/live` — live ops HUD: room density bars, hot topics, connection rate sparkline, "Project to venue screen" button.
-
-### 3. Participant (phone-frame UI)
-
-- `/join` — 30-second onboarding: scan-event mock, intent prompt, identity card builder (name, photo, one-liner, intent, 1–3 tags, socials).
-- `/app` — personal view (default): your node centered, 3 highlighted moves (closest match, bridge person, blind-spot cluster), card collection count, XP-style progress.
-- `/app/room` — auto-detected room view: who's here, current session, live questions, suggested intros. Fake BLE: a banner "Detected: Track A" with a room-switcher for demo.
-- `/app/card` — your identity card, shareable artifact look.
-- `/app/exchange` — tap-to-exchange flow (mock): two-phone animation, vibrate cue, "why you matched" reveal, card lands in collection.
-- `/app/collection` — stack of received cards.
-- `/app/brief/:sessionId` — post-session AI brief (hardcoded markdown).
-- `/app/map` — end-of-day personal map artifact (downloadable-feel PNG-style frame).
-
-### 4. Venue screen (the spectacle)
-
-- `/venue` — fullscreen dark canvas, full network graph pulsing, scripted live events ticker ("Maya joined Track A", "New edge: Sam ↔ Lena"), big topic clusters glowing.
-
-## Mental model in the data
-
-```text
-Event ─┬─ Rooms (physical, persistent)
-       │    └─ Sessions (temporal, scheduled in a room)
-       ├─ Participants ─ IdentityCard
-       └─ Graph
-            ├─ nodes: people, topics, questions
-            └─ edges: exchanges, attendance, topic-affinity
-```
-
-All in `src/data/` as typed fixtures. ~30 people, 4 rooms, 6 sessions, ~80 edges, ~15 topics — enough to make the graph feel dense.
-
-## Visual direction
-
-- White theme, purple accents.
-- Display font: a distinctive sans (e.g. Space Grotesk / Sora) + mono accents for HUD numbers.
-- Gamified cues: XP bar, streaks, "match earned" toasts, subtle haptic-style flashes, count-ups.
-- Graph: `react-force-graph-2d` for in-app views, larger canvas variant on `/venue` with bloom-ish glow.
-- Motion: Motion for React for page transitions, card flips, exchange animation. Restrained — one hero animation per surface.
-
-I will run `design--create_directions` after plan approval to lock the exact palette/typography/composition before building.
+## What stays hardcoded for now
+- Wrapped / Past events screens (purely visual recap).
+- Ticker copy, gradient presets, font picker.
+- Brief transcript drip animation (uses one canned session).
+- Avatar/collection visual flourishes.
 
 ## Technical notes
+- **Server functions** (`createServerFn` + `requireSupabaseAuth`) for all writes and authenticated reads.
+- **Direct supabase client** (RLS) only for realtime subscriptions on presence/taps.
+- Roles in a dedicated `user_roles` table — never on profiles.
+- Mock data files (`src/data/event.ts`, `presence.ts`) become thin adapters that call server functions / subscribe to realtime, so existing components keep working with minimal changes.
+- One migration per phase so we can verify before moving on.
 
-- Stack already in place: TanStack Start + Tailwind v4 + shadcn. Add: `motion`, `react-force-graph-2d`, `lucide-react` (likely already there).
-- Routing: file-based under `src/routes/` using the dot-separated convention (`organizer.rooms.tsx`, `app.room.tsx`, etc.). Layout routes (`organizer.tsx`, `app.tsx`) render `<Outlet />` with their respective chrome (sidebar for organizer, phone frame for participant).
-- Per-route `head()` metadata on every shareable page.
-- Phone-frame component wraps participant routes so the mobile UI is viewable on desktop demo.
-- Fake "live" behavior: a small `useSimulatedTick` hook drives scripted events on `/organizer/live` and `/venue` from a timeline array.
-- No auth, no persistence; switching personas is just navigating to a different URL. Top-right "Demo switcher" floating button lets the judge jump between Organizer / Participant / Venue.
+## Order of execution
+1. Enable Cloud, create auth + roles + profiles, wire `/join` and organizer gate.
+2. Events/rooms/sessions schema + organizer CRUD screens.
+3. Presence + taps + cards realtime.
+4. Seed the START Summit data from the uploaded transcripts.
 
-## What I'm NOT building (per your triage)
-
-- Real BLE, real transcription, real AI, any backend, remote-attendee view, real auth.
-- Live ops is visual only; the dashboard moves but isn't wired to participant actions.
-
-## Build order
-
-1. Design directions → pick one.
-2. Tokens + phone frame + demo switcher chrome.
-3. Hardcoded fixtures + graph component (reused at 3 scales).
-4. Participant flow (onboarding → room → personal → exchange → collection).
-5. Organizer flow (dashboard → rooms → sessions → live).
-6. Venue screen spectacle.
-7. Landing page last, using real screenshots of the built app.
-
-After approval I'll generate 3 design directions for you to pick from before writing any app code.
+Each phase is independently testable. After phase 1 you'll already be able to log in.
