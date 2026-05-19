@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VenueRouteImport } from './routes/venue'
 import { Route as OrganizerRouteImport } from './routes/organizer'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as JoinRouteImport } from './routes/join'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
@@ -42,6 +43,11 @@ const VenueRoute = VenueRouteImport.update({
 const OrganizerRoute = OrganizerRouteImport.update({
   id: '/organizer',
   path: '/organizer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const JoinRoute = JoinRouteImport.update({
@@ -159,6 +165,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
   '/join': typeof JoinRoute
+  '/login': typeof LoginRoute
   '/organizer': typeof OrganizerRouteWithChildren
   '/venue': typeof VenueRoute
   '/app/avatar': typeof AppAvatarRoute
@@ -184,6 +191,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/join': typeof JoinRoute
+  '/login': typeof LoginRoute
   '/venue': typeof VenueRoute
   '/app/avatar': typeof AppAvatarRoute
   '/app/brief': typeof AppBriefRoute
@@ -210,6 +218,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
   '/join': typeof JoinRoute
+  '/login': typeof LoginRoute
   '/organizer': typeof OrganizerRouteWithChildren
   '/venue': typeof VenueRoute
   '/app/avatar': typeof AppAvatarRoute
@@ -238,6 +247,7 @@ export interface FileRouteTypes {
     | '/'
     | '/app'
     | '/join'
+    | '/login'
     | '/organizer'
     | '/venue'
     | '/app/avatar'
@@ -263,6 +273,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/join'
+    | '/login'
     | '/venue'
     | '/app/avatar'
     | '/app/brief'
@@ -288,6 +299,7 @@ export interface FileRouteTypes {
     | '/'
     | '/app'
     | '/join'
+    | '/login'
     | '/organizer'
     | '/venue'
     | '/app/avatar'
@@ -315,6 +327,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRouteWithChildren
   JoinRoute: typeof JoinRoute
+  LoginRoute: typeof LoginRoute
   OrganizerRoute: typeof OrganizerRouteWithChildren
   VenueRoute: typeof VenueRoute
 }
@@ -333,6 +346,13 @@ declare module '@tanstack/react-router' {
       path: '/organizer'
       fullPath: '/organizer'
       preLoaderRoute: typeof OrganizerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/join': {
@@ -552,6 +572,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
   JoinRoute: JoinRoute,
+  LoginRoute: LoginRoute,
   OrganizerRoute: OrganizerRouteWithChildren,
   VenueRoute: VenueRoute,
 }
