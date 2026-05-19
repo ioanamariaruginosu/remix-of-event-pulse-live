@@ -2,7 +2,9 @@ import { useAvatarFor, avatarUrl, defaultAvatarFor, type AvatarConfig } from "@/
 import type { Person } from "@/data/event";
 
 type Props = {
-  person?: Pick<Person, "id" | "color" | "initials">;
+  person?: Pick<Person, "id" | "color" | "initials"> & {
+    avatar?: { style: string; seed: string; bg: string } | null;
+  };
   config?: AvatarConfig;
   size?: number;
   className?: string;
@@ -15,7 +17,11 @@ export function Avatar({ person, config, size = 40, className = "", ring = false
   // Hook must always run; pass a stable fallback person.
   const fallback: Pick<Person, "id" | "color"> = person ?? { id: "anon", color: "#94a3b8" };
   const live = useAvatarFor(fallback);
-  const cfg = config ?? live;
+  const personAvatar = person?.avatar
+    ? ({ style: person.avatar.style, seed: person.avatar.seed, bg: person.avatar.bg } as AvatarConfig)
+    : null;
+  // Priority: explicit config > person's saved avatar > live (you-override or default).
+  const cfg = config ?? personAvatar ?? live;
   const url = avatarUrl(cfg, size * 2);
   return (
     <img
