@@ -72,27 +72,25 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
-      { name: "theme-color", content: "#0a0d1a" },
-      { name: "apple-mobile-web-app-capable", content: "yes" },
-      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
-      { name: "apple-mobile-web-app-title", content: "synqmap" },
-      { name: "mobile-web-app-capable", content: "yes" },
-      { title: "synqmap — Physical space, live graphed." },
+      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { title: "synqmap — Make IRL events unforgettable" },
       {
         name: "description",
         content:
           "A live network for in-person events. Rooms are physical, sessions are temporal — and every handshake snaps into a glowing constellation.",
       },
-      { property: "og:title", content: "synqmap — Physical space, live graphed." },
+      { property: "og:title", content: "synqmap — Make IRL events unforgettable" },
       { property: "og:type", content: "website" },
+      { name: "twitter:title", content: "synqmap — Make IRL events unforgettable" },
+      { name: "description", content: "Make IRL events unforgettable" },
+      { property: "og:description", content: "Make IRL events unforgettable" },
+      { name: "twitter:description", content: "Make IRL events unforgettable" },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/b74fa837-4421-4042-9571-de1d47231240/id-preview-78955c1e--09887658-9667-4da0-8a83-f8f0019aac81.lovable.app-1779175060347.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/b74fa837-4421-4042-9571-de1d47231240/id-preview-78955c1e--09887658-9667-4da0-8a83-f8f0019aac81.lovable.app-1779175060347.png" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
-      { rel: "manifest", href: "/manifest.webmanifest" },
-      { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
-      { rel: "icon", type: "image/png", sizes: "192x192", href: "/icon-192.png" },
-      { rel: "icon", type: "image/png", sizes: "512x512", href: "/icon-512.png" },
       { rel: "preconnect", href: "https://api.fontshare.com" },
       { rel: "preconnect", href: "https://cdn.fontshare.com", crossOrigin: "anonymous" },
       {
