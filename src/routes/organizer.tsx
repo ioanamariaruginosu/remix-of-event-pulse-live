@@ -12,7 +12,6 @@ const nav = [
   { to: "/organizer/events", label: "Events" },
   { to: "/organizer/rooms", label: "Rooms" },
   { to: "/organizer/sessions", label: "Schedule" },
-  { to: "/organizer/door", label: "Door check-in" },
   { to: "/organizer/invitations", label: "Invitations" },
   { to: "/organizer/live", label: "Live Ops" },
 ];
