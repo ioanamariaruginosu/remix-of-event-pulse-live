@@ -5,6 +5,7 @@ import { IdentityCard } from "@/components/IdentityCard";
 import { people, type Person } from "@/data/event";
 import { QRCodeSVG } from "qrcode.react";
 import QrScanner from "qr-scanner";
+import { addToDeck } from "@/lib/deck-store";
 
 export const Route = createFileRoute("/app/exchange")({
   head: () => ({ meta: [{ title: "Tap to exchange — synqmap" }] }),
@@ -54,6 +55,10 @@ function Exchange() {
 
     const found = people.find((person) => person.id === personId) ?? other;
     setMatchedPerson(found);
+    addToDeck(
+      found.id,
+      `Exchanged at ${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} · they got your card too`,
+    );
     setQrScanStatus(null);
     setScannerOpen(false);
     void stopScanner();
@@ -289,8 +294,12 @@ function Exchange() {
         {stage === "done" && (
           <motion.div key="done" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
             <div className="p-4 rounded-2xl bg-primary-soft ring-1 ring-primary/20">
-              <div className="text-[9px] font-display italic text-primary font-bold uppercase tracking-widest mb-1">Match earned · +50 XP</div>
-              <div className="font-bold text-sm">You both care about evals and live in Rotterdam.</div>
+              <div className="text-[9px] font-display italic text-primary font-bold uppercase tracking-widest mb-1">Cards swapped · +50 XP</div>
+              <div className="font-bold text-sm">
+                {matchedPerson
+                  ? `${matchedPerson.name}'s card is in your deck — and yours just landed in theirs.`
+                  : "Cards exchanged both ways."}
+              </div>
             </div>
             <div className="flex justify-center scale-90 origin-top">
               <IdentityCard person={matchedPerson ?? other} serial="042" />
