@@ -402,6 +402,113 @@ function Stat({ label, value, accent }: { label: string; value: string; accent?:
   );
 }
 
+function AlgoStep({
+  n,
+  title,
+  copy,
+  meta,
+  highlight,
+}: {
+  n: string;
+  title: string;
+  copy: string;
+  meta: string;
+  highlight?: boolean;
+}) {
+  return (
+    <div className="relative">
+      <div
+        className={`h-full p-6 rounded-[28px] ring-1 transition-all ${
+          highlight
+            ? "bg-primary text-white ring-primary"
+            : "bg-background ring-border hover:ring-primary/30"
+        }`}
+      >
+        <div
+          className={`font-display italic text-[10px] font-bold tracking-widest uppercase mb-3 ${
+            highlight ? "text-white/70" : "text-primary"
+          }`}
+        >
+          Step {n}
+        </div>
+        <h3 className="text-2xl font-extrabold tracking-tight mb-2">{title}</h3>
+        <p className={`text-sm leading-relaxed mb-4 ${highlight ? "text-white/80" : "text-foreground/60"}`}>
+          {copy}
+        </p>
+        <div
+          className={`text-[10px] font-display italic tracking-tight ${
+            highlight ? "text-white/60" : "text-foreground/40"
+          }`}
+        >
+          {meta}
+        </div>
+      </div>
+      {/* Arrow to next step on lg screens */}
+      <div
+        aria-hidden
+        className="hidden lg:flex absolute top-1/2 -right-3 -translate-y-1/2 z-10 size-7 rounded-full bg-background ring-1 ring-border items-center justify-center text-primary text-sm font-bold last:hidden"
+      >
+        →
+      </div>
+    </div>
+  );
+}
+
+function Tower({
+  label,
+  sub,
+  pills,
+  accent,
+}: {
+  label: string;
+  sub: string;
+  pills: string[];
+  accent?: boolean;
+}) {
+  return (
+    <div
+      className={`rounded-2xl p-4 ring-1 ${
+        accent ? "ring-accent/40 bg-accent/10" : "ring-white/15 bg-white/5"
+      }`}
+    >
+      <div className={`text-[10px] uppercase tracking-widest font-bold ${accent ? "text-accent" : "text-white/60"}`}>
+        {label}
+      </div>
+      <div className="text-white/50 text-[11px] mt-0.5">{sub}</div>
+      <div className="flex flex-wrap gap-1.5 mt-3 justify-center not-italic font-sans">
+        {pills.map((p) => (
+          <span
+            key={p}
+            className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/10 text-white/80"
+          >
+            {p}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Arrow() {
+  return (
+    <div className="text-primary/80 text-2xl text-center select-none rotate-0 md:rotate-0">
+      →
+    </div>
+  );
+}
+
+function Fuse() {
+  return (
+    <div className="rounded-2xl p-4 ring-1 ring-primary/40 bg-primary/15 text-center">
+      <div className="text-[10px] uppercase tracking-widest font-bold text-primary">RRF</div>
+      <div className="text-white/60 text-[11px] mt-0.5">reciprocal rank fusion</div>
+      <div className="text-white text-xl font-extrabold not-italic font-sans mt-2">
+        Σ 1/(k+rank)
+      </div>
+    </div>
+  );
+}
+
 function ScaleCard({
   tag,
   title,
