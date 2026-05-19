@@ -26,6 +26,7 @@ function Exchange() {
   const [myUserId, setMyUserId] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const scannerRef = useRef<QrScanner | null>(null);
+  const scannerSectionRef = useRef<HTMLDivElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const other = people[1];
   const me = people[0];
@@ -106,6 +107,11 @@ function Exchange() {
   const openScanner = () => {
     setQrScanStatus("Point the camera at their QR code.");
     setScannerOpen(true);
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        scannerSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 50);
+    });
   };
 
   const startNfc = async () => {
@@ -285,7 +291,7 @@ function Exchange() {
                   Open the camera inside synqmap and scan the other person’s code right here on iPhone or Android.
                 </p>
                 {scannerOpen && (
-                  <div className="space-y-3 rounded-3xl bg-foreground p-3 text-white">
+                  <div ref={scannerSectionRef} className="space-y-3 rounded-3xl bg-foreground p-3 text-white scroll-mt-20">
                     <div className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-black/60 ring-1 ring-white/10">
                       <video ref={videoRef} className="h-full w-full object-cover" playsInline muted />
                       <div className="pointer-events-none absolute inset-0 grid place-items-center p-6">
