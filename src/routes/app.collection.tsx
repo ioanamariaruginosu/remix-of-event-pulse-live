@@ -244,7 +244,10 @@ function DeckCard({
 }
 
 function DetailSheet({ card, onClose }: { card: Card; onClose: () => void }) {
-  const { person, reason } = card;
+  const { person, reason, gradient } = card;
+  const heroBg = gradient
+    ? `linear-gradient(135deg, ${gradient.from}, ${gradient.via}, ${gradient.to})`
+    : `linear-gradient(135deg, ${person.color}, var(--foreground))`;
   const socials = Object.entries(person.socials).filter(([, v]) => !!v) as [
     keyof typeof person.socials,
     string,
@@ -291,9 +294,7 @@ function DetailSheet({ card, onClose }: { card: Card; onClose: () => void }) {
           {/* Hero */}
           <div
             className="px-6 pt-5 pb-6 text-white relative"
-            style={{
-              background: `linear-gradient(135deg, ${person.color}, var(--foreground))`,
-            }}
+            style={{ background: heroBg }}
           >
             <div className="flex flex-col items-center text-center gap-3">
               <Avatar person={person} size={88} className="ring-4 ring-white/30 shadow-xl" />
