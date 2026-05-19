@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { NetworkGraph } from "@/components/NetworkGraph";
+import { LiveNetworkGraph } from "@/components/LiveNetworkGraph";
 import { LiveTicker } from "@/components/LiveTicker";
 import { IdentityCard } from "@/components/IdentityCard";
 import { Logo } from "@/components/Logo";
@@ -161,11 +162,7 @@ function Landing() {
             </div>
           </div>
           <div className="aspect-square bg-foreground rounded-[32px] overflow-hidden ring-1 ring-border relative">
-            <NetworkGraph scale="event" height={560} />
-            <div className="absolute top-4 left-4 px-3 py-1.5 bg-background/90 backdrop-blur rounded-full text-[10px] font-display italic font-bold uppercase tracking-widest flex items-center gap-2">
-              <span className="size-1.5 bg-primary rounded-full animate-pulse" />
-              Live Network · {people.length} nodes
-            </div>
+            <LiveNetworkGraph height={560} />
           </div>
         </section>
 
