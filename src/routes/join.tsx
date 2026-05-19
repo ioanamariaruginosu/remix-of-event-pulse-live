@@ -1,8 +1,13 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import { useServerFn } from "@tanstack/react-start";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 import { Logo } from "@/components/Logo";
+import { upsertMyProfile } from "@/lib/profile.functions";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/join")({
   head: () => ({ meta: [{ title: "Join — synqmap" }] }),
@@ -50,6 +55,10 @@ const studyLevelOptions = ["BSc", "MSc", "PhD", "Postdoc", "Exchange"];
 
 function Join() {
   const [step, setStep] = useState(0);
+  const navigate = useNavigate();
+  const save = useServerFn(upsertMyProfile);
+  const qc = useQueryClient();
+  const [saving, setSaving] = useState(false);
 
   // Identity
   const [fullName, setFullName] = useState("");
@@ -82,6 +91,40 @@ function Join() {
 
   // Socials
   const [socials, setSocials] = useState<Record<string, string>>({});
+
+  const handleEnter = async () => {
+    setSaving(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.info("Sign in to save your profile");
+        navigate({ to: "/login" });
+        return;
+      }
+      const oneLinerParts: string[] = [];
+      if (role && company) oneLinerParts.push(`${role} at ${company}`);
+      else if (role) oneLinerParts.push(role);
+      else if (company) oneLinerParts.push(company);
+      if (persona === "student" && (university || programme)) {
+        oneLinerParts.push([programme, university].filter(Boolean).join(" · "));
+      }
+      if (persona === "investor" && fundName) oneLinerParts.push(fundName);
+      if (persona === "researcher" && lab) oneLinerParts.push(lab);
+      const one_liner = oneLinerParts.join(" — ").slice(0, 500);
+      const intentText = [intent, lookingFor.length ? `Looking for: ${lookingFor.join(", ")}` : "", offering ? `Offering: ${offering}` : ""].filter(Boolean).join(" · ").slice(0, 500);
+      const tags = Array.from(new Set([...expertise, ...interests])).slice(0, 20);
+      const cleanSocials = Object.fromEntries(Object.entries(socials).filter(([, v]) => v.trim()));
+      await save({ data: { name: fullName.trim(), one_liner, intent: intentText, tags, socials: cleanSocials } });
+      await qc.invalidateQueries({ queryKey: ["matches"] });
+      toast.success("You're in");
+      navigate({ to: "/app" });
+    } catch (e) {
+      console.error(e);
+      toast.error(e instanceof Error ? e.message : "Could not save profile");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const toggleFrom = (list: string[], v: string, max?: number) =>
     list.includes(v)
@@ -340,12 +383,13 @@ function Join() {
               Continue
             </button>
           ) : (
-            <Link
-              to="/app"
-              className="flex-1 px-5 py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 transition-colors text-center"
+            <button
+              onClick={handleEnter}
+              disabled={saving}
+              className="flex-1 px-5 py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 transition-colors text-center disabled:opacity-40"
             >
-              Enter the venue →
-            </Link>
+              {saving ? "Saving…" : "Enter the venue →"}
+            </button>
           )}
         </div>
       </div>
