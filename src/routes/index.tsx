@@ -96,7 +96,7 @@ function Landing() {
             transition={{ duration: 0.8, delay: 0.3 }}
             className="max-w-2xl mx-auto text-lg md:text-xl text-foreground/60 mb-12 text-pretty"
           >
-            Synqmap is the one place for live events interactions and archives that stick with you.
+            A PWA that turns live events into a living network — exchange identity cards in a tap, see the room as a graph, and never lose the connections after the lights go down.
           </motion.p>
 
           <motion.div
@@ -242,6 +242,74 @@ function Landing() {
 
         {/* Final CTA */}
         {/* Vision */}
+        {/* Matching algorithm */}
+        <section id="matching" className="space-y-12">
+          <div className="text-center max-w-3xl mx-auto space-y-4">
+            <div className="inline-block px-4 py-1.5 bg-primary-soft text-primary font-display italic text-[10px] font-bold tracking-widest uppercase rounded-full ring-1 ring-primary/20">
+              Under the hood
+            </div>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-balance">
+              How the matching <span className="text-primary italic">actually</span> works.
+            </h2>
+            <p className="text-lg text-foreground/60 text-pretty">
+              A hybrid two-tower retrieval stack. Keywords for sharp overlap, embeddings for semantic gravity, RRF to fuse them, and an LLM to put words to the "why."
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-4 gap-4 items-stretch relative">
+            <AlgoStep
+              n="01"
+              title="Embed"
+              copy="Your name + bio + intent + tags are embedded once on demand."
+              meta="openai/text-embedding-3-small · 1536-dim"
+            />
+            <AlgoStep
+              n="02"
+              title="Score"
+              copy="Every other profile gets two scores in parallel — keyword & semantic."
+              meta="Jaccard on tags+tokens · cosine on vectors"
+            />
+            <AlgoStep
+              n="03"
+              title="RRF fuse"
+              copy="Both ranked lists merge via Reciprocal Rank Fusion."
+              meta="20% keyword · 80% embedding"
+              highlight
+            />
+            <AlgoStep
+              n="04"
+              title="Reason"
+              copy="Top 3 are sent to Gemini Flash, which returns two short reasons per match."
+              meta="Cached in match_results"
+            />
+          </div>
+
+          <div className="rounded-[32px] bg-foreground text-white p-8 md:p-10 ring-1 ring-white/10 relative overflow-hidden">
+            <div className="absolute -top-20 -right-20 w-72 h-72 bg-primary/30 blur-[100px] rounded-full pointer-events-none" />
+            <div className="absolute -bottom-20 -left-20 w-72 h-72 bg-accent/30 blur-[100px] rounded-full pointer-events-none" />
+            <div className="relative grid md:grid-cols-[1fr_auto_1fr_auto_1fr] gap-4 md:gap-2 items-center text-center font-display italic">
+              <Tower label="Tower A" sub="keyword · 20%" pills={["tags", "tokens", "jaccard"]} />
+              <Arrow />
+              <Fuse />
+              <Arrow />
+              <Tower label="Tower B" sub="embedding · 80%" pills={["1536-dim", "cosine", "pgvector"]} accent />
+            </div>
+            <div className="relative mt-6 grid md:grid-cols-[1fr_auto_1fr] items-center gap-3">
+              <div className="text-[10px] uppercase tracking-widest text-white/40 font-display italic text-center md:text-right">
+                RRF top-K
+              </div>
+              <div className="text-white/60 font-display italic text-2xl text-center">↓</div>
+              <div className="rounded-2xl bg-white/5 ring-1 ring-white/10 p-3 text-left">
+                <div className="text-[9px] uppercase tracking-widest text-white/40 font-bold">Gemini Flash · JSON</div>
+                <div className="text-sm text-white/80 mt-1">
+                  <span className="text-accent">›</span> Both shipping voice agents this quarter.<br />
+                  <span className="text-accent">›</span> Overlapping eval stacks → swap notes.
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section id="vision" className="space-y-16">
           <div className="max-w-3xl mx-auto text-center space-y-6">
             <div className="inline-block px-4 py-1.5 bg-primary-soft text-primary font-display italic text-[10px] font-bold tracking-widest uppercase rounded-full ring-1 ring-primary/20">
@@ -330,6 +398,113 @@ function Stat({ label, value, accent }: { label: string; value: string; accent?:
     <div className="p-4 ring-1 ring-border rounded-2xl bg-background">
       <div className={`font-display italic text-2xl font-bold mb-1 ${accent ? "text-primary" : ""}`}>{value}</div>
       <div className="text-[10px] text-foreground/40 uppercase font-bold tracking-wider">{label}</div>
+    </div>
+  );
+}
+
+function AlgoStep({
+  n,
+  title,
+  copy,
+  meta,
+  highlight,
+}: {
+  n: string;
+  title: string;
+  copy: string;
+  meta: string;
+  highlight?: boolean;
+}) {
+  return (
+    <div className="relative">
+      <div
+        className={`h-full p-6 rounded-[28px] ring-1 transition-all ${
+          highlight
+            ? "bg-primary text-white ring-primary"
+            : "bg-background ring-border hover:ring-primary/30"
+        }`}
+      >
+        <div
+          className={`font-display italic text-[10px] font-bold tracking-widest uppercase mb-3 ${
+            highlight ? "text-white/70" : "text-primary"
+          }`}
+        >
+          Step {n}
+        </div>
+        <h3 className="text-2xl font-extrabold tracking-tight mb-2">{title}</h3>
+        <p className={`text-sm leading-relaxed mb-4 ${highlight ? "text-white/80" : "text-foreground/60"}`}>
+          {copy}
+        </p>
+        <div
+          className={`text-[10px] font-display italic tracking-tight ${
+            highlight ? "text-white/60" : "text-foreground/40"
+          }`}
+        >
+          {meta}
+        </div>
+      </div>
+      {/* Arrow to next step on lg screens */}
+      <div
+        aria-hidden
+        className="hidden lg:flex absolute top-1/2 -right-3 -translate-y-1/2 z-10 size-7 rounded-full bg-background ring-1 ring-border items-center justify-center text-primary text-sm font-bold last:hidden"
+      >
+        →
+      </div>
+    </div>
+  );
+}
+
+function Tower({
+  label,
+  sub,
+  pills,
+  accent,
+}: {
+  label: string;
+  sub: string;
+  pills: string[];
+  accent?: boolean;
+}) {
+  return (
+    <div
+      className={`rounded-2xl p-4 ring-1 ${
+        accent ? "ring-accent/40 bg-accent/10" : "ring-white/15 bg-white/5"
+      }`}
+    >
+      <div className={`text-[10px] uppercase tracking-widest font-bold ${accent ? "text-accent" : "text-white/60"}`}>
+        {label}
+      </div>
+      <div className="text-white/50 text-[11px] mt-0.5">{sub}</div>
+      <div className="flex flex-wrap gap-1.5 mt-3 justify-center not-italic font-sans">
+        {pills.map((p) => (
+          <span
+            key={p}
+            className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/10 text-white/80"
+          >
+            {p}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Arrow() {
+  return (
+    <div className="text-primary/80 text-2xl text-center select-none rotate-0 md:rotate-0">
+      →
+    </div>
+  );
+}
+
+function Fuse() {
+  return (
+    <div className="rounded-2xl p-4 ring-1 ring-primary/40 bg-primary/15 text-center">
+      <div className="text-[10px] uppercase tracking-widest font-bold text-primary">RRF</div>
+      <div className="text-white/60 text-[11px] mt-0.5">reciprocal rank fusion</div>
+      <div className="text-white text-xl font-extrabold not-italic font-sans mt-2">
+        Σ 1/(k+rank)
+      </div>
     </div>
   );
 }
