@@ -187,35 +187,28 @@ function DeckCard({
       via: person.color,
       to: "#0f172a",
     };
-  const bg = `linear-gradient(135deg, ${effectiveGradient.from} 0%, ${effectiveGradient.via} 50%, ${effectiveGradient.to} 100%)`;
   return (
-    <div
-      className="relative w-full h-full bg-foreground text-white p-5 flex flex-col items-center gap-4 shadow-2xl ring-1 ring-white/10"
-      style={{ backgroundImage: bg }}
-    >
-      <div className="w-full flex items-start justify-between">
-        <div className="text-[9px] font-display italic uppercase tracking-widest text-white/50">
-          Eurhack · Day 1
+    <div className="relative w-full h-full flex items-center justify-center">
+      <div className="origin-center" style={{ transform: "scale(1.11)" }}>
+        <IdentityCard
+          person={person}
+          gradient={effectiveGradient}
+          serial={String(num).padStart(3, "0")}
+        />
+      </div>
+      <div className="absolute left-3 right-3 bottom-3 z-10 pointer-events-none">
+        <div
+          className="text-[10px] font-display italic px-3 py-2 rounded-lg backdrop-blur-md text-white flex items-start gap-2"
+          style={{ background: "rgba(0,0,0,0.55)" }}
+        >
+          <span className="text-white/60 uppercase tracking-widest text-[9px] font-bold shrink-0">Why</span>
+          <span className="flex-1 leading-snug">{reason}</span>
+          <span className="text-white/40 tabular-nums text-[9px] font-bold shrink-0">
+            {String(num).padStart(3, "0")}/{String(total).padStart(3, "0")}
+          </span>
         </div>
-        <div className="text-[9px] font-display italic uppercase tracking-widest text-white/40 tabular-nums">
-          #{String(num).padStart(3, "0")} / {String(total).padStart(3, "0")}
-        </div>
       </div>
-
-      {/* Mirror exactly what the user configured */}
-      <div className="scale-[0.78] -my-6">
-        <IdentityCard person={person} gradient={effectiveGradient} serial={String(num).padStart(3, "0")} />
-      </div>
-
-      <div
-        className="w-full text-[10px] font-display italic px-3 py-2 rounded-lg backdrop-blur-sm"
-        style={{ background: "rgba(0,0,0,0.35)", color: "white" }}
-      >
-        <span className="text-white/50 uppercase tracking-widest text-[9px] font-bold mr-1.5">Why</span>
-        {reason}
-      </div>
-
-      {dim && <div className="absolute inset-0 bg-foreground/30 pointer-events-none" />}
+      {dim && <div className="absolute inset-0 rounded-[24px] bg-foreground/30 pointer-events-none" />}
     </div>
   );
 }
