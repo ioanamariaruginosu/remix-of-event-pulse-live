@@ -17,34 +17,6 @@ type LayoutNode = {
   y: number;
 };
 
-const FALLBACK_NODES: LayoutNode[] = [
-  { id: "yw", name: "Yael W.",   initials: "YW", color: "#a855f7", x: 130, y: 95 },
-  { id: "ls", name: "Lotte S.",  initials: "LS", color: "#a855f7", x: 85,  y: 175 },
-  { id: "ka", name: "Kai A.",    initials: "KA", color: "#a855f7", x: 180, y: 195 },
-  { id: "ml", name: "Mira L.",   initials: "ML", color: "#a855f7", x: 215, y: 95 },
-  { id: "cr", name: "Clara R.",  initials: "CR", color: "#6366f1", x: 415, y: 90 },
-  { id: "vk", name: "Viktor K.", initials: "VK", color: "#6366f1", x: 495, y: 145 },
-  { id: "ww", name: "Wessel W.", initials: "WW", color: "#6366f1", x: 415, y: 210 },
-  { id: "lk", name: "Luuk L.",   initials: "LL", color: "#6366f1", x: 340, y: 155 },
-  { id: "dm", name: "Daniel M.", initials: "DM", color: "#ec4899", x: 110, y: 320 },
-  { id: "fp", name: "Fenna P.",  initials: "FP", color: "#ec4899", x: 200, y: 360 },
-  { id: "ek", name: "Erik K.",   initials: "EK", color: "#ec4899", x: 65,  y: 395 },
-  { id: "kv", name: "Karim V.",  initials: "KV", color: "#10b981", x: 430, y: 350 },
-  { id: "gl", name: "Gijs L.",   initials: "GL", color: "#10b981", x: 510, y: 395 },
-  { id: "el", name: "Erik vdL.", initials: "EL", color: "#10b981", x: 360, y: 405 },
-  { id: "ao", name: "Adam O.",   initials: "AO", color: "#fbbf24", x: 300, y: 255 },
-];
-
-const FALLBACK_EDGES: [string, string][] = [
-  ["yw", "ls"], ["yw", "ka"], ["yw", "ml"], ["ls", "ka"], ["ka", "ml"],
-  ["cr", "vk"], ["cr", "lk"], ["vk", "ww"], ["lk", "ww"], ["cr", "ww"],
-  ["dm", "fp"], ["dm", "ek"], ["fp", "ek"],
-  ["kv", "gl"], ["kv", "el"], ["gl", "el"],
-  ["ao", "ml"], ["ao", "ka"], ["ao", "lk"], ["ao", "cr"],
-  ["ao", "fp"], ["ao", "kv"], ["ao", "ww"],
-  ["ml", "lk"], ["ka", "fp"], ["ww", "kv"], ["fp", "el"],
-];
-
 const W = 1100;
 const H = 800;
 const MIN_K = 0.5;
