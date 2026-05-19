@@ -1,6 +1,6 @@
 import { useAvatarFor, avatarUrl, defaultAvatarFor, type AvatarConfig } from "@/data/avatars";
 import type { Person } from "@/data/event";
-import { useCachedAvatar } from "@/lib/avatar-cache";
+import { getCachedAvatar, useCachedAvatar } from "@/lib/avatar-cache";
 
 type Props = {
   person?: Pick<Person, "id" | "color" | "initials"> & {
@@ -41,5 +41,5 @@ export function Avatar({ person, config, size = 40, className = "", ring = false
 
 /** Static helper for places that can't use the hook (e.g. SVG <image>). */
 export function staticAvatarUrl(person: Pick<Person, "id" | "color">, size = 64) {
-  return avatarUrl(defaultAvatarFor(person), size);
+  return getCachedAvatar(avatarUrl(defaultAvatarFor(person), size));
 }

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { people as allPeople, edges as allEdges, type Person } from "@/data/event";
 import { useMembership } from "@/data/presence";
 import { avatarUrl, defaultAvatarFor, useUserAvatar } from "@/data/avatars";
+import { getCachedAvatar } from "@/lib/avatar-cache";
 
 
 type Props = {
@@ -442,8 +443,8 @@ export function NetworkGraph({
                   style={{ filter: `drop-shadow(0 0 ${baseR * (0.5 + n.match)}px ${n.color}cc)` }}
                 />
                 <image
-                  href={avatarUrl(avatarFor(n), 128, "png")}
-                  xlinkHref={avatarUrl(avatarFor(n), 128, "png")}
+                  href={getCachedAvatar(avatarUrl(avatarFor(n), 128, "png"))}
+                  xlinkHref={getCachedAvatar(avatarUrl(avatarFor(n), 128, "png"))}
                   x={p.x - baseR}
                   y={p.y - baseR}
                   width={baseR * 2}
@@ -551,7 +552,7 @@ export function NetworkGraph({
           >
             <div className="flex items-start gap-3">
               <img
-                src={avatarUrl(avatarFor(focusedPerson), 96)}
+                src={getCachedAvatar(avatarUrl(avatarFor(focusedPerson), 96))}
                 alt={focusedPerson.name}
                 className="size-12 rounded-2xl shrink-0 ring-2 ring-white/40"
                 style={{ background: focusedPerson.color, boxShadow: `0 0 18px ${focusedPerson.color}88` }}

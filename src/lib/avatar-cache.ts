@@ -1,120 +1,79 @@
-import { useEffect, useState } from "react";
-
-/**
- * Persistent avatar cache.
- *
- * First time we see a DiceBear URL we fetch it once, convert to a data URL
- * and stash it in localStorage. Every subsequent render (including next
- * page load) returns straight from memory — no network, no flicker, and
- * the avatars stay identical forever.
- */
-
-const STORAGE_KEY = "synqmap:avatar-cache:v2";
-const MAX_BYTES = 2_500_000; // ~2.5MB of base64 — plenty for landing-page set
+import { useMemo } from "react";
+import { createAvatar } from "@dicebear/core";
+import {
+  adventurer,
+  avataaars,
+  bigEars,
+  bottts,
+  funEmoji,
+  lorelei,
+  micah,
+  notionists,
+  openPeeps,
+  personas,
+  pixelArt,
+  shapes,
+  thumbs,
+} from "@dicebear/collection";
 
 const memory = new Map<string, string>();
-const inflight = new Map<string, Promise<string>>();
-const subscribers = new Set<() => void>();
-let hydrated = false;
 
-function hydrate() {
-  if (hydrated || typeof window === "undefined") return;
-  hydrated = true;
+const STYLE_MAP = {
+  notionists,
+  lorelei,
+  adventurer,
+  avataaars,
+  "open-peeps": openPeeps,
+  micah,
+  personas,
+  "big-ears": bigEars,
+  "fun-emoji": funEmoji,
+  bottts,
+  "pixel-art": pixelArt,
+  thumbs,
+  shapes,
+} as const;
+
+function parseAvatarUrl(url: string) {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return;
-    const parsed = JSON.parse(raw) as Record<string, string>;
-    for (const [k, v] of Object.entries(parsed)) memory.set(k, v);
+    const parsed = new URL(url);
+    const parts = parsed.pathname.split("/").filter(Boolean);
+    const style = parts[2];
+    const seed = parsed.searchParams.get("seed") ?? "anon";
+    const backgroundColor = parsed.searchParams.get("backgroundColor") ?? "94a3b8";
+    const radius = Number(parsed.searchParams.get("radius") ?? "50");
+    const size = Number(parsed.searchParams.get("size") ?? "64");
+    return { style, seed, backgroundColor, radius, size };
   } catch {
-    /* corrupt cache — ignore */
+    return null;
   }
 }
 
-function persist() {
-  if (typeof window === "undefined") return;
-  try {
-    const obj: Record<string, string> = {};
-    let bytes = 0;
-    for (const [k, v] of memory) {
-      bytes += k.length + v.length;
-      if (bytes > MAX_BYTES) break;
-      obj[k] = v;
-    }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(obj));
-  } catch {
-    /* quota — ignore */
-  }
+function buildAvatarDataUrl(url: string) {
+  const parsed = parseAvatarUrl(url);
+  if (!parsed) return url;
+  const collectionStyle = STYLE_MAP[parsed.style as keyof typeof STYLE_MAP];
+  if (!collectionStyle) return url;
+  return createAvatar(collectionStyle as never, {
+    seed: parsed.seed,
+    backgroundColor: [parsed.backgroundColor],
+    radius: parsed.radius,
+    size: parsed.size,
+  }).toDataUri();
 }
 
-function notify() {
-  subscribers.forEach((cb) => cb());
-}
-
-async function loadOne(url: string): Promise<string> {
-  const existing = inflight.get(url);
-  if (existing) return existing;
-  const p = (async () => {
-    const res = await fetch(url, { mode: "cors", cache: "force-cache" });
-    if (!res.ok) throw new Error(`avatar ${res.status}`);
-    const blob = await res.blob();
-    const dataUrl: string = await new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = () => reject(reader.error);
-      reader.readAsDataURL(blob);
-    });
-    memory.set(url, dataUrl);
-    persist();
-    notify();
-    return dataUrl;
-  })();
-  inflight.set(url, p);
-  p.catch(() => {}).finally(() => inflight.delete(url));
-  return p;
-}
-
-/** Returns a cached data URL if available, otherwise the original URL. */
 export function getCachedAvatar(url: string): string {
-  hydrate();
-  return memory.get(url) ?? url;
+  const cached = memory.get(url);
+  if (cached) return cached;
+  const generated = buildAvatarDataUrl(url);
+  memory.set(url, generated);
+  return generated;
 }
 
-/** Hook: returns data URL once cached, original URL meanwhile. */
 export function useCachedAvatar(url: string): string {
-  hydrate();
-  const [value, setValue] = useState(() => memory.get(url) ?? url);
-  useEffect(() => {
-    const cached = memory.get(url);
-    if (cached) {
-      if (cached !== value) setValue(cached);
-      return;
-    }
-    let cancelled = false;
-    loadOne(url)
-      .then((data) => {
-        if (!cancelled) setValue(data);
-      })
-      .catch(() => {
-        /* fall back to network URL already set */
-      });
-    const sub = () => {
-      const c = memory.get(url);
-      if (c && !cancelled) setValue(c);
-    };
-    subscribers.add(sub);
-    return () => {
-      cancelled = true;
-      subscribers.delete(sub);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [url]);
-  return value;
+  return useMemo(() => getCachedAvatar(url), [url]);
 }
 
-/** Eagerly warm the cache for a list of URLs (fire and forget). */
 export function preloadAvatars(urls: string[]) {
-  hydrate();
-  for (const u of urls) {
-    if (!memory.has(u)) void loadOne(u).catch(() => {});
-  }
+  for (const u of urls) getCachedAvatar(u);
 }
