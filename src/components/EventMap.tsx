@@ -378,6 +378,7 @@ function VenueMapCanvas({
   onSelect,
   onUpdate,
   activeRoomId,
+  liveRoomId,
   showLivePosition,
 }: {
   rooms: Room[];
@@ -388,6 +389,7 @@ function VenueMapCanvas({
   onSelect: (id: string) => void;
   onUpdate: (id: string, patch: Partial<Layout>) => void;
   activeRoomId?: string;
+  liveRoomId?: string;
   showLivePosition?: boolean;
 }) {
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -610,7 +612,7 @@ function VenueMapCanvas({
     }
   };
 
-  const active = activeRoomId ? layouts[activeRoomId] : undefined;
+  const liveRoom = liveRoomId ? layouts[liveRoomId] : undefined;
 
   return (
     <div
@@ -716,18 +718,18 @@ function VenueMapCanvas({
       })}
 
       {/* You-are-here pulse */}
-      {showLivePosition && active && activeRoomId && (
+      {showLivePosition && liveRoom && liveRoomId && (
         <motion.div
           className="absolute pointer-events-none z-30"
           style={{
-            left: `${active.x + active.w / 2}%`,
-            top: `${active.y + active.h / 2}%`,
+            left: `${liveRoom.x + liveRoom.w / 2}%`,
+            top: `${liveRoom.y + liveRoom.h / 2}%`,
             transform: "translate(-50%, -50%)",
           }}
           initial={{ scale: 0.6, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-          key={activeRoomId}
+          key={liveRoomId}
         >
           <span className="absolute inset-0 size-4 rounded-full bg-white/60 animate-ping" />
           <span className="relative block size-4 rounded-full bg-white ring-2 ring-primary shadow-lg" />
