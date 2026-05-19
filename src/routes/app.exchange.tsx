@@ -349,6 +349,19 @@ function payloadForId(personId: string) {
   return `synqmap://card/${personId}`;
 }
 
+function profileToPerson(p: DeckProfile): Person {
+  return {
+    id: p.id,
+    name: p.name ?? "Anonymous",
+    initials: p.initials ?? "??",
+    oneLiner: p.one_liner ?? "",
+    intent: p.intent ?? "",
+    tags: p.tags ?? [],
+    socials: (p.socials ?? {}) as Person["socials"],
+    color: p.color ?? "#7c3aed",
+  };
+}
+
 function parseScannedValue(value: string) {
   try {
     if (value.startsWith("synqmap://card/")) {
