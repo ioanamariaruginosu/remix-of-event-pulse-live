@@ -1,8 +1,12 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "motion/react";
+import { useServerFn } from "@tanstack/react-start";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { people } from "@/data/event";
 import { IdentityCard } from "@/components/IdentityCard";
+import { upsertMyProfile } from "@/lib/profile.functions";
 import {
   AVATAR_STYLES,
   avatarUrl,
@@ -40,6 +44,9 @@ type Tab = "card" | "avatar" | "profile" | "socials";
 
 function MeStudio() {
   const navigate = useNavigate();
+  const upsert = useServerFn(upsertMyProfile);
+  const queryClient = useQueryClient();
+  const [saving, setSaving] = useState(false);
   const base = people[0];
   const existingAvatar = useUserAvatar();
   const existingProfile = useUserProfile();
@@ -107,22 +114,40 @@ function MeStudio() {
     setTags(tags.filter((x) => x !== t));
   }
 
-  function save() {
+  async function save() {
+    if (saving) return;
+    setSaving(true);
+    const socials = {
+      linkedin: linkedin || undefined,
+      x: x || undefined,
+      github: github || undefined,
+      email: email || undefined,
+    };
+    const finalName = name.trim() || base.name;
     setUserAvatar({ style, seed, bg });
-    setUserProfile({
-      name: name.trim() || base.name,
-      oneLiner,
-      intent,
-      tags,
-      socials: {
-        linkedin: linkedin || undefined,
-        x: x || undefined,
-        github: github || undefined,
-        email: email || undefined,
-      },
-      gradient,
-    });
-    navigate({ to: "/app" });
+    setUserProfile({ name: finalName, oneLiner, intent, tags, socials, gradient });
+    try {
+      await upsert({
+        data: {
+          name: finalName,
+          one_liner: oneLiner,
+          intent,
+          tags,
+          socials: Object.fromEntries(
+            Object.entries(socials).filter(([, v]) => Boolean(v)),
+          ) as Record<string, string>,
+        },
+      });
+      // Force matches to recompute against the new profile.
+      queryClient.invalidateQueries({ queryKey: ["matches"] });
+      toast.success("Profile saved");
+      navigate({ to: "/app" });
+    } catch (e) {
+      console.error(e);
+      toast.error("Couldn't save profile. Are you signed in?");
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
