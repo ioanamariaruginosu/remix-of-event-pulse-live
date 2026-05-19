@@ -85,15 +85,19 @@ function AppLayout() {
             </div>
           </Link>
 
-          <Link
-            to="/"
+          <button
+            onClick={async () => {
+              await supabase.auth.signOut();
+              navigate({ to: "/" });
+            }}
             className="size-9 rounded-full grid place-items-center bg-foreground/5 text-foreground/60 hover:bg-foreground/10 transition"
-            aria-label="Exit"
+            aria-label="Sign out"
+            title="Sign out"
           >
             <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M18 6L6 18M6 6l12 12" />
+              <path d="M15 17l5-5-5-5M20 12H9M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
             </svg>
-          </Link>
+          </button>
         </div>
       </header>
 

@@ -1,4 +1,4 @@
-import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useRouterState, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Logo } from "@/components/Logo";
 import { useAuth } from "@/hooks/use-auth";
@@ -21,7 +21,12 @@ function OrganizerLayout() {
   const path = useRouterState({ select: (s) => s.location.pathname });
   const [open, setOpen] = useState(false);
   const active = nav.find((n) => (n.exact ? path === n.to : path.startsWith(n.to) && n.to !== "/organizer")) ?? nav[0];
-  const { loading, isAuthenticated, isOrganizer } = useAuth();
+  const { loading, isAuthenticated, isOrganizer, signOut, user } = useAuth();
+  const navigate = useNavigate();
+  const handleSignOut = async () => {
+    await signOut();
+    navigate({ to: "/" });
+  };
 
   if (loading) {
     return <div className="min-h-screen grid place-items-center text-sm text-foreground/60">Loading…</div>;
@@ -32,7 +37,7 @@ function OrganizerLayout() {
         <div className="max-w-sm text-center space-y-4">
           <h1 className="text-2xl font-extrabold">Organizer area</h1>
           <p className="text-sm text-foreground/60">Sign in to manage events.</p>
-          <Link to="/login" className="inline-block px-5 py-3 bg-primary text-white rounded-xl font-bold">Sign in</Link>
+          <Link to="/organizer/login" className="inline-block px-5 py-3 bg-primary text-white rounded-xl font-bold">Organizer sign in</Link>
         </div>
       </div>
     );
@@ -41,9 +46,17 @@ function OrganizerLayout() {
     return (
       <div className="min-h-screen grid place-items-center px-6">
         <div className="max-w-sm text-center space-y-4">
-          <h1 className="text-2xl font-extrabold">Organizer access required</h1>
-          <p className="text-sm text-foreground/60">This area is restricted. Sign in with an organizer account.</p>
-          <Link to="/login" className="inline-block px-5 py-3 bg-primary text-white rounded-xl font-bold">Sign in</Link>
+          <h1 className="text-2xl font-extrabold">Wrong account</h1>
+          <p className="text-sm text-foreground/60">
+            You're signed in as <span className="font-bold">{user?.email}</span>, which isn't an organizer.
+            Sign out and use the organizer account.
+          </p>
+          <button
+            onClick={handleSignOut}
+            className="inline-block px-5 py-3 bg-primary text-white rounded-xl font-bold"
+          >
+            Sign out
+          </button>
         </div>
       </div>
     );
@@ -84,6 +97,12 @@ function OrganizerLayout() {
               </Link>
             );
           })}
+          <button
+            onClick={() => { setOpen(false); handleSignOut(); }}
+            className="w-full text-left block px-3 py-2.5 rounded-lg text-sm font-medium text-foreground/70 hover:bg-foreground/5"
+          >
+            Sign out
+          </button>
         </div>
       )}
 
@@ -117,6 +136,12 @@ function OrganizerLayout() {
             All systems nominal
           </div>
         </div>
+        <button
+          onClick={handleSignOut}
+          className="w-full px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-widest ring-1 ring-border hover:bg-foreground/5 transition-colors"
+        >
+          Sign out
+        </button>
       </aside>
       <main className="flex-1 min-w-0">
         <Outlet />

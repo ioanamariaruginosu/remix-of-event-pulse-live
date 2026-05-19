@@ -20,6 +20,10 @@ function LoginPage() {
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
+    if (email.trim().toLowerCase() === "organizer@example.com") {
+      setError("That's the organizer account. Use the organizer sign in page.");
+      return;
+    }
     setBusy(true);
     try {
       if (mode === "signup") {
