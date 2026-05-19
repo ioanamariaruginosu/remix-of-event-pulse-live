@@ -45,7 +45,7 @@ function Landing() {
             </div>
           </div>
           <Link
-            to="/join"
+            to="/login"
             className="bg-foreground text-background px-5 py-2 rounded-full text-sm font-bold hover:bg-primary transition-colors"
           >
             Join Us
@@ -113,7 +113,7 @@ function Landing() {
               <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
             </Link>
             <Link
-              to="/join"
+              to="/login"
               className="px-6 sm:px-8 py-4 sm:py-5 bg-white border-2 border-foreground/10 text-foreground rounded-2xl font-bold text-lg hover:border-primary transition-all"
             >
               Join an event
