@@ -96,7 +96,7 @@ function Landing() {
             transition={{ duration: 0.8, delay: 0.3 }}
             className="max-w-2xl mx-auto text-lg md:text-xl text-foreground/60 mb-12 text-pretty"
           >
-            Synqmap is the one place for live events interactions and archives that stick with you.
+            A PWA that turns live events into a living network — exchange identity cards in a tap, see the room as a graph, and never lose the connections after the lights go down.
           </motion.p>
 
           <motion.div
