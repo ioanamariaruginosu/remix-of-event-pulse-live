@@ -841,3 +841,70 @@ function MiniRoomGraph({ height = 300 }: { height?: number }) {
     </div>
   );
 }
+
+function MiniPersonalGraph({ height = 300 }: { height?: number }) {
+  const W = 320;
+  const H = 240;
+  // "you" at center, surrounded by collected cards. Color = interest cluster.
+  const nodes = [
+    { id: "you",    name: "You",    color: "#fbbf24", x: 160, y: 120, r: 22 },
+    { id: "kasper", name: "Kasper", color: "#ec4899", x:  55, y:  85, r: 17 },
+    { id: "robin",  name: "Robin",  color: "#a855f7", x: 245, y:  70, r: 17 },
+    { id: "aylin",  name: "Aylin",  color: "#fbbf24", x: 270, y: 165, r: 17 },
+    { id: "noor",   name: "Noor",   color: "#6366f1", x: 165, y: 210, r: 17 },
+    { id: "jonas",  name: "Jonas",  color: "#10b981", x:  60, y: 190, r: 17 },
+  ];
+  // every edge goes through "you" — this is the ego graph
+  const edges: [string, string][] = [
+    ["you", "kasper"], ["you", "robin"], ["you", "aylin"],
+    ["you", "noor"],   ["you", "jonas"],
+  ];
+  const pos = new Map(nodes.map((n) => [n.id, n]));
+  return (
+    <div className="relative w-full" style={{ height }}>
+      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" style={{ width: "100%", height: "100%", display: "block" }}>
+        <defs>
+          <radialGradient id="mini-ego-bg" cx="50%" cy="50%" r="55%">
+            <stop offset="0%" stopColor="#a78bfa" stopOpacity="0.22" />
+            <stop offset="100%" stopColor="#a78bfa" stopOpacity="0" />
+          </radialGradient>
+          {nodes.map((n) => (
+            <clipPath key={`clip-${n.id}`} id={`mini-ego-clip-${n.id}`}>
+              <circle cx={n.x} cy={n.y} r={n.r - 1} />
+            </clipPath>
+          ))}
+        </defs>
+        <rect x="0" y="0" width={W} height={H} fill="url(#mini-ego-bg)" />
+
+        {edges.map(([s, t]) => {
+          const a = pos.get(s)!;
+          const b = pos.get(t)!;
+          return (
+            <line key={`${s}-${t}`} x1={a.x} y1={a.y} x2={b.x} y2={b.y}
+              stroke={b.color} strokeOpacity={0.7} strokeWidth={1.6} strokeLinecap="round" />
+          );
+        })}
+
+        {nodes.map((n) => (
+          <g key={n.id}>
+            <circle cx={n.x} cy={n.y} r={n.r + 6} fill={n.color} opacity={0.22} />
+            <circle cx={n.x} cy={n.y} r={n.r} fill={n.color} />
+            <image
+              href={avatarUrl(defaultAvatarFor({ id: n.id, color: n.color }), 64)}
+              x={n.x - n.r} y={n.y - n.r} width={n.r * 2} height={n.r * 2}
+              clipPath={`url(#mini-ego-clip-${n.id})`}
+              preserveAspectRatio="xMidYMid slice"
+            />
+            <circle cx={n.x} cy={n.y} r={n.r} fill="none"
+              stroke={n.id === "you" ? "white" : "rgba(255,255,255,0.85)"}
+              strokeWidth={n.id === "you" ? 2 : 1.5} />
+            <text x={n.x} y={n.y + n.r + 12} textAnchor="middle" fontSize={10}
+              fill="rgba(255,255,255,0.78)" fontFamily="var(--font-display)" fontStyle="italic">
+              {n.name}
+            </text>
+          </g>
+        ))}
+      </svg>
+    </div>
+  );
+}
