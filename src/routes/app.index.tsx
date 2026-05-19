@@ -1,9 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { NetworkGraph } from "@/components/NetworkGraph";
 import { people, suggestions, edges } from "@/data/event";
 import { Avatar } from "@/components/Avatar";
 import { useUserAvatar } from "@/data/avatars";
 import { useYou } from "@/data/profile";
+import { getMatches, type MatchResult } from "@/lib/matches.functions";
 
 export const Route = createFileRoute("/app/")({
   head: () => ({ meta: [{ title: "Your trail — synqmap" }] }),
@@ -13,11 +16,17 @@ export const Route = createFileRoute("/app/")({
 function Personal() {
   const you = useYou(people[0]);
   const userAvatar = useUserAvatar();
-  const match = people.find((p) => p.id === suggestions.closestMatch)!;
-  const bridge = people.find((p) => p.id === suggestions.bridgePerson)!;
   const collected = edges.filter((e) => e.source === "you" || e.target === "you").length;
   const xp = 1240;
   const nextLevel = 2000;
+
+  const fetchMatches = useServerFn(getMatches);
+  const { data: matchData, isLoading: matchesLoading } = useQuery({
+    queryKey: ["matches", "personal"],
+    queryFn: () => fetchMatches({ data: { limit: 3, refresh: false } }),
+    staleTime: 60_000,
+  });
+  const matches: MatchResult[] = matchData?.matches ?? [];
 
   return (
     <div className="px-5 pt-6 space-y-6">
@@ -78,18 +87,23 @@ function Personal() {
       <div>
         <div className="text-[10px] font-display italic text-foreground/40 uppercase tracking-widest mb-3">Three moves for you</div>
         <div className="space-y-2">
-          <MoveCard
-            tag="Closest match"
-            person={match.name}
-            why="Both work on multi-agent research. In Track A right now."
-            color={match.color}
-          />
-          <MoveCard
-            tag="Bridge person"
-            person={bridge.name}
-            why="Connects you to the founders cluster you haven't entered yet."
-            color={bridge.color}
-          />
+          {matchesLoading && (
+            <div className="text-xs text-foreground/40 px-1">Finding people you should meet…</div>
+          )}
+          {!matchesLoading && matches.length === 0 && (
+            <div className="p-3 rounded-xl ring-1 ring-border text-xs text-foreground/60">
+              No matches yet. Fill out your <Link to="/app/card" className="text-primary underline">card</Link> so we can match you.
+            </div>
+          )}
+          {matches.map((m, i) => (
+            <MatchCard
+              key={m.person.id}
+              tag={i === 0 ? "Closest match" : i === 1 ? "Bridge person" : "Worth a hello"}
+              person={m.person.name}
+              reasons={m.reasons.length ? m.reasons : [m.person.one_liner ?? "Profile overlaps with yours."]}
+              color={m.person.color}
+            />
+          ))}
           <Link to="/app/room" className="block p-3 rounded-xl bg-primary-soft ring-1 ring-primary/20">
             <div className="text-[9px] font-display italic text-primary font-bold uppercase tracking-widest mb-1">Blind spot</div>
             <div className="font-bold text-sm">{suggestions.blindSpotCluster}</div>
@@ -101,14 +115,18 @@ function Personal() {
   );
 }
 
-function MoveCard({ tag, person, why, color }: { tag: string; person: string; why: string; color: string }) {
+function MatchCard({ tag, person, reasons, color }: { tag: string; person: string; reasons: string[]; color: string }) {
   return (
     <div className="p-3 rounded-xl ring-1 ring-border flex gap-3 items-start">
       <div className="size-9 rounded-full shrink-0 mt-0.5" style={{ background: color }} />
       <div className="flex-1 min-w-0">
         <div className="text-[9px] font-display italic text-primary font-bold uppercase tracking-widest">{tag}</div>
         <div className="font-bold text-sm">{person}</div>
-        <div className="text-xs text-foreground/60 mt-0.5">{why}</div>
+        <ul className="text-xs text-foreground/60 mt-0.5 space-y-0.5">
+          {reasons.map((r, i) => (
+            <li key={i}>· {r}</li>
+          ))}
+        </ul>
       </div>
     </div>
   );

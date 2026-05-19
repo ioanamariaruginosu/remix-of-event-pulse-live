@@ -149,6 +149,36 @@ export type Database = {
           },
         ]
       }
+      match_results: {
+        Row: {
+          created_at: string
+          event_id: string | null
+          id: string
+          match_user_id: string
+          reasons: Json
+          score: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id?: string | null
+          id?: string
+          match_user_id: string
+          reasons?: Json
+          score: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string | null
+          id?: string
+          match_user_id?: string
+          reasons?: Json
+          score?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       presence: {
         Row: {
           event_id: string
@@ -189,6 +219,8 @@ export type Database = {
         Row: {
           color: string
           created_at: string
+          embedding: string | null
+          embedding_text: string | null
           gradient: Json | null
           id: string
           initials: string | null
@@ -202,6 +234,8 @@ export type Database = {
         Insert: {
           color?: string
           created_at?: string
+          embedding?: string | null
+          embedding_text?: string | null
           gradient?: Json | null
           id: string
           initials?: string | null
@@ -215,6 +249,8 @@ export type Database = {
         Update: {
           color?: string
           created_at?: string
+          embedding?: string | null
+          embedding_text?: string | null
           gradient?: Json | null
           id?: string
           initials?: string | null
