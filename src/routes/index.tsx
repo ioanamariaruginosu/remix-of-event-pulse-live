@@ -890,7 +890,7 @@ function MiniPersonalGraph({ height = 300 }: { height?: number }) {
             <circle cx={n.x} cy={n.y} r={n.r + 6} fill={n.color} opacity={0.22} />
             <circle cx={n.x} cy={n.y} r={n.r} fill={n.color} />
             <image
-              href={avatarUrl(defaultAvatarFor({ id: n.id, color: n.color }), 64)}
+              href={avatarUrl(defaultAvatarFor({ id: n.id, color: n.color }), 64, "png")}
               x={n.x - n.r} y={n.y - n.r} width={n.r * 2} height={n.r * 2}
               clipPath={`url(#mini-ego-clip-${n.id})`}
               preserveAspectRatio="xMidYMid slice"
