@@ -450,68 +450,81 @@ function AlgoStep({
 
 function AlgorithmDiagram() {
   return (
-    <div className="rounded-[32px] bg-foreground text-white p-6 md:p-10 ring-1 ring-white/10 relative overflow-hidden">
-      <div className="absolute -top-20 -right-20 w-72 h-72 bg-primary/30 blur-[100px] rounded-full pointer-events-none" />
-      <div className="absolute -bottom-20 -left-20 w-72 h-72 bg-accent/30 blur-[100px] rounded-full pointer-events-none" />
-
-      <div className="relative flex flex-col items-center gap-5">
-        {/* Input */}
-        <DiagramNode
-          kicker="Input"
-          title="Your profile"
-          sub="name · bio · intent · tags"
-        />
-
-        <BranchConnector />
-
-        {/* Two towers in parallel */}
-        <div className="grid grid-cols-2 gap-3 md:gap-6 w-full max-w-2xl">
-          <DiagramNode
-            kicker="Tower A · 20%"
-            title="Keyword"
-            sub="Jaccard on tags + tokens"
-            pills={["tags", "tokens", "jaccard"]}
-          />
-          <DiagramNode
-            kicker="Tower B · 80%"
-            title="Embedding"
-            sub="cosine on 1536-dim vectors"
-            pills={["pgvector", "cosine", "1536-d"]}
-            accent
-          />
+    <div className="rounded-[32px] p-6 md:p-8 ring-1 ring-primary/20 relative overflow-hidden bg-gradient-to-br from-[#2d1a52] via-[#4c2a87] to-[#7c3aed] text-white">
+      <div className="absolute -top-20 -right-20 w-72 h-72 bg-accent/30 blur-[100px] rounded-full pointer-events-none" />
+      <div className="relative grid md:grid-cols-[1fr_auto_1.1fr_auto_1fr] gap-3 md:gap-2 items-center">
+        {/* Two parallel towers stacked */}
+        <div className="flex flex-col gap-2">
+          <DiagramNode kicker="Tower A · 20%" title="Keyword" sub="Jaccard · tags + tokens" />
+          <DiagramNode kicker="Tower B · 80%" title="Embedding" sub="cosine · 1536-d vectors" accent />
         </div>
-
-        <MergeConnector />
-
-        {/* Fusion */}
-        <DiagramNode
-          kicker="Fuse"
-          title="RRF"
-          sub="Σ  1 / (k + rank)"
-          highlight
-        />
-
-        <Connector />
-
-        {/* Top K */}
-        <DiagramNode kicker="Rank" title="Top 3 matches" sub="ordered by fused score" />
-
-        <Connector />
-
-        {/* LLM reasoning */}
-        <div className="w-full max-w-2xl rounded-2xl bg-white/5 ring-1 ring-white/10 p-4 text-left">
-          <div className="flex items-center justify-between mb-2">
-            <div className="text-[10px] uppercase tracking-widest text-accent font-bold">
-              Gemini Flash · JSON
-            </div>
-            <div className="text-[10px] uppercase tracking-widest text-white/40">why you should meet</div>
+        <ArrowGlyph />
+        {/* Fuse */}
+        <DiagramNode kicker="RRF Fuse" title="Σ 1 / (k + rank)" sub="merged ranked list" highlight />
+        <ArrowGlyph />
+        {/* Reason */}
+        <div className="rounded-2xl bg-white/5 ring-1 ring-white/15 p-3">
+          <div className="text-[10px] uppercase tracking-widest text-accent font-bold mb-1">
+            Gemini Flash
           </div>
-          <div className="text-sm text-white/85 space-y-1 font-sans not-italic">
-            <div><span className="text-accent">›</span> Both shipping voice agents this quarter.</div>
-            <div><span className="text-accent">›</span> Overlapping eval stacks — swap notes.</div>
+          <div className="text-white font-extrabold tracking-tight mb-1 not-italic font-sans text-sm">
+            Top 3 + reasons
+          </div>
+          <div className="text-[11px] text-white/70 space-y-0.5 not-italic font-sans">
+            <div><span className="text-accent">›</span> Both shipping voice agents.</div>
+            <div><span className="text-accent">›</span> Overlapping eval stacks.</div>
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function ArrowGlyph() {
+  return (
+    <div aria-hidden className="text-white/50 text-2xl text-center font-extrabold select-none rotate-90 md:rotate-0">
+      →
+    </div>
+  );
+}
+
+function RoomFeatureCard({
+  tag,
+  title,
+  body,
+  icon,
+  highlight,
+}: {
+  tag: string;
+  title: string;
+  body: string;
+  icon: string;
+  highlight?: boolean;
+}) {
+  return (
+    <div
+      className={`p-5 rounded-2xl ring-1 transition-all ${
+        highlight
+          ? "bg-gradient-to-br from-primary to-[#9333ea] text-white ring-primary"
+          : "bg-background ring-border hover:ring-primary/30"
+      }`}
+    >
+      <div className="text-2xl mb-2">{icon}</div>
+      <div
+        className={`font-display italic text-[10px] font-bold tracking-widest uppercase mb-1 ${
+          highlight ? "text-white/70" : "text-primary"
+        }`}
+      >
+        {tag}
+      </div>
+      <h3 className="text-lg font-extrabold tracking-tight mb-1">{title}</h3>
+      <p
+        className={`text-xs leading-relaxed ${
+          highlight ? "text-white/85" : "text-foreground/60"
+        }`}
+      >
+        {body}
+      </p>
     </div>
   );
 }
