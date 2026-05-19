@@ -167,6 +167,14 @@ function Join() {
     return true;
   })();
 
+  if (!authChecked) {
+    return (
+      <div className="min-h-screen grid place-items-center text-sm text-foreground/60">
+        Loading…
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <nav className="border-b border-border p-6 flex items-center justify-between max-w-7xl mx-auto">
