@@ -97,6 +97,12 @@ function OrganizerLayout() {
               </Link>
             );
           })}
+          <button
+            onClick={() => { setOpen(false); handleSignOut(); }}
+            className="w-full text-left block px-3 py-2.5 rounded-lg text-sm font-medium text-foreground/70 hover:bg-foreground/5"
+          >
+            Sign out
+          </button>
         </div>
       )}
 
