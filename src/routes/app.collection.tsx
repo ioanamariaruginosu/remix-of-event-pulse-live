@@ -38,7 +38,7 @@ function Collection() {
           serverCards.map((c) => ({
             person: profileToPerson(c.profile),
             reason: c.reason,
-            gradient: c.profile.gradient,
+            gradient: c.profile.gradient ?? deriveGradient(c.profile),
           })),
         );
       } finally {
@@ -426,4 +426,13 @@ function profileToPerson(p: DeckProfile): PersonWithAvatar {
       ? { style: p.avatar.style, seed: p.avatar.seed, bg: p.avatar.bg }
       : null,
   };
+}
+
+function deriveGradient(p: DeckProfile): ProfileGradient {
+  // Fallback when the user hasn't picked a card gradient yet — build one from
+  // their avatar background + chosen color so every card already feels unique.
+  const bg = p.avatar?.bg ? `#${p.avatar.bg.replace(/^#/, "")}` : null;
+  const color = p.color || "#7c3aed";
+  if (bg) return { from: bg, via: color, to: "#0f172a" };
+  return { from: color, via: "#7c3aed", to: "#0f172a" };
 }
