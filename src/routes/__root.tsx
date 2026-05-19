@@ -10,6 +10,7 @@ import {
 
 import appCss from "../styles.css?url";
 import { BrandThemeApplier } from "@/data/theme";
+import { PWARegister } from "@/components/PWARegister";
 
 function NotFoundComponent() {
   return (
@@ -127,6 +128,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <Outlet />
       <BrandThemeApplier />
+      <PWARegister />
     </QueryClientProvider>
   );
 }
