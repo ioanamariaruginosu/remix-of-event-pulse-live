@@ -71,11 +71,16 @@ function Collection() {
         <div className="text-[10px] font-display italic text-foreground/40 uppercase tracking-widest">Day 1</div>
         <h1 className="font-extrabold text-2xl tracking-tight">Your Deck</h1>
         <div className="text-xs text-foreground/60 mt-1">
-          {cards.length} cards collected · 250 XP · swipe or tap a card
+          {loading
+            ? "Loading your deck…"
+            : cards.length === 0
+              ? "No cards yet — tap to exchange to scan your first card."
+              : `${cards.length} card${cards.length === 1 ? "" : "s"} collected · swipe or tap a card`}
         </div>
       </div>
 
       {/* Stacked, swipeable deck */}
+      {cards.length > 0 && (
       <div className="relative w-full mx-auto" style={{ maxWidth: 360, height: 480 }}>
         {stack.map(({ card, depth }) => {
           const isTop = depth === 0;
