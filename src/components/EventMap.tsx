@@ -1,12 +1,11 @@
 import {
   useEffect,
-  useMemo,
   useRef,
   useState,
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import { motion } from "motion/react";
-import { Maximize2, X, RotateCw, Move, RotateCcw, MousePointer2 } from "lucide-react";
+import { Maximize2, X, RotateCw, Move, RotateCcw, MousePointer2, Locate } from "lucide-react";
 import { rooms as defaultRooms, type Room } from "@/data/event";
 
 export type EventMapRole = "organizer" | "attendee";
@@ -50,6 +49,19 @@ function loadLayouts(eventId: string): Record<string, Layout> {
 
 function clamp(v: number, lo: number, hi: number) {
   return Math.min(hi, Math.max(lo, v));
+}
+
+type Viewport = { tx: number; ty: number; scale: number; rot: number };
+const IDENTITY_VP: Viewport = { tx: 0, ty: 0, scale: 1, rot: 0 };
+
+// Screen (canvas-local) → world (untransformed canvas) coords.
+function screenToWorld(p: { x: number; y: number }, vp: Viewport) {
+  const r = (vp.rot * Math.PI) / 180;
+  const cos = Math.cos(r);
+  const sin = Math.sin(r);
+  const dx = (p.x - vp.tx) / vp.scale;
+  const dy = (p.y - vp.ty) / vp.scale;
+  return { x: cos * dx + sin * dy, y: -sin * dx + cos * dy };
 }
 
 export function EventMap({
@@ -387,6 +399,147 @@ function VenueMapCanvas({
     overflowBottom: number;
   } | null>(null);
 
+  // View transform (pan/zoom/rotate of the entire map).
+  const [vp, setVp] = useState<Viewport>(IDENTITY_VP);
+  const vpRef = useRef<Viewport>(IDENTITY_VP);
+  useEffect(() => {
+    vpRef.current = vp;
+  }, [vp]);
+
+  // Multitouch gesture state.
+  const pointersRef = useRef<Map<number, { x: number; y: number }>>(new Map());
+  const gestureRef = useRef<{
+    startVp: Viewport;
+    startDist: number;
+    startAngle: number;
+    startMid: { x: number; y: number }; // canvas-local
+    worldPivot: { x: number; y: number }; // world coords under startMid
+    panPointerId?: number;
+    panStart?: { x: number; y: number };
+  } | null>(null);
+
+  const getLocal = (e: ReactPointerEvent | PointerEvent) => {
+    const rect = canvasRef.current?.getBoundingClientRect();
+    if (!rect) return { x: 0, y: 0 };
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  };
+
+  const beginGestureFromPointers = () => {
+    const pts = Array.from(pointersRef.current.values());
+    if (pts.length === 2) {
+      const [a, b] = pts;
+      const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const dist = Math.hypot(dx, dy) || 1;
+      const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
+      const startVp = vpRef.current;
+      gestureRef.current = {
+        startVp,
+        startDist: dist,
+        startAngle: angle,
+        startMid: mid,
+        worldPivot: screenToWorld(mid, startVp),
+      };
+    } else if (pts.length === 1) {
+      const [only] = pts;
+      const id = Array.from(pointersRef.current.keys())[0];
+      gestureRef.current = {
+        startVp: vpRef.current,
+        startDist: 0,
+        startAngle: 0,
+        startMid: only,
+        worldPivot: { x: 0, y: 0 },
+        panPointerId: id,
+        panStart: only,
+      };
+    }
+  };
+
+  const onCanvasPointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
+    // If editing a room, don't start map gesture from a 2nd finger — keeps
+    // single-finger drag predictable.
+    if (dragRef.current) return;
+    (e.currentTarget as Element).setPointerCapture(e.pointerId);
+    pointersRef.current.set(e.pointerId, getLocal(e));
+    beginGestureFromPointers();
+  };
+
+  const onCanvasPointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (!pointersRef.current.has(e.pointerId)) return;
+    const local = getLocal(e);
+    pointersRef.current.set(e.pointerId, local);
+    const g = gestureRef.current;
+    if (!g) return;
+    const pts = Array.from(pointersRef.current.values());
+    if (pts.length >= 2) {
+      const [a, b] = pts;
+      const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const dist = Math.hypot(dx, dy) || 1;
+      const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
+      const scale = clamp(g.startVp.scale * (dist / g.startDist), 0.4, 6);
+      const rot = g.startVp.rot + (angle - g.startAngle);
+      // Keep worldPivot pinned under mid.
+      const r = (rot * Math.PI) / 180;
+      const cos = Math.cos(r);
+      const sin = Math.sin(r);
+      const tx = mid.x - (cos * g.worldPivot.x - sin * g.worldPivot.y) * scale;
+      const ty = mid.y - (sin * g.worldPivot.x + cos * g.worldPivot.y) * scale;
+      setVp({ tx, ty, scale, rot });
+    } else if (pts.length === 1 && g.panStart && g.panPointerId === e.pointerId) {
+      const ddx = local.x - g.panStart.x;
+      const ddy = local.y - g.panStart.y;
+      setVp({
+        ...g.startVp,
+        tx: g.startVp.tx + ddx,
+        ty: g.startVp.ty + ddy,
+      });
+    }
+  };
+
+  const onCanvasPointerUp = (e: ReactPointerEvent<HTMLDivElement>) => {
+    pointersRef.current.delete(e.pointerId);
+    try {
+      (e.currentTarget as Element).releasePointerCapture(e.pointerId);
+    } catch {
+      void 0;
+    }
+    if (pointersRef.current.size === 0) {
+      gestureRef.current = null;
+    } else {
+      // Re-anchor the remaining gesture (e.g., went from 2→1 pointer).
+      beginGestureFromPointers();
+    }
+  };
+
+  // Desktop wheel-to-zoom around cursor.
+  useEffect(() => {
+    const el = canvasRef.current;
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      if (!e.ctrlKey && !e.metaKey && Math.abs(e.deltaY) < 4) return;
+      e.preventDefault();
+      const rect = el.getBoundingClientRect();
+      const mid = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+      const cur = vpRef.current;
+      const factor = Math.exp(-e.deltaY * 0.0015);
+      const scale = clamp(cur.scale * factor, 0.4, 6);
+      const world = screenToWorld(mid, cur);
+      const r = (cur.rot * Math.PI) / 180;
+      const cos = Math.cos(r);
+      const sin = Math.sin(r);
+      const tx = mid.x - (cos * world.x - sin * world.y) * scale;
+      const ty = mid.y - (sin * world.x + cos * world.y) * scale;
+      setVp({ ...cur, scale, tx, ty });
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, []);
+
+  const resetView = () => setVp(IDENTITY_VP);
+
   const onPointerDown =
     (id: string, mode: "move" | "resize") => (e: ReactPointerEvent<HTMLElement>) => {
       if (!isOrganizer || !editing) return;
@@ -396,29 +549,16 @@ function VenueMapCanvas({
       if (!rect) return;
       onSelect(id);
       const layout = layouts[id];
-      const layoutLeft = (layout.x / 100) * rect.width;
-      const layoutTop = (layout.y / 100) * rect.height;
-      const layoutWidth = (layout.w / 100) * rect.width;
-      const layoutHeight = (layout.h / 100) * rect.height;
-      const roomBox =
-        mode === "move"
-          ? (e.currentTarget as HTMLElement).getBoundingClientRect()
-          : ({
-              left: rect.left + layoutLeft,
-              top: rect.top + layoutTop,
-              right: rect.left + layoutLeft + layoutWidth,
-              bottom: rect.top + layoutTop + layoutHeight,
-            } as DOMRect);
       dragRef.current = {
         id,
         mode,
         startX: e.clientX,
         startY: e.clientY,
         start: { ...layout },
-        overflowLeft: layoutLeft - (roomBox.left - rect.left),
-        overflowRight: roomBox.right - rect.left - (layoutLeft + layoutWidth),
-        overflowTop: layoutTop - (roomBox.top - rect.top),
-        overflowBottom: roomBox.bottom - rect.top - (layoutTop + layoutHeight),
+        overflowLeft: 0,
+        overflowRight: 0,
+        overflowTop: 0,
+        overflowBottom: 0,
       };
       (e.currentTarget as Element).setPointerCapture(e.pointerId);
     };
@@ -427,15 +567,19 @@ function VenueMapCanvas({
     const d = dragRef.current;
     const rect = canvasRef.current?.getBoundingClientRect();
     if (!d || !rect) return;
-    const dxPct = ((e.clientX - d.startX) / rect.width) * 100;
-    const dyPct = ((e.clientY - d.startY) / rect.height) * 100;
+    // Convert screen delta → world delta (account for view rotation/scale).
+    const sdx = e.clientX - d.startX;
+    const sdy = e.clientY - d.startY;
+    const vr = (vpRef.current.rot * Math.PI) / 180;
+    const vcos = Math.cos(vr);
+    const vsin = Math.sin(vr);
+    const wdx = (vcos * sdx + vsin * sdy) / vpRef.current.scale;
+    const wdy = (-vsin * sdx + vcos * sdy) / vpRef.current.scale;
+    const dxPct = (wdx / rect.width) * 100;
+    const dyPct = (wdy / rect.height) * 100;
     if (d.mode === "move") {
-      const minX = (d.overflowLeft / rect.width) * 100;
-      const maxX = 100 - d.start.w - (d.overflowRight / rect.width) * 100;
-      const minY = (d.overflowTop / rect.height) * 100;
-      const maxY = 100 - d.start.h - (d.overflowBottom / rect.height) * 100;
-      const x = clamp(Math.round((d.start.x + dxPct) * 10) / 10, minX, maxX);
-      const y = clamp(Math.round((d.start.y + dyPct) * 10) / 10, minY, maxY);
+      const x = clamp(Math.round((d.start.x + dxPct) * 10) / 10, 0, 100 - d.start.w);
+      const y = clamp(Math.round((d.start.y + dyPct) * 10) / 10, 0, 100 - d.start.h);
       onUpdate(d.id, { x, y });
     } else {
       // Rotate the pointer delta into the room's local (unrotated) frame so
@@ -468,10 +612,29 @@ function VenueMapCanvas({
     <div
       ref={canvasRef}
       className="absolute inset-0 select-none touch-none"
-      onPointerMove={editing ? onPointerMove : undefined}
-      onPointerUp={editing ? onPointerUp : undefined}
-      onPointerCancel={editing ? onPointerUp : undefined}
+      onPointerDown={onCanvasPointerDown}
+      onPointerMove={(e) => {
+        if (dragRef.current) onPointerMove(e);
+        onCanvasPointerMove(e);
+      }}
+      onPointerUp={(e) => {
+        if (dragRef.current) onPointerUp(e);
+        onCanvasPointerUp(e);
+      }}
+      onPointerCancel={(e) => {
+        if (dragRef.current) onPointerUp(e);
+        onCanvasPointerUp(e);
+      }}
     >
+      {/* World layer — pan/zoom/rotate transform */}
+      <div
+        className="absolute inset-0"
+        style={{
+          transformOrigin: "0 0",
+          transform: `translate(${vp.tx}px, ${vp.ty}px) rotate(${vp.rot}deg) scale(${vp.scale})`,
+          willChange: "transform",
+        }}
+      >
       {/* Grid background */}
       <div
         className="absolute inset-0 opacity-[0.08] text-foreground"
@@ -565,6 +728,24 @@ function VenueMapCanvas({
           <span className="absolute inset-0 size-4 rounded-full bg-white/60 animate-ping" />
           <span className="relative block size-4 rounded-full bg-white ring-2 ring-primary shadow-lg" />
         </motion.div>
+      )}
+      </div>
+
+      {/* Reset-view button (only when transform is not identity) */}
+      {(vp.tx !== 0 || vp.ty !== 0 || vp.scale !== 1 || vp.rot !== 0) && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            resetView();
+          }}
+          onPointerDown={(e) => e.stopPropagation()}
+          className="absolute top-1.5 left-1.5 z-40 flex items-center gap-1 px-2 py-1 rounded-full bg-background/80 backdrop-blur ring-1 ring-border text-[9px] font-bold uppercase tracking-widest hover:bg-background"
+          aria-label="Reset map view"
+        >
+          <Locate className="size-3" />
+          Reset
+        </button>
       )}
     </div>
   );
