@@ -6,13 +6,17 @@ import { Avatar } from "@/components/Avatar";
 import { useServerFn } from "@tanstack/react-start";
 import { getMyDeck, type DeckProfile } from "@/lib/exchange.functions";
 import { supabase } from "@/integrations/supabase/client";
+import type { ProfileGradient } from "@/data/profile";
 
 export const Route = createFileRoute("/app/collection")({
   head: () => ({ meta: [{ title: "Your deck — synqmap" }] }),
   component: Collection,
 });
 
-type Card = { person: Person; reason: string };
+type PersonWithAvatar = Person & {
+  avatar?: { style: string; seed: string; bg: string } | null;
+};
+type Card = { person: PersonWithAvatar; reason: string; gradient: ProfileGradient | null };
 
 function Collection() {
   const fetchDeck = useServerFn(getMyDeck);
@@ -34,6 +38,7 @@ function Collection() {
           serverCards.map((c) => ({
             person: profileToPerson(c.profile),
             reason: c.reason,
+            gradient: c.profile.gradient,
           })),
         );
       } finally {
@@ -174,13 +179,14 @@ function DeckCard({
   total: number;
   dim?: boolean;
 }) {
-  const { person, reason } = card;
+  const { person, reason, gradient } = card;
+  const bg = gradient
+    ? `linear-gradient(135deg, ${gradient.from} 0%, ${gradient.via} 50%, ${gradient.to} 100%)`
+    : `radial-gradient(circle at 100% 0%, ${person.color}55 0%, transparent 55%), radial-gradient(circle at 0% 100%, #7c3aed 0%, transparent 60%)`;
   return (
     <div
       className="relative w-full h-full bg-foreground text-white p-5 flex flex-col shadow-2xl ring-1 ring-white/10"
-      style={{
-        backgroundImage: `radial-gradient(circle at 100% 0%, ${person.color}55 0%, transparent 55%), radial-gradient(circle at 0% 100%, #7c3aed 0%, transparent 60%)`,
-      }}
+      style={{ backgroundImage: bg }}
     >
       {/* Header */}
       <div className="flex items-start justify-between">
@@ -238,7 +244,10 @@ function DeckCard({
 }
 
 function DetailSheet({ card, onClose }: { card: Card; onClose: () => void }) {
-  const { person, reason } = card;
+  const { person, reason, gradient } = card;
+  const heroBg = gradient
+    ? `linear-gradient(135deg, ${gradient.from}, ${gradient.via}, ${gradient.to})`
+    : `linear-gradient(135deg, ${person.color}, var(--foreground))`;
   const socials = Object.entries(person.socials).filter(([, v]) => !!v) as [
     keyof typeof person.socials,
     string,
@@ -285,9 +294,7 @@ function DetailSheet({ card, onClose }: { card: Card; onClose: () => void }) {
           {/* Hero */}
           <div
             className="px-6 pt-5 pb-6 text-white relative"
-            style={{
-              background: `linear-gradient(135deg, ${person.color}, var(--foreground))`,
-            }}
+            style={{ background: heroBg }}
           >
             <div className="flex flex-col items-center text-center gap-3">
               <Avatar person={person} size={88} className="ring-4 ring-white/30 shadow-xl" />
@@ -405,7 +412,7 @@ function socialHref(k: string, v: string) {
   }
 }
 
-function profileToPerson(p: DeckProfile): Person {
+function profileToPerson(p: DeckProfile): PersonWithAvatar {
   return {
     id: p.id,
     name: p.name ?? "Anonymous",
@@ -415,5 +422,8 @@ function profileToPerson(p: DeckProfile): Person {
     tags: p.tags ?? [],
     socials: (p.socials ?? {}) as Person["socials"],
     color: p.color ?? "#7c3aed",
+    avatar: p.avatar && p.avatar.style && p.avatar.seed && p.avatar.bg
+      ? { style: p.avatar.style, seed: p.avatar.seed, bg: p.avatar.bg }
+      : null,
   };
 }

@@ -16,6 +16,13 @@ const ProfileInput = z.object({
       bg: z.string().min(1).max(20),
     })
     .optional(),
+  gradient: z
+    .object({
+      from: z.string().min(1).max(20),
+      via: z.string().min(1).max(20),
+      to: z.string().min(1).max(20),
+    })
+    .optional(),
 });
 
 export const upsertMyProfile = createServerFn({ method: "POST" })

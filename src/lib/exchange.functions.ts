@@ -21,7 +21,7 @@ export const exchangeCardWith = createServerFn({ method: "POST" })
     // exchanges for arbitrary uuids someone could craft in a QR.
     const { data: other, error: otherErr } = await supabaseAdmin
       .from("profiles")
-      .select("id, name, one_liner, intent, tags, socials, color, avatar, initials")
+      .select("id, name, one_liner, intent, tags, socials, color, avatar, gradient, initials")
       .eq("id", data.otherUserId)
       .maybeSingle();
     if (otherErr) throw new Error(otherErr.message);
@@ -57,6 +57,7 @@ export const exchangeCardWith = createServerFn({ method: "POST" })
         socials: (other.socials ?? null) as DeckProfile["socials"],
         color: other.color,
         avatar: (other.avatar ?? null) as DeckProfile["avatar"],
+        gradient: (other.gradient ?? null) as DeckProfile["gradient"],
         initials: other.initials,
       } satisfies DeckProfile,
     };
@@ -82,7 +83,7 @@ export const getMyDeck = createServerFn({ method: "GET" })
 
     const { data: profiles, error: pErr } = await supabase
       .from("profiles")
-      .select("id, name, one_liner, intent, tags, socials, color, avatar, initials")
+      .select("id, name, one_liner, intent, tags, socials, color, avatar, gradient, initials")
       .in("id", otherIds);
     if (pErr) throw new Error(pErr.message);
 
@@ -105,6 +106,7 @@ export const getMyDeck = createServerFn({ method: "GET" })
           socials: (profile.socials ?? null) as DeckProfile["socials"],
           color: profile.color,
           avatar: (profile.avatar ?? null) as DeckProfile["avatar"],
+          gradient: (profile.gradient ?? null) as DeckProfile["gradient"],
           initials: profile.initials,
         },
         reason: e.reason ?? "Cards exchanged",
@@ -123,6 +125,7 @@ export type DeckProfile = {
   socials: Record<string, string | null> | null;
   color: string;
   avatar: { style?: string; seed?: string; bg?: string } | null;
+  gradient: { from: string; via: string; to: string } | null;
   initials: string | null;
 };
 
