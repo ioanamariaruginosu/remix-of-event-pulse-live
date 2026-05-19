@@ -14,7 +14,6 @@ function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  const [asOrganizer, setAsOrganizer] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,17 +23,13 @@ function LoginPage() {
     setBusy(true);
     try {
       if (mode === "signup") {
-        const { data, error } = await supabase.auth.signUp({
+        const { error } = await supabase.auth.signUp({
           email,
           password,
           options: { data: { name }, emailRedirectTo: `${window.location.origin}/app` },
         });
         if (error) throw error;
-        if (asOrganizer && data.user) {
-          // RLS allows the user to insert their own role row.
-          await supabase.from("user_roles").upsert({ user_id: data.user.id, role: "organizer" });
-        }
-        navigate({ to: asOrganizer ? "/organizer" : "/app" });
+        navigate({ to: "/app" });
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -107,17 +102,6 @@ function LoginPage() {
               autoComplete={mode === "signin" ? "current-password" : "new-password"}
               className="w-full p-3 rounded-xl ring-1 ring-border bg-background text-sm focus:ring-2 focus:ring-primary outline-none"
             />
-            {mode === "signup" && (
-              <label className="flex items-center gap-2 text-sm text-foreground/70 px-1">
-                <input
-                  type="checkbox"
-                  checked={asOrganizer}
-                  onChange={(e) => setAsOrganizer(e.target.checked)}
-                  className="accent-primary"
-                />
-                I'm an event organizer
-              </label>
-            )}
             {error && <div className="text-sm text-red-500 px-1">{error}</div>}
             <button
               type="submit"
