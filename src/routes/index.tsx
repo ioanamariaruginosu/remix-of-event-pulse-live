@@ -194,26 +194,22 @@ function Landing() {
               tag="Upload"
               title="Your experience"
               body="Drop photos, notes, takeaways — they pin to the room you were standing in."
-              icon="📸"
             />
             <RoomFeatureCard
               tag="Live"
               title="Transcript"
               body="Watch the speaker's words stream in as captions, searchable the second they're spoken."
-              icon="🎙️"
               highlight
             />
             <RoomFeatureCard
               tag="RecapHub"
               title="Auto-summaries"
               body="Each session compresses into a shareable recap — speakers, quotes, mindmap."
-              icon="📝"
             />
             <RoomFeatureCard
               tag="Translingo"
               title="Live translation"
               body="Real-time voice translation so language never gates the conversation in the room."
-              icon="🌍"
             />
           </div>
         </section>
@@ -450,32 +446,54 @@ function AlgoStep({
 
 function AlgorithmDiagram() {
   return (
-    <div className="rounded-[32px] p-6 md:p-8 ring-1 ring-primary/20 relative overflow-hidden bg-gradient-to-br from-[#2d1a52] via-[#4c2a87] to-[#7c3aed] text-white">
-      <div className="absolute -top-20 -right-20 w-72 h-72 bg-accent/30 blur-[100px] rounded-full pointer-events-none" />
-      <div className="relative grid md:grid-cols-[1fr_auto_1.1fr_auto_1fr] gap-3 md:gap-2 items-center">
-        {/* Two parallel towers stacked */}
-        <div className="flex flex-col gap-2">
-          <DiagramNode kicker="Tower A · 20%" title="Keyword" sub="Jaccard · tags + tokens" />
-          <DiagramNode kicker="Tower B · 80%" title="Embedding" sub="cosine · 1536-d vectors" accent />
-        </div>
-        <ArrowGlyph />
-        {/* Fuse */}
-        <DiagramNode kicker="RRF Fuse" title="Σ 1 / (k + rank)" sub="merged ranked list" highlight />
-        <ArrowGlyph />
-        {/* Reason */}
-        <div className="rounded-2xl bg-white/5 ring-1 ring-white/15 p-3">
-          <div className="text-[10px] uppercase tracking-widest text-accent font-bold mb-1">
-            Gemini Flash
-          </div>
-          <div className="text-white font-extrabold tracking-tight mb-1 not-italic font-sans text-sm">
-            Top 3 + reasons
-          </div>
-          <div className="text-[11px] text-white/70 space-y-0.5 not-italic font-sans">
-            <div><span className="text-accent">›</span> Both shipping voice agents.</div>
-            <div><span className="text-accent">›</span> Overlapping eval stacks.</div>
-          </div>
-        </div>
+    <div className="max-w-4xl mx-auto py-4">
+      <div className="flex flex-col md:flex-row md:items-stretch md:justify-between gap-6 md:gap-3 text-center">
+        <AlgoCol kicker="Tower A · 20%" title="Keyword" sub="Jaccard · tags + tokens" />
+        <AlgoCol kicker="Tower B · 80%" title="Embedding" sub="cosine · 1536-d vectors" />
+        <AlgoArrow />
+        <AlgoCol kicker="Fuse" title="RRF" sub="Σ 1 / (k + rank)" emphasis />
+        <AlgoArrow />
+        <AlgoCol kicker="Gemini Flash" title="Top 3 + reasons" sub="why you should meet" />
       </div>
+    </div>
+  );
+}
+
+function AlgoCol({
+  kicker,
+  title,
+  sub,
+  emphasis,
+}: {
+  kicker: string;
+  title: string;
+  sub: string;
+  emphasis?: boolean;
+}) {
+  return (
+    <div className="flex-1 flex flex-col items-center justify-center gap-1.5 px-2">
+      <div className="font-display italic text-[10px] font-bold tracking-widest uppercase text-foreground/40">
+        {kicker}
+      </div>
+      <div
+        className={`text-2xl md:text-3xl font-extrabold tracking-tight ${
+          emphasis ? "text-primary italic" : "text-foreground"
+        }`}
+      >
+        {title}
+      </div>
+      <div className="text-xs text-foreground/55 leading-snug">{sub}</div>
+    </div>
+  );
+}
+
+function AlgoArrow() {
+  return (
+    <div
+      aria-hidden
+      className="flex items-center justify-center text-primary/60 text-2xl font-light select-none rotate-90 md:rotate-0"
+    >
+      →
     </div>
   );
 }
@@ -492,35 +510,32 @@ function RoomFeatureCard({
   tag,
   title,
   body,
-  icon,
   highlight,
 }: {
   tag: string;
   title: string;
   body: string;
-  icon: string;
   highlight?: boolean;
 }) {
   return (
     <div
-      className={`p-5 rounded-2xl ring-1 transition-all ${
+      className={`p-6 rounded-2xl ring-1 transition-all ${
         highlight
-          ? "bg-gradient-to-br from-primary to-[#9333ea] text-white ring-primary"
-          : "bg-background ring-border hover:ring-primary/30"
+          ? "bg-foreground text-white ring-foreground"
+          : "bg-background ring-border hover:ring-foreground/40"
       }`}
     >
-      <div className="text-2xl mb-2">{icon}</div>
       <div
-        className={`font-display italic text-[10px] font-bold tracking-widest uppercase mb-1 ${
-          highlight ? "text-white/70" : "text-primary"
+        className={`font-display italic text-[10px] font-bold tracking-widest uppercase mb-4 ${
+          highlight ? "text-accent" : "text-foreground/40"
         }`}
       >
         {tag}
       </div>
-      <h3 className="text-lg font-extrabold tracking-tight mb-1">{title}</h3>
+      <h3 className="text-xl font-extrabold tracking-tight mb-2">{title}</h3>
       <p
-        className={`text-xs leading-relaxed ${
-          highlight ? "text-white/85" : "text-foreground/60"
+        className={`text-sm leading-relaxed ${
+          highlight ? "text-white/75" : "text-foreground/60"
         }`}
       >
         {body}
