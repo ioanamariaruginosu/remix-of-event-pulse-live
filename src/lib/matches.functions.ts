@@ -14,6 +14,7 @@ type ProfileRow = {
   tags: string[] | null;
   color: string | null;
   initials: string | null;
+  avatar: { style: string; seed: string; bg: string } | null;
   embedding: number[] | string | null;
   embedding_text: string | null;
 };
@@ -156,6 +157,7 @@ export type MatchResult = {
     intent: string | null;
     tags: string[];
     color: string;
+    avatar: { style: string; seed: string; bg: string } | null;
   };
   score: number;
   reasons: string[];
@@ -170,7 +172,7 @@ export const getMatches = createServerFn({ method: "POST" })
     // 1. Ensure my embedding is fresh.
     const { data: meRow } = await supabase
       .from("profiles")
-      .select("id, name, one_liner, intent, tags, color, initials, embedding, embedding_text")
+      .select("id, name, one_liner, intent, tags, color, initials, avatar, embedding, embedding_text")
       .eq("id", userId)
       .maybeSingle();
     if (!meRow) return { matches: [] };
@@ -199,7 +201,7 @@ export const getMatches = createServerFn({ method: "POST" })
 
     let q = supabase
       .from("profiles")
-      .select("id, name, one_liner, intent, tags, color, initials, embedding, embedding_text")
+      .select("id, name, one_liner, intent, tags, color, initials, avatar, embedding, embedding_text")
       .neq("id", userId)
       .limit(200);
     if (candidateIds) q = q.in("id", candidateIds);
@@ -235,6 +237,7 @@ export const getMatches = createServerFn({ method: "POST" })
         intent: t.profile.intent,
         tags: t.profile.tags ?? [],
         color: t.profile.color ?? "#7c3aed",
+        avatar: t.profile.avatar ?? null,
       },
       score: t.score,
       reasons: reasons[i] ?? [],
