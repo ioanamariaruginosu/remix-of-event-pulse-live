@@ -1,6 +1,8 @@
 import { useRef, useState, useEffect, useMemo, type WheelEvent, type PointerEvent } from "react";
-import { getPublicNetwork, type PublicNode, type PublicEdge } from "@/lib/network.functions";
 import { people as mockPeople, edges as mockEdges } from "@/data/event";
+import { avatarUrl, defaultAvatarFor } from "@/data/avatars";
+import { CachedSvgAvatar } from "@/components/CachedSvgAvatar";
+import { getPublicNetwork, type PublicNode, type PublicEdge } from "@/lib/network.functions";
 
 type Props = {
   height?: number;
@@ -228,6 +230,16 @@ export function LiveNetworkGraph({ height = 340, className = "" }: Props) {
             <stop offset="0%" stopColor="#ffffff" stopOpacity="0.55" />
             <stop offset="100%" stopColor="#ffffff" stopOpacity="0.25" />
           </linearGradient>
+          {nodes.map((n) => {
+            const deg = degree.get(n.id) ?? 0;
+            const baseR = nodes.length > 60 ? 14 : nodes.length > 25 ? 18 : 22;
+            const r = baseR + Math.min(deg, 8) * 1.3;
+            return (
+              <clipPath key={`lng-clip-${n.id}`} id={`lng-clip-${n.id}`}>
+                <circle cx={n.x} cy={n.y} r={r - 1} />
+              </clipPath>
+            );
+          })}
         </defs>
         <rect x="0" y="0" width={W} height={H} fill="url(#lng-bg)" />
 
@@ -269,16 +281,14 @@ export function LiveNetworkGraph({ height = 340, className = "" }: Props) {
                   strokeOpacity={0.95}
                   strokeWidth={1.5 / view.k}
                 />
-                <text
-                  x={n.x} y={n.y + 4}
-                  textAnchor="middle"
-                  fontSize={Math.max(10, Math.round(r * 0.7))}
-                  fontWeight={800}
-                  fill="white"
-                  style={{ pointerEvents: "none", letterSpacing: "0.4px" }}
-                >
-                  {n.initials}
-                </text>
+                <CachedSvgAvatar
+                  url={avatarUrl(defaultAvatarFor({ id: n.id, color: n.color }), Math.max(64, Math.round(r * 4)), "png")}
+                  x={n.x - r}
+                  y={n.y - r}
+                  width={r * 2}
+                  height={r * 2}
+                  clipPath={`url(#lng-clip-${n.id})`}
+                />
                 {showLabel && (
                   <text
                     x={n.x} y={n.y + r + 14}
