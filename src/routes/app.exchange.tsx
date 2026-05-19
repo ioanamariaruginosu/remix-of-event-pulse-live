@@ -259,7 +259,13 @@ function Exchange() {
             ) : (
               <>
                 <div className="aspect-square bg-white rounded-3xl grid place-items-center p-6 ring-1 ring-border">
-                  <QRCodeSVG value={qrPayload} size={256} bgColor="#ffffff" fgColor="#0a0d1a" level="M" includeMargin={false} />
+                  {qrPayload ? (
+                    <QRCodeSVG value={qrPayload} size={256} bgColor="#ffffff" fgColor="#0a0d1a" level="M" includeMargin={false} />
+                  ) : (
+                    <div className="text-xs text-foreground/50 text-center px-6">
+                      Sign in to generate your personal QR card.
+                    </div>
+                  )}
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2">
                   <button
