@@ -161,8 +161,60 @@ function Landing() {
               ))}
             </div>
           </div>
-          <div className="aspect-square bg-foreground rounded-[32px] overflow-hidden ring-1 ring-border relative">
+          <div className="aspect-square rounded-[32px] overflow-hidden ring-1 ring-primary/20 relative bg-gradient-to-br from-[#2d1a52] via-[#4c2a87] to-[#7c3aed]">
             <LiveNetworkGraph height={560} />
+          </div>
+        </section>
+
+        {/* Rooms · EventLabs integration */}
+        <section id="rooms" className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          <div className="space-y-6">
+            <div className="inline-block px-4 py-1.5 bg-primary-soft text-primary font-display italic text-[10px] font-bold tracking-widest uppercase rounded-full ring-1 ring-primary/20">
+              Inside the Room
+            </div>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-balance">
+              Upload your experience.<br />
+              <span className="text-primary italic">Read the room</span> in real time.
+            </h2>
+            <p className="text-lg text-foreground/60 leading-relaxed text-pretty">
+              Every room becomes a living artifact. Drop in photos and notes from the
+              session, watch the live transcript scroll as the speaker talks, and walk
+              out with a shareable recap auto-generated for you.
+            </p>
+            <p className="text-sm text-foreground/50 leading-relaxed text-pretty">
+              Powered by our integrations with <strong className="text-foreground">RecapHub</strong> and
+              <strong className="text-foreground"> Translingo</strong> from
+              <span className="font-display italic"> EventLabs</span> — recordings turn
+              into clean summaries and live captions translate the room across languages,
+              all stitched back into your synqmap graph.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <RoomFeatureCard
+              tag="Upload"
+              title="Your experience"
+              body="Drop photos, notes, takeaways — they pin to the room you were standing in."
+              icon="📸"
+            />
+            <RoomFeatureCard
+              tag="Live"
+              title="Transcript"
+              body="Watch the speaker's words stream in as captions, searchable the second they're spoken."
+              icon="🎙️"
+              highlight
+            />
+            <RoomFeatureCard
+              tag="RecapHub"
+              title="Auto-summaries"
+              body="Each session compresses into a shareable recap — speakers, quotes, mindmap."
+              icon="📝"
+            />
+            <RoomFeatureCard
+              tag="Translingo"
+              title="Live translation"
+              body="Real-time voice translation so language never gates the conversation in the room."
+              icon="🌍"
+            />
           </div>
         </section>
 
@@ -240,47 +292,15 @@ function Landing() {
         {/* Final CTA */}
         {/* Vision */}
         {/* Matching algorithm */}
-        <section id="matching" className="space-y-12">
-          <div className="text-center max-w-3xl mx-auto space-y-4">
+        <section id="matching" className="space-y-10">
+          <div className="text-center max-w-2xl mx-auto space-y-3">
             <div className="inline-block px-4 py-1.5 bg-primary-soft text-primary font-display italic text-[10px] font-bold tracking-widest uppercase rounded-full ring-1 ring-primary/20">
               Under the hood
             </div>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-balance">
-              How the matching <span className="text-primary italic">actually</span> works.
+              How matching <span className="text-primary italic">actually</span> works.
             </h2>
-            <p className="text-lg text-foreground/60 text-pretty">
-              A hybrid two-tower retrieval stack. Keywords for sharp overlap, embeddings for semantic gravity, RRF to fuse them, and an LLM to put words to the "why."
-            </p>
           </div>
-
-          <div className="grid lg:grid-cols-4 gap-4 items-stretch relative">
-            <AlgoStep
-              n="01"
-              title="Embed"
-              copy="Your name + bio + intent + tags are embedded once on demand."
-              meta="openai/text-embedding-3-small · 1536-dim"
-            />
-            <AlgoStep
-              n="02"
-              title="Score"
-              copy="Every other profile gets two scores in parallel — keyword & semantic."
-              meta="Jaccard on tags+tokens · cosine on vectors"
-            />
-            <AlgoStep
-              n="03"
-              title="RRF fuse"
-              copy="Both ranked lists merge via Reciprocal Rank Fusion."
-              meta="20% keyword · 80% embedding"
-              highlight
-            />
-            <AlgoStep
-              n="04"
-              title="Reason"
-              copy="Top 3 are sent to Gemini Flash, which returns two short reasons per match."
-              meta="Cached in match_results"
-            />
-          </div>
-
           <AlgorithmDiagram />
         </section>
 
@@ -430,68 +450,81 @@ function AlgoStep({
 
 function AlgorithmDiagram() {
   return (
-    <div className="rounded-[32px] bg-foreground text-white p-6 md:p-10 ring-1 ring-white/10 relative overflow-hidden">
-      <div className="absolute -top-20 -right-20 w-72 h-72 bg-primary/30 blur-[100px] rounded-full pointer-events-none" />
-      <div className="absolute -bottom-20 -left-20 w-72 h-72 bg-accent/30 blur-[100px] rounded-full pointer-events-none" />
-
-      <div className="relative flex flex-col items-center gap-5">
-        {/* Input */}
-        <DiagramNode
-          kicker="Input"
-          title="Your profile"
-          sub="name · bio · intent · tags"
-        />
-
-        <BranchConnector />
-
-        {/* Two towers in parallel */}
-        <div className="grid grid-cols-2 gap-3 md:gap-6 w-full max-w-2xl">
-          <DiagramNode
-            kicker="Tower A · 20%"
-            title="Keyword"
-            sub="Jaccard on tags + tokens"
-            pills={["tags", "tokens", "jaccard"]}
-          />
-          <DiagramNode
-            kicker="Tower B · 80%"
-            title="Embedding"
-            sub="cosine on 1536-dim vectors"
-            pills={["pgvector", "cosine", "1536-d"]}
-            accent
-          />
+    <div className="rounded-[32px] p-6 md:p-8 ring-1 ring-primary/20 relative overflow-hidden bg-gradient-to-br from-[#2d1a52] via-[#4c2a87] to-[#7c3aed] text-white">
+      <div className="absolute -top-20 -right-20 w-72 h-72 bg-accent/30 blur-[100px] rounded-full pointer-events-none" />
+      <div className="relative grid md:grid-cols-[1fr_auto_1.1fr_auto_1fr] gap-3 md:gap-2 items-center">
+        {/* Two parallel towers stacked */}
+        <div className="flex flex-col gap-2">
+          <DiagramNode kicker="Tower A · 20%" title="Keyword" sub="Jaccard · tags + tokens" />
+          <DiagramNode kicker="Tower B · 80%" title="Embedding" sub="cosine · 1536-d vectors" accent />
         </div>
-
-        <MergeConnector />
-
-        {/* Fusion */}
-        <DiagramNode
-          kicker="Fuse"
-          title="RRF"
-          sub="Σ  1 / (k + rank)"
-          highlight
-        />
-
-        <Connector />
-
-        {/* Top K */}
-        <DiagramNode kicker="Rank" title="Top 3 matches" sub="ordered by fused score" />
-
-        <Connector />
-
-        {/* LLM reasoning */}
-        <div className="w-full max-w-2xl rounded-2xl bg-white/5 ring-1 ring-white/10 p-4 text-left">
-          <div className="flex items-center justify-between mb-2">
-            <div className="text-[10px] uppercase tracking-widest text-accent font-bold">
-              Gemini Flash · JSON
-            </div>
-            <div className="text-[10px] uppercase tracking-widest text-white/40">why you should meet</div>
+        <ArrowGlyph />
+        {/* Fuse */}
+        <DiagramNode kicker="RRF Fuse" title="Σ 1 / (k + rank)" sub="merged ranked list" highlight />
+        <ArrowGlyph />
+        {/* Reason */}
+        <div className="rounded-2xl bg-white/5 ring-1 ring-white/15 p-3">
+          <div className="text-[10px] uppercase tracking-widest text-accent font-bold mb-1">
+            Gemini Flash
           </div>
-          <div className="text-sm text-white/85 space-y-1 font-sans not-italic">
-            <div><span className="text-accent">›</span> Both shipping voice agents this quarter.</div>
-            <div><span className="text-accent">›</span> Overlapping eval stacks — swap notes.</div>
+          <div className="text-white font-extrabold tracking-tight mb-1 not-italic font-sans text-sm">
+            Top 3 + reasons
+          </div>
+          <div className="text-[11px] text-white/70 space-y-0.5 not-italic font-sans">
+            <div><span className="text-accent">›</span> Both shipping voice agents.</div>
+            <div><span className="text-accent">›</span> Overlapping eval stacks.</div>
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function ArrowGlyph() {
+  return (
+    <div aria-hidden className="text-white/50 text-2xl text-center font-extrabold select-none rotate-90 md:rotate-0">
+      →
+    </div>
+  );
+}
+
+function RoomFeatureCard({
+  tag,
+  title,
+  body,
+  icon,
+  highlight,
+}: {
+  tag: string;
+  title: string;
+  body: string;
+  icon: string;
+  highlight?: boolean;
+}) {
+  return (
+    <div
+      className={`p-5 rounded-2xl ring-1 transition-all ${
+        highlight
+          ? "bg-gradient-to-br from-primary to-[#9333ea] text-white ring-primary"
+          : "bg-background ring-border hover:ring-primary/30"
+      }`}
+    >
+      <div className="text-2xl mb-2">{icon}</div>
+      <div
+        className={`font-display italic text-[10px] font-bold tracking-widest uppercase mb-1 ${
+          highlight ? "text-white/70" : "text-primary"
+        }`}
+      >
+        {tag}
+      </div>
+      <h3 className="text-lg font-extrabold tracking-tight mb-1">{title}</h3>
+      <p
+        className={`text-xs leading-relaxed ${
+          highlight ? "text-white/85" : "text-foreground/60"
+        }`}
+      >
+        {body}
+      </p>
     </div>
   );
 }
@@ -585,7 +618,7 @@ function ScaleCard({
           : "bg-background ring-border hover:ring-primary/30"
       }`}
     >
-      <div className="aspect-square mb-6 bg-foreground rounded-2xl relative overflow-hidden">
+      <div className="aspect-square mb-6 rounded-2xl relative overflow-hidden bg-gradient-to-br from-[#2d1a52] via-[#4c2a87] to-[#7c3aed] ring-1 ring-primary/20">
         {graph}
       </div>
       <div className="font-display italic text-xs font-bold text-primary tracking-widest uppercase mb-2">{tag}</div>
