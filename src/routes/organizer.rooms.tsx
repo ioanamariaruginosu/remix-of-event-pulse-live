@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { rooms } from "@/data/event";
+import { RoomQrScanner } from "@/components/RoomQrScanner";
 
 export const Route = createFileRoute("/organizer/rooms")({
   head: () => ({ meta: [{ title: "Organizer · Rooms — synqmap" }] }),
@@ -60,6 +61,9 @@ function Rooms() {
             <div className="flex gap-2 mt-4">
               <button className="flex-1 py-2 text-xs font-bold ring-1 ring-border rounded-lg hover:bg-foreground/5">Edit</button>
               <button className="flex-1 py-2 text-xs font-bold ring-1 ring-border rounded-lg hover:bg-foreground/5">Print QR</button>
+            </div>
+            <div className="mt-3">
+              <RoomQrScanner roomName={r.name} />
             </div>
           </div>
         ))}
