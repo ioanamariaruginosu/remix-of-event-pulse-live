@@ -1,8 +1,10 @@
-import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useRouterState, useNavigate } from "@tanstack/react-router";
 import { motion } from "motion/react";
+import { useEffect } from "react";
 import { people } from "@/data/event";
 import { Avatar } from "@/components/Avatar";
-import { useYou } from "@/data/profile";
+import { useYou, setUserProfile } from "@/data/profile";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/app")({
   component: AppLayout,
@@ -19,6 +21,42 @@ const tabs = [
 function AppLayout() {
   const path = useRouterState({ select: (s) => s.location.pathname });
   const you = useYou(people[0]);
+  const navigate = useNavigate();
+
+  // Hydrate the user profile from the backend so the card / header / matches
+  // all reflect what was saved during onboarding (not hardcoded demo data).
+  useEffect(() => {
+    let cancelled = false;
+    const load = async (uid: string) => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("name, one_liner, intent, tags, socials")
+        .eq("id", uid)
+        .maybeSingle();
+      if (cancelled || !data) return;
+      const s = (data.socials ?? {}) as Record<string, string>;
+      setUserProfile({
+        name: data.name ?? undefined,
+        oneLiner: data.one_liner ?? undefined,
+        intent: data.intent ?? undefined,
+        tags: data.tags ?? [],
+        socials: {
+          linkedin: s.LinkedIn ?? s.linkedin,
+          x: s["X / Twitter"] ?? s.x,
+          github: s.GitHub ?? s.github,
+          email: s.Email ?? s.email,
+        },
+      });
+    };
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) load(data.session.user.id);
+      else navigate({ to: "/login" });
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
+      if (s) load(s.user.id);
+    });
+    return () => { cancelled = true; sub.subscription.unsubscribe(); };
+  }, [navigate]);
 
   return (
     <div className="min-h-[100dvh] bg-background text-foreground antialiased flex flex-col relative overflow-hidden">
