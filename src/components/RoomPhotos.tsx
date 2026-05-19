@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence, useMotionValue, useTransform } from "motion/react";
 import { people } from "@/data/event";
 import { Avatar } from "@/components/Avatar";
+import { supabase } from "@/integrations/supabase/client";
 import photoStageFramer from "@/assets/mock-photos/stage-framer.jpeg";
 import photoStageEurhack from "@/assets/mock-photos/stage-eurhack.jpeg";
 import photoTeamSelfie from "@/assets/mock-photos/team-selfie.jpeg";
@@ -9,25 +10,6 @@ import photoPanel from "@/assets/mock-photos/panel.jpeg";
 import photoHackathonStage from "@/assets/mock-photos/hackathon-stage.jpeg";
 
 type Photo = { id: string; src: string; ts: number; uploaderId: string };
-
-const key = (roomId: string) => `room-photos:${roomId}`;
-
-function load(roomId: string): Photo[] {
-  if (typeof window === "undefined") return [];
-  try {
-    return JSON.parse(localStorage.getItem(key(roomId)) || "[]");
-  } catch {
-    return [];
-  }
-}
-
-function save(roomId: string, photos: Photo[]) {
-  try {
-    localStorage.setItem(key(roomId), JSON.stringify(photos));
-  } catch {
-    /* quota — ignore */
-  }
-}
 
 function fileToDataUrl(file: File): Promise<string> {
   return new Promise((res, rej) => {
@@ -38,7 +20,7 @@ function fileToDataUrl(file: File): Promise<string> {
   });
 }
 
-async function compress(file: File, max = 1280, quality = 0.8): Promise<string> {
+async function compress(file: File, max = 1280, quality = 0.8): Promise<Blob> {
   const dataUrl = await fileToDataUrl(file);
   const img = new Image();
   img.src = dataUrl;
@@ -50,7 +32,9 @@ async function compress(file: File, max = 1280, quality = 0.8): Promise<string> 
   c.width = w;
   c.height = h;
   c.getContext("2d")!.drawImage(img, 0, 0, w, h);
-  return c.toDataURL("image/jpeg", quality);
+  return await new Promise<Blob>((res) =>
+    c.toBlob((b) => res(b!), "image/jpeg", quality),
+  );
 }
 
 // Deterministic seed photos so every room has a believable stack.
