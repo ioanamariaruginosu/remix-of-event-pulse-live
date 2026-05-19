@@ -1,12 +1,13 @@
-import { useRef, useState, useCallback, type WheelEvent, type PointerEvent } from "react";
+import { useRef, useState, useCallback, useEffect, useMemo, type WheelEvent, type PointerEvent } from "react";
 import { motion } from "motion/react";
+import { getPublicNetwork, type PublicNode, type PublicEdge } from "@/lib/network.functions";
 
 type Props = {
   height?: number;
   className?: string;
 };
 
-type MockNode = {
+type LayoutNode = {
   id: string;
   name: string;
   initials: string;
@@ -15,7 +16,7 @@ type MockNode = {
   y: number;
 };
 
-const NODES: MockNode[] = [
+const FALLBACK_NODES: LayoutNode[] = [
   { id: "yw", name: "Yael W.",   initials: "YW", color: "#a855f7", x: 130, y: 95 },
   { id: "ls", name: "Lotte S.",  initials: "LS", color: "#a855f7", x: 85,  y: 175 },
   { id: "ka", name: "Kai A.",    initials: "KA", color: "#a855f7", x: 180, y: 195 },
@@ -33,7 +34,7 @@ const NODES: MockNode[] = [
   { id: "ao", name: "Adam O.",   initials: "AO", color: "#fbbf24", x: 300, y: 255 },
 ];
 
-const EDGES: [string, string][] = [
+const FALLBACK_EDGES: [string, string][] = [
   ["yw", "ls"], ["yw", "ka"], ["yw", "ml"], ["ls", "ka"], ["ka", "ml"],
   ["cr", "vk"], ["cr", "lk"], ["vk", "ww"], ["lk", "ww"], ["cr", "ww"],
   ["dm", "fp"], ["dm", "ek"], ["fp", "ek"],
@@ -48,18 +49,104 @@ const H = 480;
 const MIN_K = 0.5;
 const MAX_K = 3;
 
+// Map a profile to a cluster color based on its tags (track / discipline).
+const CLUSTER_COLORS: { match: RegExp; color: string }[] = [
+  { match: /business|biz|marketing|creative/i, color: "#a855f7" },
+  { match: /dev|engineer|cs|infrastructure|tools/i, color: "#6366f1" },
+  { match: /design|product/i, color: "#ec4899" },
+  { match: /fintech|payment|finance/i, color: "#10b981" },
+  { match: /health|sustain|climate/i, color: "#fbbf24" },
+];
+
+function pickColor(node: PublicNode): string {
+  for (const tag of node.tags ?? []) {
+    for (const c of CLUSTER_COLORS) {
+      if (c.match.test(tag)) return c.color;
+    }
+  }
+  if (node.color && /^#?[0-9a-f]{6}$/i.test(node.color.replace("#", ""))) {
+    return node.color.startsWith("#") ? node.color : `#${node.color}`;
+  }
+  // hash-based fallback so unknowns still spread across clusters
+  let h = 0;
+  for (let i = 0; i < node.id.length; i++) h = (h * 31 + node.id.charCodeAt(i)) >>> 0;
+  return ["#a855f7", "#6366f1", "#ec4899", "#10b981", "#fbbf24"][h % 5];
+}
+
+// Lay out nodes by color cluster: each cluster has its own anchor; within a
+// cluster, nodes are placed on a packed grid in a circle around the anchor.
+function layoutNodes(profiles: PublicNode[]): LayoutNode[] {
+  const anchors: Record<string, { x: number; y: number }> = {
+    "#a855f7": { x: 150, y: 140 },
+    "#6366f1": { x: 450, y: 140 },
+    "#ec4899": { x: 140, y: 360 },
+    "#10b981": { x: 460, y: 360 },
+    "#fbbf24": { x: 300, y: 250 },
+  };
+  const groups = new Map<string, PublicNode[]>();
+  for (const p of profiles) {
+    const c = pickColor(p);
+    if (!groups.has(c)) groups.set(c, []);
+    groups.get(c)!.push(p);
+  }
+  const out: LayoutNode[] = [];
+  for (const [color, list] of groups.entries()) {
+    const anchor = anchors[color] ?? { x: 300, y: 240 };
+    const n = list.length;
+    list.forEach((p, i) => {
+      // ring-pack: distribute on growing concentric rings
+      const ring = Math.floor(Math.sqrt(i));
+      const perRing = Math.max(1, ring * 6);
+      const idxInRing = i - ring * ring;
+      const angle = (idxInRing / perRing) * Math.PI * 2 + (color.length % 7);
+      const radius = 14 + ring * 22;
+      out.push({
+        id: p.id,
+        name: p.name.split(" ").slice(0, 2).join(" "),
+        initials: p.initials,
+        color,
+        x: anchor.x + Math.cos(angle) * radius,
+        y: anchor.y + Math.sin(angle) * radius,
+      });
+      void n;
+    });
+  }
+  return out;
+}
+
 export function LiveNetworkGraph({ height = 340, className = "" }: Props) {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const [view, setView] = useState({ k: 1, tx: 0, ty: 0 });
   const dragRef = useRef<{ x: number; y: number; tx: number; ty: number } | null>(null);
   const [dragging, setDragging] = useState(false);
+  const [remote, setRemote] = useState<{ nodes: PublicNode[]; edges: PublicEdge[] } | null>(null);
 
-  const degree = new Map<string, number>();
-  for (const [a, b] of EDGES) {
-    degree.set(a, (degree.get(a) ?? 0) + 1);
-    degree.set(b, (degree.get(b) ?? 0) + 1);
-  }
-  const posById = new Map(NODES.map((n) => [n.id, n]));
+  useEffect(() => {
+    let cancelled = false;
+    getPublicNetwork()
+      .then((r) => { if (!cancelled) setRemote(r); })
+      .catch(() => { /* keep mock fallback */ });
+    return () => { cancelled = true; };
+  }, []);
+
+  const { nodes, edges } = useMemo(() => {
+    if (remote && remote.nodes.length > 0) {
+      const laid = layoutNodes(remote.nodes);
+      const tuples: [string, string][] = remote.edges.map((e) => [e.source, e.target]);
+      return { nodes: laid, edges: tuples };
+    }
+    return { nodes: FALLBACK_NODES, edges: FALLBACK_EDGES };
+  }, [remote]);
+
+  const degree = useMemo(() => {
+    const d = new Map<string, number>();
+    for (const [a, b] of edges) {
+      d.set(a, (d.get(a) ?? 0) + 1);
+      d.set(b, (d.get(b) ?? 0) + 1);
+    }
+    return d;
+  }, [edges]);
+  const posById = useMemo(() => new Map(nodes.map((n) => [n.id, n])), [nodes]);
 
   const onWheel = useCallback((e: WheelEvent<SVGSVGElement>) => {
     e.preventDefault();
@@ -145,9 +232,10 @@ export function LiveNetworkGraph({ height = 340, className = "" }: Props) {
             <circle cx={435} cy={380} r={105} fill="#10b981" opacity={0.08} />
           </g>
 
-          {EDGES.map(([sa, sb], i) => {
-            const a = posById.get(sa)!;
-            const b = posById.get(sb)!;
+          {edges.map(([sa, sb], i) => {
+            const a = posById.get(sa);
+            const b = posById.get(sb);
+            if (!a || !b) return null;
             return (
               <motion.line
                 key={`${sa}-${sb}`}
@@ -156,23 +244,25 @@ export function LiveNetworkGraph({ height = 340, className = "" }: Props) {
                 strokeWidth={1.4 / view.k}
                 strokeLinecap="round"
                 initial={{ pathLength: 0, opacity: 0 }}
-                animate={{ pathLength: 1, opacity: 0.85 }}
-                transition={{ duration: 0.9, delay: 0.2 + i * 0.04, ease: [0.16, 1, 0.3, 1] }}
+                animate={{ pathLength: 1, opacity: 0.55 }}
+                transition={{ duration: 0.6, delay: Math.min(0.2 + i * 0.005, 1.2), ease: [0.16, 1, 0.3, 1] }}
               />
             );
           })}
 
-          {NODES.map((n, i) => {
+          {nodes.map((n, i) => {
             const deg = degree.get(n.id) ?? 0;
-            const r = 13 + Math.min(deg, 7) * 1.4;
+            const baseR = nodes.length > 30 ? 6 : 13;
+            const r = baseR + Math.min(deg, 7) * 1.1;
+            const showLabel = nodes.length <= 25 || deg >= 4;
             return (
               <motion.g
                 key={n.id}
                 initial={{ opacity: 0, scale: 0.4 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, delay: i * 0.05, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: 0.4, delay: Math.min(i * 0.008, 1.5), ease: [0.16, 1, 0.3, 1] }}
               >
-                <circle cx={n.x} cy={n.y} r={r + 6} fill={n.color} opacity={0.22} />
+                <circle cx={n.x} cy={n.y} r={r + 4} fill={n.color} opacity={0.22} />
                 <circle
                   cx={n.x} cy={n.y} r={r}
                   fill={n.color}
@@ -180,25 +270,29 @@ export function LiveNetworkGraph({ height = 340, className = "" }: Props) {
                   strokeOpacity={0.95}
                   strokeWidth={1.5 / view.k}
                 />
-                <text
-                  x={n.x} y={n.y + 4}
-                  textAnchor="middle"
-                  fontSize={11}
-                  fontWeight={800}
-                  fill="white"
-                  style={{ pointerEvents: "none", letterSpacing: "0.4px" }}
-                >
-                  {n.initials}
-                </text>
-                <text
-                  x={n.x} y={n.y + r + 12}
-                  textAnchor="middle"
-                  fontSize={9.5}
-                  fill="rgba(255,255,255,0.78)"
-                  style={{ pointerEvents: "none" }}
-                >
-                  {n.name}
-                </text>
+                {nodes.length <= 40 && (
+                  <text
+                    x={n.x} y={n.y + 4}
+                    textAnchor="middle"
+                    fontSize={Math.max(8, 11 - Math.floor(nodes.length / 20))}
+                    fontWeight={800}
+                    fill="white"
+                    style={{ pointerEvents: "none", letterSpacing: "0.4px" }}
+                  >
+                    {n.initials}
+                  </text>
+                )}
+                {showLabel && (
+                  <text
+                    x={n.x} y={n.y + r + 10}
+                    textAnchor="middle"
+                    fontSize={9}
+                    fill="rgba(255,255,255,0.78)"
+                    style={{ pointerEvents: "none" }}
+                  >
+                    {n.name}
+                  </text>
+                )}
               </motion.g>
             );
           })}
@@ -207,7 +301,7 @@ export function LiveNetworkGraph({ height = 340, className = "" }: Props) {
 
       <div className="absolute top-3 left-3 px-2.5 py-1 bg-background/90 backdrop-blur rounded-full text-[9px] font-display italic font-bold uppercase tracking-widest flex items-center gap-1.5 ring-1 ring-border">
         <span className="size-1.5 bg-primary rounded-full animate-pulse" />
-        Sample Network · {NODES.length} · {EDGES.length} edges
+        Live Network · {nodes.length} attendees · {edges.length} edges
       </div>
 
       {/* Zoom controls */}
